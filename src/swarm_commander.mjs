@@ -72,15 +72,16 @@ class SwarmCommander {
         ros.on('error', function(error) {
             // console.log('Error connecting to websocket server: ', error);
             _ui.set_ros_conn("ERROR; Reconnecting");
-            setTimeout(() => {
-                self.setup_ros_conn();
-            }, (1000));
+            ros.close();
+            // setTimeout(() => {
+            //     self.setup_ros_conn();
+            // }, (1000));
         });
         
         ros.on('close', function() {
             // console.log('Connection to websocket server closed.');
             _ui.set_ros_conn("CLOSED; Reconnecting");
-
+            ros.close();
             setTimeout(() => {
                 self.setup_ros_conn();
             }, (1000));

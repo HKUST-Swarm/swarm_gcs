@@ -69,6 +69,12 @@ class SwarmGCSUI {
     }
 
     send_command(_cmd) {
+        if (_cmd == "takeoff") {
+            if (!confirm('Takeoff; Right? ID'+this.select_id)) {
+                return;
+            }
+        }
+
         switch (_cmd) {
             case "takeoff":
                 this.cmder.send_takeoff_cmd(this.select_id);
