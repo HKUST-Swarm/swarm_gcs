@@ -140,7 +140,7 @@ class SwarmGCSUI {
             "MISSION"
         ]
         let all_flight_status = [
-            "IDLE",
+            "DISARMED",
             "ARMED",
             "INAIR",
             "CRASHED"
@@ -210,7 +210,7 @@ class SwarmGCSUI {
         } 
         this.last_speak_time = tnow();
 
-        if (_id > 0) {
+        if (_id >= 0) {
             this.threeview.on_select_uavs([_id]);
         } else {
             this.threeview.on_select_uavs([]);
@@ -294,7 +294,7 @@ Vue.component('uav-component', {
       Drone: {{status._id}}
     </h5>
     <ul class="list-group list-group-flush">
-    <li class="list-group-item"> BATVOL: {{status.bat_vol}} </li>
+    <li class="list-group-item">  </li>
     <li class="list-group-item"> 
       X:{{status.x}}
       Y:{{status.y}}
@@ -303,9 +303,10 @@ Vue.component('uav-component', {
     <li class="list-group-item"> 
     <small>
       LPS_TIME {{status.lps_time}}
-      CTRL_AUTH <span style="color:green">{{status.ctrl_auth}}</span>
-      CTRL_MODE <span style="color:green">{{status.ctrl_mode}}</span>
-      FLIGHT_STATUS <span style="color:green">{{status.flight_status}}</span>
+      AUTH <span style="color:green">{{status.ctrl_auth}}</span>
+      MODE <span style="color:green">{{status.ctrl_mode}}</span>
+      STATUS  <span style="color:green">{{status.flight_status}}</span>
+      BAT {{status.bat_vol}}v
     </small>
     </li>
     </ul>

@@ -33,9 +33,9 @@ class ThreeView {
         document.getElementById("urdf").appendChild(this.renderer.domElement);
         this.stats = new Stats();
         document.getElementById("urdf").appendChild(this.stats.dom);
-        this.camera.position.z = 1.0;
-        this.camera.position.x = -2;
-        this.camera.position.y = -0.5;
+        this.camera.position.z = 3.0;
+        this.camera.position.x = -3;
+        this.camera.position.y = -0.3;
         this.camera.lookAt(0, 0, 0);
         this.camera.up.x = 0;
         this.camera.up.y = 0;
@@ -72,6 +72,10 @@ class ThreeView {
 
         window.addEventListener( 'mousedown', function(e) {
             obj.onTouchMove(e, "down");
+        } );
+
+        window.addEventListener( 'mousemove', function(e) {
+            obj.onTouchMove(e, "mousehover");
         } );
 
     }
@@ -348,6 +352,7 @@ class ThreeView {
     }
 
     create_aircraft_waypoint(_id) {
+        console.log("Creating wp");
         var object;
         if (! (_id in this.uav_waypoint_targets)) {
             // console.log(_uav_obj);
