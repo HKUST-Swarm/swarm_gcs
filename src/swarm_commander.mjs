@@ -24,6 +24,22 @@ class SwarmCommander {
         this.setup_ros_conn();
     }
 
+    sub_vicon_id(i) {
+        console.log("subscribing vicon "+ i);
+        var vicon_sub = new ROSLIB.Topic({
+            ros: this.ros,
+            name: "/swarm_mocap/SwarmNodePose" + i,
+            messageType: "geometry_msgs/PoseStamped"
+        });
+        
+        let _id = i;
+        let self = this;
+        this.vicon_subs[_id] = (vicon_sub);
+        vicon_sub.subscribe(function (incoming_msg) {
+            self.on_vicon_msg(_id, incoming_msg);
+        });
+    }
+
     setup_ros_sub_pub() {
         let ros = this.ros;
         let self = this;
@@ -48,12 +64,17 @@ class SwarmCommander {
             self.on_incoming_data(incoming_msg);
         });
 
-
-      this.send_uwb_msg = new ROSLIB.Topic({
+        this.vicon_subs = {}
+       
+        this.send_uwb_msg = new ROSLIB.Topic({
             ros : ros,
             name : '/uwb_node/send_broadcast_data',
             messageType : 'inf_uwb_ros/data_buffer'
-          });
+        });
+    }
+
+    on_vicon_msg(_id, msg) {
+        this.ui.update_drone_globalpose(_id, msg.pose.position.x, msg.pose.position.y, msg.pose.position.z, 0);
     }
 
     setup_ros_conn () {
@@ -70,8 +91,9 @@ class SwarmCommander {
         });
         
         ros.on('error', function(error) {
-            // console.log('Error connecting to websocket server: ', error);
+            console.log('Error connecting to websocket server: ', error);
             _ui.set_ros_conn("ERROR; Reconnecting");
+            this.vicon_subs = {};
             ros.close();
             // setTimeout(() => {
             //     self.setup_ros_conn();
@@ -79,9 +101,11 @@ class SwarmCommander {
         });
         
         ros.on('close', function() {
-            // console.log('Connection to websocket server closed.');
+            console.log('Connection to websocket server closed.');
             _ui.set_ros_conn("CLOSED; Reconnecting");
             ros.close();
+            this.vicon_subs = {};
+
             setTimeout(() => {
                 self.setup_ros_conn();
             }, (1000));
@@ -98,9 +122,12 @@ class SwarmCommander {
         //   console.log(msg);
           if (msg.name == "NODE_REALTIME_INFO") {
             this.on_drone_realtime_info_recv(incoming_msg.remote_id, incoming_msg.lps_time, msg);
-          } else if (msg.name == "DRONE_STATUS") {
+          }
+
+          if (msg.name == "DRONE_STATUS") {
             this.on_drone_status_recv(incoming_msg.remote_id, incoming_msg.lps_time, msg);
           }
+
         }
     }
 
@@ -118,6 +145,10 @@ class SwarmCommander {
 
     on_drone_status_recv(_id, lps_time, status) {
         // console.log(status);
+        if (! (_id in this.vicon_subs)) {
+            this.sub_vicon_id(_id);
+        }
+
         this.ui.set_drone_status(_id, status)
         // this.ui.update_drone_selfpose(_id, status.x, status.y, status.z);
 
@@ -126,10 +157,6 @@ class SwarmCommander {
         // this.ui.set_drone_control_auth(_id, status.ctrl_auth);
         // this.ui.set_drone_control_mode(_id, status.ctrl_mode);
         // this.ui.set_drone_selfpose(status.x, status.y, status.z);
-    }
-
-    on_drone_vicon_pose(_id, pose) {
-
     }
 
     on_drone_realtime_info_recv(_id, lps_time, info) {

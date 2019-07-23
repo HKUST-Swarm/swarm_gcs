@@ -33,36 +33,63 @@
 
 <body>
   <div class="container-fluid" style="width: 100%" id="container">
-    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm" id="navbar">
-      <h5 class="my-0 mr-md-auto font-weight-normal">SWARM GCS</h5>
-      <nav class="nav " color="style: gray">
-        <a class="p-2 text-gray" href="#">ROS:<span v-bind:style="{ color: ros_conn_color }"> {{ros_conn}}</span>
-        </a>
-        <a class="p-2 text-gray" href="#">SELF ID: <span  v-bind:style="{ color: self_id_color }"> {{self_id}}</span>
-        </a>
-        <a class="p-2 text-gray" href="#">Total Remote Nodes: <span  v-bind:style="{ color: total_remote_color }"> {{remote_nodes}}</span>
-        </a>
-        <a class="p-2 text-gray" href="#">Avail Remote Nodes: <span  v-bind:style="{ color: available_remote_color}"> {{available_nodes}}</span>
-        </a>
-        <a class="p-2 text-gray" href="#">LPSTIME: <span  v-bind:style="{ color: lps_time_color}"> {{lps_time}} </span>
-        </a>
+    
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">SWARM GCS</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse  my-2 my-lg-0" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="#" v-bind:style="{ color: ros_conn_color }">ROS: {{ros_conn}}</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" v-bind:style="{ color: self_id_color }">GCS_ID: {{self_id}}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" v-bind:style="{ color: total_remote_color }">TOTAL: {{remote_nodes}}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" v-bind:style="{ color: total_remote_color }">AVAIL: {{available_nodes}}</a>
+            </li>
+
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                DISPLAY_MODE:{{display_mode}}
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="#" v-on:click="set_display_mode_global">GLOBAL</a>
+                <a class="dropdown-item" href="#" v-on:click="set_display_mode_local">LOCAL</a>
+              </div>
+            </li>
+            
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  PRIMARY_ID:{{primary_id}}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="#" v-for="(_, _id) in uavs" v-on:click="set_primary_id(_id)">{{_id}}</a>
+                </div>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true" v-bind:style="{ color: lps_time_color }">LPS_TIME {{lps_time}}</a>
+            </li>
+          </ul>
+          <!-- <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          </form> -->
+        </div>
       </nav>
-    </div>
+    
     <div class="row" style="height: 90%">
 
-      <div class="container-fluid col-2 border border-primary container-fluid" id="uavs">
+      <div class="container-fluid col-2 border border-primary container-fluid overflow-y: scroll;" id="uavs">
               <h2 id="SWARM" class="text-dark" v-on:click="select_all">UAVs</h2>
               <br />
-              <!-- <uav-component
-                _id="0"
-                bat_vol="0"
-                posx="0"
-                posy="0"
-                posz="0"
-                ctrl_auth="none"
-                ctrl_mode="none"
-                lps_time="0"
-              > </uav-component> -->
               <uav-component
                 v-for="(_status, status) in uavs"
                 v-bind:_id="_status._id"

@@ -367,6 +367,13 @@ class ThreeView {
         this.transform_control.attach(object);
 
     }
+    
+    clear_uavs() {
+        console.log("clear uav");
+        for (var _id in this.uavs) {
+            this.uavs[_id].position.z = -10000;
+        }
+    }
 
     animate() {
         // console.log("anaimate");
@@ -380,7 +387,9 @@ class ThreeView {
         // this.renderer.render(this.scene, this.camera);
         this.stats.update();
 
-    };
+    }
+
+
 }
 
 export { ThreeView };

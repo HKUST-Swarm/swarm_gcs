@@ -7,6 +7,30 @@ function tnow() {
 class SwarmGCSUI {
     constructor() {
         let obj = this;
+       
+        let dstatus = {
+            x:0,
+            y:0,
+            z:0,
+            ctrl_mode:0,
+            auth_mode:0,
+            bat_vol:0
+        }
+
+        this.select_id = -1;
+        this.warn_count = 0;
+        this.last_speak_time = tnow() - 10;
+
+        this.count = 0;
+        
+
+        this.global_local_mode = true;
+        this.primary_id = 0;
+        
+        var _dis_mode = "GLOBAL";
+        if (!this.global_local_mode) {
+            _dis_mode = "LOCAL";
+        }
         this.view = new Vue({
             el: '#container',
             data: {
@@ -23,36 +47,36 @@ class SwarmGCSUI {
                 uavs: {}, // { 0:dstatus},
                 selected_uav: "All",
                 select_id: -1,
-                marker_path:""
+                marker_path:"",
+                display_mode:_dis_mode,
+                primary_id:this.primary_id
             },
             methods: {
                 select_all: function() {
                     obj.on_select_uav(-1);
                 },
-
                 command: function(_cmd) {
                     obj.send_command(_cmd);
+                },
+                set_display_mode_local : function () {
+                    obj.set_display_mode("LOCAL");
+                },
+                set_display_mode_global : function () {
+                    obj.set_display_mode("GLOBAL");
+                },
+                set_primary_id: function (_id) {
+                    obj.set_primary_id(_id);
                 }
             }
-        })
-        let dstatus = {
-            x:0,
-            y:0,
-            z:0,
-            ctrl_mode:0,
-            auth_mode:0,
-            bat_vol:0
-        }
+        });
 
-        this.select_id = -1;
-        this.warn_count = 0;
-        this.last_speak_time = tnow() - 10;
-
-        this.count = 0;
         this.threeview = new ThreeView();
         this.threeview.ui = this;
-        
+
+        this.uav_local_poses = {};
+        this.uav_global_poses = {};
     }
+
 
     send_flyto_cmd(_id) {
         let pos = { 
@@ -61,11 +85,36 @@ class SwarmGCSUI {
             z: 0
         }
 
-        let _pos = this.threeview.get_waypoint_target_pos(_id);
-        pos.x = _pos.x;
-        pos.y = _pos.y;
-        pos.z = _pos.z;
-        this.cmder.send_flyto_cmd(_id, pos);
+        let t_pos = this.threeview.get_waypoint_target_pos(_id);
+
+        if (this.global_local_mode) {
+            if (_id in this.uav_local_poses && _id in this.uav_global_poses) {
+                //Here assue start vo has same yaw with vicon
+                let dx = t_pos.x - this.uav_global_poses[_id].x;
+                let dy = t_pos.y - this.uav_global_poses[_id].y;
+                let dz = t_pos.z - this.uav_global_poses[_id].z;
+
+                let dyaw = this.uav_global_poses[_id].yaw - this.uav_local_poses[_id].yaw;
+
+                //TODO: rotate with yaw
+
+                pos.x = dx + this.uav_local_poses[_id].x;
+                pos.y = dy + this.uav_local_poses[_id].y;
+                pos.z = dz + this.uav_local_poses[_id].z;
+
+                this.cmder.send_flyto_cmd(_id, pos);
+            }
+        }
+        else {
+            if( _id == this.primary_id) {
+                //Can control primary drone in local mode now
+                pos.x = t_pos.x;
+                pos.y = t_pos.y;
+                pos.z = t_pos.z;
+                this.cmder.send_flyto_cmd(_id, pos);
+            }
+        }
+
     }
 
     send_command(_cmd) {
@@ -171,14 +220,32 @@ class SwarmGCSUI {
 
     }
 
-    update_drone_selfpose(_id, x, y, z, yaw = null) {
+    update_three_id_pose(_id, x, y, z, yaw = null) {
         if (!this.threeview.has_uav(_id)) {
             this.threeview.insert_uav(_id);
         }
         if (this.threeview.has_uav(_id)) {        
             this.threeview.update_uav_pose(_id, x, y, z, yaw);
         }
+    }
 
+    update_drone_globalpose(_id, x, y, z, yaw = null) {
+        if (this.global_local_mode) {
+            this.update_three_id_pose(_id, x, y, z, yaw);
+        }
+        this.uav_global_poses[_id]= {
+            x:x, y:y, z:z, yaw:yaw
+        };
+    }
+
+    update_drone_selfpose(_id, x, y, z, yaw = null) {
+       if (!this.global_local_mode && _id == this.primary_id) {
+            this.update_three_id_pose(_id, x, y, z, yaw);
+       }
+
+       this.uav_local_poses[_id] = {
+           x:x, y:y, z:z, yaw:yaw
+       };
     }
 
     on_select_uav (_id) {
@@ -274,6 +341,19 @@ class SwarmGCSUI {
         this.last_speak_time = tnow();
     }
 
+    set_display_mode(mode) {
+        let new_global_local_mode = mode=="GLOBAL";
+        if (new_global_local_mode != this.global_local_mode) {
+            this.threeview.clear_uavs();
+            this.global_local_mode = new_global_local_mode;
+        }
+        this.view.display_mode = mode;
+    }
+
+    set_primary_id(_id) {
+        this.primary_id = _id;
+        this.view.primary_id = _id;
+    }
 
 }
 
@@ -291,10 +371,9 @@ Vue.component('uav-component', {
     template:  `     
     <div v-on:click="select_uav(status.ui, status._id)" class="card" style="width: 100%; height=5em;">
     <h5>
-      Drone: {{status._id}}
+      Drone: {{status._id}}  <img v-bind:src="'./imgs/4x4_1000-'+status._id + '.svg'" style="height:3em; width:3eml right:0em;" />
     </h5>
     <ul class="list-group list-group-flush">
-    <li class="list-group-item"> BATVOL: {{status.bat_vol}} </li>
     <li class="list-group-item"> 
       X:{{status.x}}
       Y:{{status.y}}
@@ -306,6 +385,7 @@ Vue.component('uav-component', {
       CTRL_AUTH <span style="color:green">{{status.ctrl_auth}}</span>
       CTRL_MODE <span style="color:green">{{status.ctrl_mode}}</span>
       FLIGHT_STATUS <span style="color:green">{{status.flight_status}}</span>
+      BATVOL: {{status.bat_vol}}
     </small>
     </li>
     </ul>
