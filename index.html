@@ -87,7 +87,8 @@
   </div>
 
   <script type="module">
-    import {SwarmGCSUI, SwarmCommander} from './src/swarm_commander.js';
+    import {SwarmCommander} from './src/swarm_commander.mjs';
+    import { SwarmGCSUI } from "./src/gcs_view.mjs";
     var ui = new SwarmGCSUI();
     // console.log(ui);
     var sc = new SwarmCommander(ui);

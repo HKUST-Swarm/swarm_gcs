@@ -92,8 +92,8 @@ ThreeMFLoader.prototype = {
 				}
 
 			}
-			console.log(data);
-			console.log(zip);
+			// console.log(data);
+			// console.log(zip);
 
 			for ( file in zip.files ) {
 
