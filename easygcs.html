@@ -1,0 +1,460 @@
+<html>
+
+<head>
+  <title>SWARM GCS</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+
+  <script src="http://static.robotwebtools.org/threejs/current/three.min.js"></script>
+  <script src="https://static.robotwebtools.org/threejs/r89/ColladaLoader.js"></script>
+  <script src="http://static.robotwebtools.org/threejs/current/STLLoader.js"></script>
+  <script src="http://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+  <script src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+  <script src="http://static.robotwebtools.org/ros3djs/current/ros3d.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+  <script src="./mavlink_bundle.js"></script>
+</head>
+
+<body>
+  <div class="container-fluid" style="width: 100%">
+
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
+      <h5 class="my-0 mr-md-auto font-weight-normal">Swarm EASY GCS</h5>
+      <nav class="nav">
+        <a class="p-2 text-dark" href="#">SELF ID: <span id="self_id">0</span>
+        </a>
+        <a class="p-2 text-dark" href="#">Total Remote Nodes: <span id="remote_nodes">0</span>
+        </a>
+        <a class="p-2 text-dark" href="#">Avail Remote Nodes: <span id="avail_remote_nodes">0</span>
+        </a>
+        <a class="p-2 text-dark" href="#">LastestLPSTIME: <span id="lps_time" style="color:green;">0</span>
+        </a>
+      </nav>
+    </div>
+    <div class="row" style="height: 100%">
+      <div class="container-fluid col-2 border border-primary container-fluid">
+        <h2 id="SWARM" style="background-color: green">UAVs</h2>
+        <br />
+        <div id="UAV0" style="width: 100%;">
+          <h5 id="id0">
+            Drone:0 
+            BAT: <span id="bat0">0</span>v
+          </h5>
+          <h5>
+            LPS_TIME <span id="lps_time0"></span>
+          </h5>
+          <p>
+            X:<span id="x0">0</span>
+            Y:<span id="y0">0</span>
+            Z:<span id="z0">0</span>
+          </p>
+          <small>
+            CTRL_AUTH <span id="ctrl_auth0" style="color:green">RC</span>
+            CTRL_MODE <span id="ctrl_mode0" style="color:green">NONE</span>
+          </small>
+        </div>
+
+        <hr/>
+
+
+
+        <div id="UAV1" style="height: 13%; width: 100%;">
+            <h5 id="id1">
+              Drone:1 
+              BAT: <span id="bat1">0</span>v
+            </h5>
+            <h5>
+              LPS_TIME <span id="lps_time1"></span>
+            </h5>
+            <p>
+              X:<span id="x1">0</span>
+              Y:<span id="y1">0</span>
+              Z:<span id="z1">0</span>
+            </p>
+            <small>
+              CTRL_AUTH <span id="ctrl_auth1" style="color:green">RC</span>
+              CTRL_MODE <span id="ctrl_mode1" style="color:green">NONE</span>
+            </small>
+          </div>
+          <hr/>
+
+
+
+        <div id="UAV2" style="height: 13%; width: 100%;">
+            <h5 id="id2">
+              Drone:2 
+              BAT: <span id="bat2">0</span>v
+            </h5>
+            <h5>
+              LPS_TIME <span id="lps_time2"></span>
+            </h5>
+            <p>
+              X:<span id="x2">0</span>
+              Y:<span id="y2">0</span>
+              Z:<span id="z2">0</span>
+            </p>
+            <small>
+              CTRL_AUTH <span id="ctrl_auth2" style="color:green">RC</span>
+              CTRL_MODE <span id="ctrl_mode2" style="color:green">NONE</span>
+            </small>
+          </div>
+          <hr/>
+
+
+
+        <div id="UAV3" style="height: 13%; width: 100%;">
+            <h5 id="id3">
+              Drone:3 
+              BAT: <span id="bat3">0</span>v
+            </h5>
+            <h5>
+              LPS_TIME <span id="lps_time3"></span>
+            </h5>
+            <p>
+              X:<span id="x3">0</span>
+              Y:<span id="y3">0</span>
+              Z:<span id="z3">0</span>
+            </p>
+            <small>
+              CTRL_AUTH <span id="ctrl_auth3" style="color:green">RC</span>
+              CTRL_MODE <span id="ctrl_mode3" style="color:green">NONE</span>
+            </small>
+          </div>
+          <hr/>
+
+
+
+        <div id="UAV4" style="height: 13%; width: 100%;">
+            <h5 id="id4">
+              Drone:4 
+              BAT: <span id="bat4">0</span>v
+            </h5>
+            <h5>
+              LPS_TIME <span id="lps_time4"></span>
+            </h5>
+            <p>
+              X:<span id="x4">0</span>
+              Y:<span id="y4">0</span>
+              Z:<span id="z4">0</span>
+            </p>
+            <small>
+              CTRL_AUTH <span id="ctrl_auth4" style="color:green">RC</span>
+              CTRL_MODE <span id="ctrl_mode4" style="color:green">NONE</span>
+            </small>
+          </div>
+          <hr/>
+        <div id="UAV5" style="height: 20%; width: 100%;">
+            <h5  id="id5">
+              Drone:5 
+              BAT: <span id="bat5">0</span>v
+            </h5>
+            <h5>
+              LPS_TIME <span id="lps_time5"></span>
+            </h5>
+            <p>
+              X:<span id="x5">0</span>
+              Y:<span id="y5">0</span>
+              Z:<span id="z5">0</span>
+            </p>
+            <small>
+              CTRL_AUTH <span id="ctrl_auth5" style="color:green">RC</span>
+              CTRL_MODE <span id="ctrl_mode5" style="color:green">NONE</span>
+            </small>
+          </div>
+      </div>
+
+      <div class="col-10 border border-secondary"  id="urdf"></div>
+    </div>
+
+  </div>
+  <div style="position: fixed; right: 5%; bottom: 5%; width: 20%; height:25%; z-index:1000; opacity: 0.9; background: gray">
+    <h4>Command Aera:    <span id="select_id" style="color:red">All</span></h4>
+    <button type="button" class="btn btn-lg btn-primary" id="takeoff">Takeoff</button>
+    <button type="button" class="btn btn-primary btn-lg" id="landing">Landing</button>
+    <button type="button" class="btn btn-primary btn-lg" style="color:red" id="emlanding">Em Landing ALL</button>
+    <hr/>
+    <button type="button" class="btn btn-lg btn-secondary" >Mission A</button>
+    <button type="button" class="btn btn-secondary btn-lg" >Mission B</button>
+    <button type="button" class="btn btn-secondary btn-lg" >Mission C</button>
+    <button type="button" class="btn btn-secondary btn-lg" >Mission D</button>
+  </div>
+  <script>
+    var select_id = -1;
+    var _lps_time = 0;
+    var ros = new ROSLIB.Ros({
+      url: "ws://" + location.hostname + ":9090"
+    });
+    ros.on("connection", function () {
+      console.log("Connected to websocket server.");
+    });
+    // ros.on()
+
+    var remote_nodes_listener = new ROSLIB.Topic({
+      ros: ros,
+      name: "/uwb_node/remote_nodes",
+      messageType: "inf_uwb_ros/remote_uwb_info"
+    });
+    var count = 0;
+    remote_nodes_listener.subscribe(function (msg) {
+      // console.log("Received message on " + listener.name + ": ");
+      // console.log(msg);
+      if (count ++ % 10 == 0) {
+        $("#remote_nodes").html(msg.node_ids.length);
+        $("#self_id").html(msg.self_id);
+        $("#lps_time").html(msg.sys_time);
+        var avail = 0;
+        for (var i in msg.active) {
+          // console.log(i);
+          avail += msg.active[i];
+        }
+        $("#avail_remote_nodes").html(avail);
+      }
+      lps_time = msg.sys_time;
+    });
+
+    var incoming_data_listener = new ROSLIB.Topic({
+      ros: ros,
+      name: "/uwb_node/incoming_broadcast_data",
+      messageType: "inf_uwb_ros/incoming_broadcast_data"
+    });
+    function _base64ToArrayBuffer(base64) {
+      var binary_string = window.atob(base64);
+      var len = binary_string.length;
+      var bytes = new Uint8Array(len);
+      for (var i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
+      }
+      return bytes;
+    }
+    var mav = new MAVLink(null, 0, 0);
+    function warn_battery_level(id, bat) {
+      // var msg = new SpeechSynthesisUtterance("Warning! Node " + id + " battery is only " + bat.toFixed(1));
+      var msg = new SpeechSynthesisUtterance("警告！节点" + id + " 电池只有 " + bat.toFixed(1) + "伏");
+      msg.lang = 'zh-CN';
+
+      window.speechSynthesis.speak(msg);
+      // console.log("try to speak");
+    }
+
+    function warn_vo_(id) {
+      // var msg = new SpeechSynthesisUtterance("Warning! Node " + id + " battery is only " + bat.toFixed(1));
+      var msg = new SpeechSynthesisUtterance("警告！节点" + id + " 视觉里程计失效");
+      msg.lang = 'zh-CN';
+
+      window.speechSynthesis.speak(msg);
+      // console.log("try to speak");
+    }
+    function on_drone_rt_info_recv(_id, lps_time, info) {
+      // console.log(info);
+      // $("#x"+_id).html(info.x.toFixed(3));
+      // $("#y"+_id).html(info.y.toFixed(3));
+      // $("#z"+_id).html(info.z.toFixed(3));
+    }
+
+    var warn_bat_count = 0;
+    function on_drone_status_recv(_id, lps_time, status) {
+      // console.log(status);
+      $("#id"+_id).css("color", 'green');
+      $("#bat"+_id).html(status.bat_vol.toFixed(2));
+      $("#lps_time"+_id).html(status.lps_time);
+      $("#x"+_id).html(status.x.toFixed(3));
+      $("#y"+_id).html(status.y.toFixed(3));
+      $("#z"+_id).html(status.z.toFixed(3));
+      
+      if (status.bat_vol < 14.8) {
+        if (warn_bat_count ++ % 20 == 0) {
+          warn_battery_level(_id, status.bat_vol);
+        }
+        $("#bat"+_id).css("color", "red");
+      } else {
+        $("#bat"+_id).css("color", "green");
+      }
+
+      if (!status.vo_valid) {
+        if (warn_bat_count ++ % 20 == 1) {
+          // console.log("vo");
+          warn_vo_(_id);
+        }
+          $("#x"+_id).css("color", "red");
+          $("#y"+_id).css("color", "red");
+          $("#z"+_id).css("color", "red");
+      } else {
+          $("#x"+_id).css("color", "green");
+          $("#y"+_id).css("color", "green");
+          $("#z"+_id).css("color", "green");
+      }
+      // console.log(status);
+      if (status.control_auth == 2) {
+        $("#ctrl_auth"+_id).html("ONBOARD");
+      } else {
+        $("#ctrl_auth"+_id).html("RC");        
+      }
+
+      ctrl_modes = [
+        "IDLE",
+        "TAKEOFF",
+        "LANDING",
+        "HOVER",
+        "POSVEL",
+        "ATT",
+        "MISSION"
+      ]
+
+      $("#ctrl_mode"+_id).html(ctrl_modes[status.commander_mode]);
+
+    }
+
+    incoming_data_listener.subscribe(function (incoming_msg) {
+      // console.log(msg);
+      var buf = _base64ToArrayBuffer(incoming_msg.data);
+      // console.log(buf);
+      msgs = mav.parseBuffer(buf);
+      // console.log(r);
+      for (k in msgs) {
+        msg = msgs[k];
+        if (msg.name == "NODE_REALTIME_INFO") {
+          on_drone_rt_info_recv(incoming_msg.remote_id, incoming_msg.lps_time, msg);
+        } else if (msg.name == "DRONE_STATUS") {
+          on_drone_status_recv(incoming_msg.remote_id, incoming_msg.lps_time, msg);
+        }
+      }
+    });
+
+    function update_cmd_select(_id) {
+      if (select_id >= 0) {
+        $("#UAV"+select_id).css("background-color", "transparent");
+      } else {
+        $("#SWARM").css("background-color", "transparent");
+      }
+      select_id = _id;
+      if (_id >= 0) {
+          $("#select_id").html(_id);
+          $("#UAV"+_id).css("background-color", "yellow");
+      } else {
+        $("#select_id").html("ALL");
+        $("#SWARM").css("background-color", "yellow");
+      }
+    }
+    $("#UAV0").on("click", function() {
+      update_cmd_select(0);
+    });
+
+    $("#UAV1").on("click", function() {
+      update_cmd_select(1);
+    });
+
+    $("#UAV2").on("click", function() {
+      update_cmd_select(2);
+    });
+
+    $("#UAV3").on("click", function() {
+      update_cmd_select(3);
+    });
+
+
+    $("#UAV4").on("click", function() {
+      update_cmd_select(4);
+    });
+
+    $("#UAV5").on("click", function() {
+      update_cmd_select(5);
+    });
+
+    $("#SWARM").on("click", function() {
+      update_cmd_select(-1);
+    });
+
+    function takeoff_cmd() {
+      var takeoff_cmd = 5;
+      var scmd = new mavlink.messages.swarm_remote_command (lps_time, select_id, takeoff_cmd, 10000
+      , 0, 0, 0, 0, 0, 0, 0, 0, 0);
+      return scmd.pack(mav);
+    }
+
+    function landing_cmd(em) {
+      var landing_cmd = 6;
+      var scmd = new mavlink.messages.swarm_remote_command (lps_time, select_id, landing_cmd, em, 3000, 0, 0, 0, 0, 0, 0, 0, 0);
+      return scmd.pack(mav);
+    }
+
+    var send_uwb_msg = new ROSLIB.Topic({
+       ros : ros,
+       name : '/uwb_node/send_broadcast_data',
+       messageType : 'inf_uwb_ros/data_buffer'
+     });
+
+    $("#takeoff").on("click", function() {
+      if (confirm('Takeoff; Right? ID'+select_id)) {
+        //Send takeoff command here
+        // _buf = data_buffer()
+        // _buf.data = buf
+        // self.uwb_pub.publish(_buf)
+        var _data = takeoff_cmd();
+        // console.log(_data);
+        var msg = new ROSLIB.Message({data : _data});
+        // console.log(msg);
+        send_uwb_msg.publish(msg);
+      } else {
+      }
+    });
+
+    $("#landing").on("click", function() {
+        var _data = landing_cmd(0);
+        // console.log(_data);
+        var msg = new ROSLIB.Message({data : _data});
+        console.log(msg);
+        send_uwb_msg.publish(msg);
+    });
+
+    $("#emlanding").on("click", function() {
+        var landing_cmd = 6;
+        var scmd = new mavlink.messages.swarm_remote_command (lps_time, -1, landing_cmd, 1, 10000, 0, 0, 0, 0, 0, 0, 0, 0);
+        _data = scmd.pack(mav);
+        // console.log(_data);
+        var msg = new ROSLIB.Message({data : _data});
+        console.log(msg);
+        send_uwb_msg.publish(msg);
+    });
+
+    /*
+    var viewer = new ROS3D.Viewer({
+      divID : 'urdf',
+      width : $("#urdf").width(),
+      height : $("#urdf").height(),
+      antialias : true,
+      background:"#002233"
+    });
+    // Add a grid.
+    viewer.addObject(new ROS3D.Grid());
+    */
+    // Setup a client to listen to TFs.
+    /*
+    var tfClient = new ROSLIB.TFClient({
+      ros : ros,
+      angularThres : 0.01,
+      transThres : 0.01,
+      rate : 10.0
+    });
+    // Setup the URDF client.
+    var urdfClient = new ROS3D.UrdfClient({
+      ros : ros,
+      tfClient : tfClient,
+      path : 'http://resources.robotwebtools.org/',
+      rootObject : viewer.scene,
+    });*/
+  </script>
+</body>
+
+</html>

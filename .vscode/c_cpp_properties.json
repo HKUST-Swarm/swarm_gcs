@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/xuhao/swarm_ws/devel/include",
+                "/opt/ros/melodic/include",
+                "/home/xuhao/swarm_ws/src/dji_sdk/include",
+                "/home/xuhao/swarm_ws/src/VINS-Fusion/camera_models/include",
+                "/home/xuhao/swarm_ws/src/swarmtal_control/drone_position_control/include",
+                "/home/xuhao/swarm_ws/src/swarm_pkgs/localization_proxy/include",
+                "/home/xuhao/swarm_ws/src/uwb_mocap_broadcast/mocap_optitrack/include",
+                "/home/xuhao/swarm_ws/src/swarm_pkgs/swarm_detection/include",
+                "/home/xuhao/swarm_ws/src/swarm_pkgs/swarm_localization/include",
+                "/home/xuhao/swarm_ws/src/swarm_pkgs/swarm_msgs/include",
+                "/home/xuhao/swarm_ws/src/swarm_pilot/include",
+                "/home/xuhao/swarm_ws/src/swarmtal_control/swarmtal_msgs/include",
+                "/usr/include"
+            ],
+            "name": "Linux",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc"
+        }
+    ],
+    "version": 4
+}

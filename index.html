@@ -1,0 +1,97 @@
+<html>
+
+<head>
+  <title>SWARM GCS</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+  <script src="./mavlink_bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+  <script src='./libs/jszip.min.js'></script>
+  <style>
+    .text-gray {
+      color:gray;
+    }
+  </style>
+</head>
+
+
+<body>
+  <div class="container-fluid" style="width: 100%" id="container">
+    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm" id="navbar">
+      <h5 class="my-0 mr-md-auto font-weight-normal">SWARM GCS</h5>
+      <nav class="nav " color="style: gray">
+        <a class="p-2 text-gray" href="#">ROS:<span v-bind:style="{ color: ros_conn_color }"> {{ros_conn}}</span>
+        </a>
+        <a class="p-2 text-gray" href="#">SELF ID: <span  v-bind:style="{ color: self_id_color }"> {{self_id}}</span>
+        </a>
+        <a class="p-2 text-gray" href="#">Total Remote Nodes: <span  v-bind:style="{ color: total_remote_color }"> {{remote_nodes}}</span>
+        </a>
+        <a class="p-2 text-gray" href="#">Avail Remote Nodes: <span  v-bind:style="{ color: available_remote_color}"> {{available_nodes}}</span>
+        </a>
+        <a class="p-2 text-gray" href="#">LPSTIME: <span  v-bind:style="{ color: lps_time_color}"> {{lps_time}} </span>
+        </a>
+      </nav>
+    </div>
+    <div class="row" style="height: 90%">
+
+      <div class="container-fluid col-2 border border-primary container-fluid" id="uavs">
+              <h2 id="SWARM" class="text-dark" v-on:click="select_all">UAVs</h2>
+              <br />
+              <!-- <uav-component
+                _id="0"
+                bat_vol="0"
+                posx="0"
+                posy="0"
+                posz="0"
+                ctrl_auth="none"
+                ctrl_mode="none"
+                lps_time="0"
+              > </uav-component> -->
+              <uav-component
+                v-for="(_status, status) in uavs"
+                v-bind:_id="_status._id"
+                v-bind:status="_status"
+              ></uav-component>
+      </div>
+      <div class="col-10 border border-secondary" style="width: 100%; height:100%;" id="urdf"></div>
+    </div>
+    <div v-if="select_id >=0 " style="position: fixed; right: 5%; top: 15%; width: 10%; z-index:1000; opacity: 0.7;">
+        <img :src="marker_path" width="100%"/>
+    </div>
+      <div style="position: fixed; right: 5%; bottom: 5%; width: 30%; height:25%; z-index:1000; opacity: 0.9; background: gray">
+        <h4>Command Aera:    <span id="select_id" style="color:red">{{selected_uav}}</span></h4>
+        <button type="button"  v-on:click="command('takeoff')" class="btn btn-lg btn-primary" id="takeoff">Takeoff</button>
+        <button type="button"  v-on:click="command('landing')" class="btn btn-primary btn-lg" id="landing">Landing</button>
+        <button type="button"  v-on:click="command('emergency')"class="btn btn-primary btn-lg" style="color:red" id="emlanding">Emergency</button>
+        <hr/>
+        <button type="button" class="btn btn-lg btn-secondary" >Mission A</button>
+        <button type="button" class="btn btn-secondary btn-lg" >Mission B</button>
+        <button type="button" class="btn btn-secondary btn-lg" >Mission C</button>
+        <button type="button" class="btn btn-secondary btn-lg" >Mission D</button>
+      </div>
+  </div>
+
+  <script type="module">
+    import {SwarmGCSUI, SwarmCommander} from './src/swarm_commander.js';
+    var ui = new SwarmGCSUI();
+    // console.log(ui);
+    var sc = new SwarmCommander(ui);
+  </script>
+</body>
+
+</html>
