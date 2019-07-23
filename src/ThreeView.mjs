@@ -78,6 +78,11 @@ class ThreeView {
             obj.onTouchMove(e, "mousehover");
         } );
 
+
+        window.addEventListener( 'resize', function (e) {
+            obj.onWindowResize();
+        }, false );
+
     }
 
     init_postprocessing() {
@@ -115,6 +120,16 @@ class ThreeView {
 
     }
 
+    onWindowResize() {
+        this.width = $("#urdf").width();
+        this.height = $("#urdf").height();
+        
+        this.camera.aspect = this.width / this.height;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize( this.width, this.height );
+
+        this.position = $("#urdf").position();
+    }
 
     load_aircraft() {
         let obj = this;
