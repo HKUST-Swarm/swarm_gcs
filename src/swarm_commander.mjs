@@ -10,36 +10,24 @@ function _base64ToArrayBuffer(base64) {
 
   
 class SwarmCommander {
+
+
     constructor(ui) {
         this.mav = new MAVLink(null, 0, 0);
         this.ui = ui;
 
         this.select_id = -1;
         this._lps_time = 0;
-        let ros = this.ros = new ROSLIB.Ros({
-            url: "ws://127.0.0.1:9090"
-        });
+
+        this.ui.cmder = self;        
+
+        this.setup_ros_conn();
+    }
+
+    setup_ros_sub_pub() {
+        let ros = this.ros;
         let self = this;
-        this.ui.cmder = self;
-
-        let _ui = ui;
-        ros.on("connection", function () {
-            // console.log("Connected to websocket server.");
-            _ui.set_ros_conn("CONNECTED");
-        });
-        
-        ros.on('error', function(error) {
-            // console.log('Error connecting to websocket server: ', error);
-            _ui.set_ros_conn("ERROR");
-        });
-        
-        ros.on('close', function() {
-            // console.log('Connection to websocket server closed.');
-            _ui.set_ros_conn("CLOSED");
-        });
-        
-
-    this.remote_nodes_listener = new ROSLIB.Topic({
+        this.remote_nodes_listener = new ROSLIB.Topic({
             ros: ros,
             name: "/uwb_node/remote_nodes",
             messageType: "inf_uwb_ros/remote_uwb_info"
@@ -66,7 +54,37 @@ class SwarmCommander {
             name : '/uwb_node/send_broadcast_data',
             messageType : 'inf_uwb_ros/data_buffer'
           });
-     
+    }
+
+    setup_ros_conn () {
+        let _ui = this.ui;
+        let ros = this.ros = new ROSLIB.Ros({
+            // url: "ws://127.0.0.1:9090"
+            url: "ws://192.168.1.208:9090"
+        });
+        let self = this;
+        ros.on("connection", function () {
+            // console.log("Connected to websocket server.");
+            _ui.set_ros_conn("CONNECTED");
+            self.setup_ros_sub_pub();
+        });
+        
+        ros.on('error', function(error) {
+            // console.log('Error connecting to websocket server: ', error);
+            _ui.set_ros_conn("ERROR; Reconnecting");
+            setTimeout(() => {
+                self.setup_ros_conn();
+            }, (1000));
+        });
+        
+        ros.on('close', function() {
+            // console.log('Connection to websocket server closed.');
+            _ui.set_ros_conn("CLOSED; Reconnecting");
+
+            setTimeout(() => {
+                self.setup_ros_conn();
+            }, (1000));
+        });
     }
 
     on_incoming_data(incoming_msg) {
@@ -76,6 +94,7 @@ class SwarmCommander {
         // console.log(r);
         for (var k in msgs) {
           let msg = msgs[k];
+          console.log(msg);
           if (msg.name == "NODE_REALTIME_INFO") {
             this.on_drone_realtime_info_recv(incoming_msg.remote_id, incoming_msg.lps_time, msg);
           } else if (msg.name == "DRONE_STATUS") {
@@ -99,6 +118,8 @@ class SwarmCommander {
     on_drone_status_recv(_id, lps_time, status) {
         // console.log(status);
         this.ui.set_drone_status(_id, status)
+        this.ui.update_drone_selfpose(_id, status.x, status.y, status.z);
+
         // this.ui.set_bat_level(_id, status.bat_vol);
         // this.ui.set_drone_lps_time(_id, lps_time);
         // this.ui.set_drone_control_auth(_id, status.ctrl_auth);
@@ -111,7 +132,8 @@ class SwarmCommander {
     }
 
     on_drone_realtime_info_recv(_id, lps_time, info) {
-
+        console.log("RT msg");
+        this.ui.update_drone_selfpose(_id, info.x, info.y, info.z, info.yaw/1000.0);
     }
 
     send_takeoff_cmd(_id) {

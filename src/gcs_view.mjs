@@ -145,7 +145,13 @@ class SwarmGCSUI {
 
     }
 
-    set_drone_selfpose(_id, x, y, z, yaw = null) {
+    update_drone_selfpose(_id, x, y, z, yaw = null) {
+        if (!this.threeview.has_uav(_id)) {
+            this.threeview.insert_uav(_id);
+        }
+        if (this.threeview.has_uav(_id)) {        
+            this.threeview.update_uav_pose(_id, x, y, z, yaw);
+        }
 
     }
 
