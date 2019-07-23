@@ -94,7 +94,7 @@ class SwarmCommander {
         // console.log(r);
         for (var k in msgs) {
           let msg = msgs[k];
-          console.log(msg);
+        //   console.log(msg);
           if (msg.name == "NODE_REALTIME_INFO") {
             this.on_drone_realtime_info_recv(incoming_msg.remote_id, incoming_msg.lps_time, msg);
           } else if (msg.name == "DRONE_STATUS") {
@@ -118,7 +118,7 @@ class SwarmCommander {
     on_drone_status_recv(_id, lps_time, status) {
         // console.log(status);
         this.ui.set_drone_status(_id, status)
-        this.ui.update_drone_selfpose(_id, status.x, status.y, status.z);
+        // this.ui.update_drone_selfpose(_id, status.x, status.y, status.z);
 
         // this.ui.set_bat_level(_id, status.bat_vol);
         // this.ui.set_drone_lps_time(_id, lps_time);
