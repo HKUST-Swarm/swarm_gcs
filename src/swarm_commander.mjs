@@ -132,7 +132,7 @@ class SwarmCommander {
     }
 
     on_drone_realtime_info_recv(_id, lps_time, info) {
-        console.log("RT msg");
+        //console.log("RT msg");
         this.ui.update_drone_selfpose(_id, info.x, info.y, info.z, info.yaw/1000.0);
     }
 

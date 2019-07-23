@@ -48,7 +48,7 @@ class SwarmGCSUI {
         this.warn_count = 0;
         this.last_speak_time = tnow() - 10;
 
-
+        this.count = 0;
         this.threeview = new ThreeView();
         
     }
@@ -98,8 +98,10 @@ class SwarmGCSUI {
     }
 
     set_lps_time(_lps_time) {
-        this.view.lps_time_color = "green"
-        this.view.lps_time = _lps_time;
+        if (this.count ++ % 10 == 0) {
+            this.view.lps_time_color = "green"
+            this.view.lps_time = _lps_time;
+        }
     }
 
     set_drone_status(_id, status) {
