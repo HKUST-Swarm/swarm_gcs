@@ -7,22 +7,29 @@ import { ThreeMFLoader } from '../libs/3MFLoader.js';
 import { OBJLoader2 } from '../libs/OBJLoader2.js';
 import { MTLLoader } from '../libs/MTLLoader.js';
 import { MtlObjBridge } from "../libs/obj2/bridge/MtlObjBridge.js";
-
+// import { * } from "../libs/jszip.min.js";
 import Stats from '../libs/stats.module.js';
+import { EffectComposer } from '../libs/postprocessing/EffectComposer.js';
+import { OutlinePass } from '../libs/postprocessing/OutlinePass.js';
+import { RenderPass} from '../libs/postprocessing/RenderPass.js';
+import { ShaderPass} from '../libs/postprocessing/ShaderPass.js';
+import { FXAAShader } from '../libs/shaders/FXAAShader.js';
 
 class ThreeView {
     constructor() {
         let obj = this;
         this.scene = new THREE.Scene();
-        var camera = this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-        var renderer = this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        // var renderer = this.renderer = new THREE.WebGLRenderer();
-        // renderer.setPixelRatio(window.devicePixelRatio);
-        // console.log($())
-        // console.log($("ur"))
-        // console.log($("#urdf").width(), $("#urdf").height() );
-        this.renderer.setSize($("#urdf").width(), $("#urdf").height());
+        var renderer = this.renderer = new THREE.WebGLRenderer();
+
+        this.width = $("#urdf").width();
+        this.height = $("#urdf").height();
+        this.position = $("#urdf").position();
+
+        this.renderer.setSize(this.width, this.height);
+
+        var camera = this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 1000);
+
         document.getElementById("urdf").appendChild(this.renderer.domElement);
         this.stats = new Stats();
         document.getElementById("urdf").appendChild(this.stats.dom);
@@ -35,47 +42,87 @@ class ThreeView {
         this.camera.up.z = 1;
         // renderer.setClearColor("white", 1);
         this.scene.background = new THREE.Color( 0xcff3fa );
+        this.enable_shadow = false;
+        
+        this.raycaster = new THREE.Raycaster();
+
+        this.init_postprocessing();
+
+        let orbit = this.orbit = new OrbitControls(camera, renderer.domElement);
+        orbit.update();
+        
+        
+        this.transform_control = new TransformControls(camera, renderer.domElement);
+        this.transform_control.addEventListener('dragging-changed', function (event) {
+            orbit.enabled = !event.value;
+        });
+
+        this.scene.add(this.transform_control);
+
+        this.init_scene();
+
+        this.uavs = {}
+        this.name_uav_id = {}
+
+        this.uav_waypoint_targets = {}
+
+        this.load_aircraft();
+
+        this.aircraft_model = null;
+
+        window.addEventListener( 'mousedown', function(e) {
+            obj.onTouchMove(e, "down");
+        } );
+
+    }
+
+    init_postprocessing() {
+        let renderer = this.renderer;
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        this.outlinePassMouseHover = new OutlinePass(new THREE.Vector2($("#urdf").width(), $("#urdf").height()), this.scene, this.camera);
+        this.outlinePassMouseHover.edgeStrength = 1;
+        this.outlinePassMouseHover.visibleEdgeColor.set("#ffffff");
+
+        this.outlinePassSelected = new OutlinePass(new THREE.Vector2($("#urdf").width(), $("#urdf").height()), this.scene, this.camera);
+        this.outlinePassSelected.edgeStrength = 3;
+        this.outlinePassSelected.visibleEdgeColor.set("#ff0000");
+
+        this.composer = new EffectComposer(renderer);
+        var renderPass = new RenderPass( this.scene, this.camera );
+        this.composer.addPass( renderPass );
+        this.composer.addPass( this.outlinePassMouseHover );
+        this.composer.addPass( this.outlinePassSelected );
+        let fxaaPass = new ShaderPass( FXAAShader );
+		var pixelRatio = renderer.getPixelRatio();
+		fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( $("#urdf").width() * pixelRatio );
+		fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / (  $("#urdf").height() * pixelRatio );
+        this.composer.addPass( fxaaPass );
 
         renderer.gammaOutput = true;
         renderer.gammaFactor = 2.2;
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
+        
         this.animate();
-
-
-        let orbit = this.orbit = new OrbitControls(camera, renderer.domElement);
-        orbit.update();
-        let control = new TransformControls(camera, renderer.domElement);
-        control.addEventListener('dragging-changed', function (event) {
-            orbit.enabled = !event.value;
-        });
-
-        this.init_scene();
-
-        this.uavs = {}
-
-        this.load_aircraft();
-
-        this.aircraft_model = null;
     }
 
     set_camera_FLU(x, y, z) {
 
     }
 
+
     load_aircraft() {
         let obj = this;
 
 
         var loader = new ThreeMFLoader();
-        // var loader = new OBJLoader ();
-        // loader.load( '../models/swarm-drone-0-0-4.3mf', function ( object ) {
+        
+        // loader.load( '../models/swarm-drone-0-0-4-ms.3mf', function ( object ) {
         //     object.traverse( function ( child ) {
         //         child.castShadow = true;
         //     } );
         //     obj.scene.add( object );
-
         // } );
         // return;
         console.log("loading aircraft");
@@ -84,11 +131,13 @@ class ThreeView {
             object3d.castShadow = true;
             object3d.scale.set(0.001, 0.001, 0.001);
             // obj.scene.add(object3d);
+
             object3d.traverse(function (child) {
                 // child.castShadow = true;
             });
 
             obj.aircraft_model = object3d;
+            // console.log(object3d);
             // console.log( 'Loading complete: ' + modelName );
             // scope._reportProgress( { detail: { text: '' } } );
         };
@@ -102,9 +151,12 @@ class ThreeView {
         mtlLoader.load('../models/swarm-drone-0-0-4.mtl', onLoadMtl);
     }
 
-    create_new_uav() {
-        let aircraft = this.aircraft_model.clone();
+    create_new_uav(_id) {
+        var aircraft = this.aircraft_model.clone();
+        aircraft.children[0].name = "UAV"+_id;
+
         this.scene.add(aircraft);
+        this.name_uav_id[aircraft.children[0].name] = _id;
         return aircraft;
     }
 
@@ -115,13 +167,55 @@ class ThreeView {
         }
         if (!(_id in this.uavs)) {
             console.log("Creating new aircraft instance "+ _id);
-            this.uavs[_id] = this.create_new_uav();
-            console.log(this.uavs);
+            this.uavs[_id] = this.create_new_uav(_id);
+            // console.log(this.uavs);
         }
     }
 
     has_uav(_id) {
         return _id in this.uavs;
+    }
+
+    onTouchMove( event, m_type) {
+        var x, y;
+        if ( event.changedTouches ) {
+            x = event.changedTouches[ 0 ].pageX;
+            y = event.changedTouches[ 0 ].pageY;
+        } else {
+            x = event.clientX;
+            y = event.clientY;
+        }
+        // console.log(this.position);
+        x = x - this.position.left;
+        y = y - this.position.top;
+        var mouse = new THREE.Vector2();
+        mouse.x = ( x / this.width ) * 2 - 1;
+        mouse.y = - ( y / this.height ) * 2 + 1;
+
+        if (m_type == "down") {
+            this.checkIntersection(mouse, "select");
+        } else {
+            this.checkIntersection(mouse, "mousehover");            
+        }
+    }
+
+    checkIntersection(mouse, e) {
+        var selected = []
+        this.raycaster.setFromCamera( mouse, this.camera );
+        var intersects = this.raycaster.intersectObjects( [ this.scene ], true );
+        if (intersects.length == 0) {
+            return;
+        }
+        var selectedObject = intersects[ 0 ].object;
+        if (selectedObject.name in this.name_uav_id) {
+            selected.push(selectedObject);
+            if (e == "select") {
+                this.ui.on_select_uav(this.name_uav_id[selectedObject.name]);
+            }
+        }
+        if (e == "mousehover") {
+            this.outlinePassMouseHover.selectedObjects = selected;
+        }
     }
 
     update_uav_pose(_id, x, y, z, yaw) {
@@ -134,7 +228,6 @@ class ThreeView {
         }
 
     }
-
 
     init_scene() {
         // var size = 10;
@@ -167,7 +260,7 @@ class ThreeView {
 
         var dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
         dirLight.position.set(2, 2, 10);
-        dirLight.castShadow = true;
+        dirLight.castShadow = this.enable_shadow;
         dirLight.shadow.camera.top = 50;
         dirLight.shadow.camera.bottom = - 10;
         dirLight.shadow.camera.left = - 10;
@@ -180,7 +273,7 @@ class ThreeView {
 
         var dirLight = new THREE.DirectionalLight(0xffffff, 0.0);
         dirLight.position.set(-2, 2, 2);
-        // dirLight.castShadow = true;
+        dirLight.castShadow = this.enable_shadow;
         dirLight.shadow.camera.top = 5;
         dirLight.shadow.camera.bottom = - 5;
         dirLight.shadow.camera.left = - 5;
@@ -217,9 +310,62 @@ class ThreeView {
         var cb = new THREE.Mesh(cbgeometry, new THREE.MeshFaceMaterial(cbmaterials));
         // var cb = new THREE.Mesh( cbgeometry , new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
 				
-        // cb.receiveShadow = true;
+        cb.receiveShadow = this.enable_shadow;
         cb.position.z = -0.1;
         this.scene.add(cb);
+    }
+
+    on_select_uavs(drone_ids) {
+
+        var selectedObjects = [];
+        for (var i in drone_ids) {
+            // console.log("Select " + this.uavs[drone_ids[i]]);
+            if (drone_ids[i] >= 0) {
+                selectedObjects.push(this.uavs[drone_ids[i]]);
+            }
+        }
+        // console.log(selectedObjects);
+        this.outlinePassSelected.selectedObjects = selectedObjects;
+        
+        if (drone_ids[0] >= 0) {
+            this.create_aircraft_waypoint(drone_ids[0]);
+        } else {
+
+        }
+    }
+
+
+    create_marker_() {
+        var geometry = new THREE.ExtrudeBufferGeometry( smileyShape, extrudeSettings );
+        var mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: "blue", side: THREE.DoubleSide } ) );
+        mesh.scale.set(0.001, 0.001, 0.001);
+        mesh.quaternion.setFromEuler(new THREE.Euler(-Math.PI/2, 0, 0));
+        return mesh;
+    }
+
+    get_waypoint_target_pos(_id) {
+        return this.uav_waypoint_targets[_id].position;
+    }
+
+    create_aircraft_waypoint(_id) {
+        var object;
+        if (! (_id in this.uav_waypoint_targets)) {
+            // console.log(_uav_obj);
+            console.log("Create waypoint target");
+            var geometry = new THREE.BoxBufferGeometry( 0.01, 0.01, 0.01 );
+            this.uav_waypoint_targets[_id] = object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+            this.scene.add(object);        
+        } else {
+            object = this.uav_waypoint_targets[_id];
+        }
+
+        object.position.x = this.uavs[_id].position.x;
+        object.position.y = this.uavs[_id].position.y;
+        object.position.z = this.uavs[_id].position.z;
+
+        // console.log(object.position);
+        this.transform_control.attach(object);
+
     }
 
     animate() {
@@ -230,8 +376,8 @@ class ThreeView {
             obj.animate();
         });
 
-
-        this.renderer.render(this.scene, this.camera);
+        this.composer.render();
+        // this.renderer.render(this.scene, this.camera);
         this.stats.update();
 
     };

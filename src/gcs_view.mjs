@@ -50,7 +50,22 @@ class SwarmGCSUI {
 
         this.count = 0;
         this.threeview = new ThreeView();
+        this.threeview.ui = this;
         
+    }
+
+    send_flyto_cmd(_id) {
+        let pos = { 
+            x: 0,
+            y: 0,
+            z: 0
+        }
+
+        let _pos = this.threeview.get_waypoint_target_pos(_id);
+        pos.x = _pos.x;
+        pos.y = _pos.y;
+        pos.z = _pos.z;
+        this.cmder.send_flyto_cmd(_id, pos);
     }
 
     send_command(_cmd) {
@@ -63,6 +78,9 @@ class SwarmGCSUI {
                 break;
             case "emergency":
                 this.cmder.send_emergency_cmd(this.select_id);
+                break;
+            case "flyto":
+                this.send_flyto_cmd(this.select_id);
                 break;
             default:
                 break;
@@ -166,7 +184,7 @@ class SwarmGCSUI {
         } else {
             this.view.selected_uav = "Drone ID: " + _id;
             this.view.marker_path = "./imgs/4x4_1000-"+_id + ".svg";
-            console.log(this.view.marker_path);
+            // console.log(this.view.marker_path);
         }
 
         this.view.select_id = _id;
@@ -175,13 +193,22 @@ class SwarmGCSUI {
             // var msg = new SpeechSynthesisUtterance("Node " + _id + ". How 'bout some action? ");
             if (_id < 0) {
                 var msg = new SpeechSynthesisUtterance("Total swarm selected!");
+                msg.lang = "en-US";
                 window.speechSynthesis.speak(msg);
+
             } else {
                 var msg = new SpeechSynthesisUtterance("Node " + _id + " selected!");
+                msg.lang = "en-US";
                window.speechSynthesis.speak(msg);
             }
         } 
         this.last_speak_time = tnow();
+
+        if (_id > 0) {
+            this.threeview.on_select_uavs([_id]);
+        } else {
+            this.threeview.on_select_uavs([]);
+        }
     }
 
     warn_battery_level(id, bat) {
@@ -224,6 +251,9 @@ class SwarmGCSUI {
                     break;
                 case "emergency":
                     cmd = "紧急降落";
+                    break;
+                case "flyto":
+                    cmd = "飞向";
                     break;
                 default:
                     cmd = _cmd;

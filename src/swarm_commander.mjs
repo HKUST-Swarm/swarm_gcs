@@ -19,7 +19,7 @@ class SwarmCommander {
         this.select_id = -1;
         this._lps_time = 0;
 
-        this.ui.cmder = self;        
+        this.ui.cmder = this;        
 
         this.setup_ros_conn();
     }
@@ -147,6 +147,17 @@ class SwarmCommander {
         console.log("Will send landing command");
         let landing_cmd = 6;
         let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, landing_cmd, 0, 3000, 0, 0, 0, 0, 0, 0, 0, 0);
+        this.send_msg_to_swarm(scmd);
+    }
+
+    send_flyto_cmd(_id, pos) {
+        //When use VO coordinates
+        console.log("Fly to ", pos);
+        let flyto_cmd = 0;
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, flyto_cmd, 
+            Math.floor(pos.x*10000), 
+            Math.floor(pos.y*10000), 
+            Math.floor(pos.z*10000), 0, 0, 0, 0, 0, 0, 0);
         this.send_msg_to_swarm(scmd);
     }
 
