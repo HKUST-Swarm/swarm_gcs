@@ -46,7 +46,8 @@ class SwarmCommander {
         this.remote_nodes_listener = new ROSLIB.Topic({
             ros: ros,
             name: "/uwb_node/remote_nodes",
-            messageType: "inf_uwb_ros/remote_uwb_info"
+            messageType: "inf_uwb_ros/remote_uwb_info",
+            queue_length:1
           });
        this.remote_nodes_listener.subscribe(function(msg) {
            self.on_remote_nodes_info(msg);
@@ -57,7 +58,8 @@ class SwarmCommander {
     this.incoming_data_listener = new ROSLIB.Topic({
             ros: ros,
             name: "/uwb_node/incoming_broadcast_data",
-            messageType: "inf_uwb_ros/incoming_broadcast_data"
+            messageType: "inf_uwb_ros/incoming_broadcast_data",
+            queue_length:1
         });
 
         this.incoming_data_listener.subscribe(function (incoming_msg) {
