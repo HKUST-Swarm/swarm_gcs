@@ -12,9 +12,8 @@ function tnow() {
     return new Date().getTime() / 1000;
 }
   
+let vaild_ids = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 class SwarmCommander {
-
-
     constructor(ui) {
         this.mav = new MAVLink(null, 0, 0);
         this.ui = ui;
@@ -86,8 +85,8 @@ class SwarmCommander {
     setup_ros_conn () {
         let _ui = this.ui;
         let ros = this.ros = new ROSLIB.Ros({
-            url: "ws://127.0.0.1:9090"
-            // url: "ws://192.168.1.208:9090"
+            // url: "ws://127.0.0.1:9090"
+            url: "ws://192.168.1.208:9090"
         });
         let self = this;
         ros.on("connection", function () {
@@ -119,7 +118,10 @@ class SwarmCommander {
     }
 
     on_incoming_data(incoming_msg) {
-
+        if (!vaild_ids.has(incoming_msg.remote_id)) {
+            return;
+        }
+        
         let ts = tnow();
         //note that message may come from different nodes, should fix here
         let buf = _base64ToArrayBuffer(incoming_msg.data);
@@ -168,6 +170,7 @@ class SwarmCommander {
     }
 
     on_drone_status_recv(_id, lps_time, status) {
+        
         // console.log(status);
         if (! (_id in this.vicon_subs)) {
             this.sub_vicon_id(_id);
