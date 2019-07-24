@@ -248,6 +248,13 @@ class SwarmGCSUI {
        };
     }
 
+    update_drone_localpose_in_coorinate(node_id, x, y, z, yaw, _id) {
+        if (!this.global_local_mode && _id == this.primary_id) {
+            this.update_three_id_pose(node_id, x, y, z, yaw);
+            this.threeview.set_uav_fused_mode(node_id);
+       } 
+    }
+
     on_select_uav (_id) {
         this.select_id = _id;
         if (_id < 0) {
@@ -345,6 +352,7 @@ class SwarmGCSUI {
         let new_global_local_mode = mode=="GLOBAL";
         if (new_global_local_mode != this.global_local_mode) {
             this.threeview.clear_uavs();
+            this.threeview.clear_uav_fused();
             this.global_local_mode = new_global_local_mode;
         }
         this.view.display_mode = mode;
@@ -371,7 +379,7 @@ Vue.component('uav-component', {
     template:  `     
     <div v-on:click="select_uav(status.ui, status._id)" class="card" style="width: 100%; height=5em;">
     <h5>
-      Drone: {{status._id}}  <img v-bind:src="'./imgs/4x4_1000-'+status._id + '.svg'" style="height:3em; width:3eml right:0em;" />
+      Drone: {{status._id}}
     </h5>
     <ul class="list-group list-group-flush">
     <li class="list-group-item"> 
@@ -389,6 +397,7 @@ Vue.component('uav-component', {
     </small>
     </li>
     </ul>
+    <img v-bind:src="'./imgs/4x4_1000-'+status._id + '.svg'" style="height:3em; width:3em; right:0em; position:absolute;" />
   </div>`
 })
 

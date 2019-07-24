@@ -15,6 +15,13 @@ import { RenderPass} from '../libs/postprocessing/RenderPass.js';
 import { ShaderPass} from '../libs/postprocessing/ShaderPass.js';
 import { FXAAShader } from '../libs/shaders/FXAAShader.js';
 
+let color_set_hot = { 
+    red:"#DA5543",
+    yellow:"#F7F9D3",
+    orange:"#DE6645",
+    white:"#F0FFFC",
+    blue:"#BAACE7"
+}
 class ThreeView {
     constructor() {
         let obj = this;
@@ -70,6 +77,8 @@ class ThreeView {
 
         this.aircraft_model = null;
 
+        this.fused_pose_uavs = {};
+
         window.addEventListener( 'mousedown', function(e) {
             obj.onTouchMove(e, "down");
         } );
@@ -90,18 +99,23 @@ class ThreeView {
         renderer.setPixelRatio(window.devicePixelRatio);
 
         this.outlinePassMouseHover = new OutlinePass(new THREE.Vector2($("#urdf").width(), $("#urdf").height()), this.scene, this.camera);
-        this.outlinePassMouseHover.edgeStrength = 1;
-        this.outlinePassMouseHover.visibleEdgeColor.set("#ffffff");
+        this.outlinePassMouseHover.edgeStrength = 2;
+        this.outlinePassMouseHover.visibleEdgeColor.set(color_set_hot.white);
 
         this.outlinePassSelected = new OutlinePass(new THREE.Vector2($("#urdf").width(), $("#urdf").height()), this.scene, this.camera);
         this.outlinePassSelected.edgeStrength = 3;
-        this.outlinePassSelected.visibleEdgeColor.set("#ff0000");
+        this.outlinePassSelected.visibleEdgeColor.set(color_set_hot.red);
 
+        this.outlinePassFused = new OutlinePass(new THREE.Vector2($("#urdf").width(), $("#urdf").height()), this.scene, this.camera);
+        this.outlinePassFused.edgeStrength = 4;
+        this.outlinePassFused.visibleEdgeColor.set(color_set_hot.yellow);
+        
         this.composer = new EffectComposer(renderer);
         var renderPass = new RenderPass( this.scene, this.camera );
         this.composer.addPass( renderPass );
         this.composer.addPass( this.outlinePassMouseHover );
         this.composer.addPass( this.outlinePassSelected );
+        this.composer.addPass( this.outlinePassFused );
         let fxaaPass = new ShaderPass( FXAAShader );
 		var pixelRatio = renderer.getPixelRatio();
 		fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( $("#urdf").width() * pixelRatio );
@@ -248,6 +262,20 @@ class ThreeView {
 
     }
 
+    set_uav_fused_mode(_id) {
+        if (! (_id in this.fused_pose_uavs)) {
+            if (_id in this.uavs) {
+                this.fused_pose_uavs[_id] = this.uavs[_id].children[0];
+                this.outlinePassFused.selectedObjects.push(this.uavs[_id].children[0]);
+            }
+        } 
+    }
+
+    clear_uav_fused() {
+        this.outlinePassFused.selectedObjects = [];
+        this.fused_pose_uavs = {};
+    }
+
     init_scene() {
         // var size = 10;
         // var divisions = 10;
@@ -311,7 +339,6 @@ class ThreeView {
 
         // Materials
         var cbmaterials = [];
-
         cbmaterials.push(new THREE.MeshPhongMaterial({ color: 0xeeeeee }));
         cbmaterials.push(new THREE.MeshPhongMaterial({ color: 0x222222 }));
 

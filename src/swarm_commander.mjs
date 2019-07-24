@@ -113,6 +113,8 @@ class SwarmCommander {
     }
 
     on_incoming_data(incoming_msg) {
+
+        //note that message may come from different nodes, should fix here
         let buf = _base64ToArrayBuffer(incoming_msg.data);
         // console.log(buf);
         let msgs = this.mav.parseBuffer(buf);
@@ -120,17 +122,29 @@ class SwarmCommander {
         for (var k in msgs) {
           let msg = msgs[k];
         //   console.log(msg);
-          if (msg.name == "NODE_REALTIME_INFO") {
-            this.on_drone_realtime_info_recv(incoming_msg.remote_id, incoming_msg.lps_time, msg);
-          }
-
-          if (msg.name == "DRONE_STATUS") {
-            this.on_drone_status_recv(incoming_msg.remote_id, incoming_msg.lps_time, msg);
-          }
-
+            switch (msg.name) {
+                case "NODE_REALTIME_INFO": {
+                    this.on_drone_realtime_info_recv(incoming_msg.remote_id, incoming_msg.lps_time, msg);
+                    break;
+                }
+                case "DRONE_STATUS": {
+                    this.on_drone_status_recv(incoming_msg.remote_id, incoming_msg.lps_time, msg);
+                    break;
+                }
+                case "NODE_LOCAL_FUSED" : {
+                    // console.log(msg);
+                    this.on_node_local_fused(incoming_msg.remote_id, incoming_msg.lps_time, msg);
+                    break;
+                }
+            }
         }
-    
     }
+
+    on_node_local_fused(_id, lps_time, msg) {
+        this.ui.update_drone_localpose_in_coorinate(msg.source_id, msg.x/1000.0, msg.y/1000.0, 
+            msg.z/1000.0, msg.yaw/1000.0, _id);
+    }
+
 
     on_remote_nodes_info(msg) {
         var avail = 0;
