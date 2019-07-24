@@ -24,7 +24,7 @@ class SwarmGCSUI {
         this.count = 0;
         
 
-        this.global_local_mode = true;
+        this.global_local_mode = false;
         this.primary_id = 0;
         
         var _dis_mode = "GLOBAL";
@@ -75,6 +75,7 @@ class SwarmGCSUI {
 
         this.uav_local_poses = {};
         this.uav_global_poses = {};
+        this.uav_local_poses_in_drone_coor = {};
     }
 
 
@@ -104,14 +105,32 @@ class SwarmGCSUI {
 
                 this.cmder.send_flyto_cmd(_id, pos);
             }
-        }
-        else {
+        } else {
             if( _id == this.primary_id) {
                 //Can control primary drone in local mode now
                 pos.x = t_pos.x;
                 pos.y = t_pos.y;
                 pos.z = t_pos.z;
                 this.cmder.send_flyto_cmd(_id, pos);
+            } else {
+                let _local_pos_in_base_now = this.uav_local_poses_in_drone_coor[this.primary_id][_id];
+                let dx = t_pos.x - _local_pos_in_base_now.x;
+                let dy = t_pos.y - _local_pos_in_base_now.y;
+                let dz = t_pos.z - _local_pos_in_base_now.z;
+                
+                // console.log("LOCAL IN BASE");
+                // console.log(_local_pos_in_base_now);
+                // console.log("T POS");
+                // console.log(t_pos);
+                // console.log("DPOS" + dx + " " + dy + " " + dz + " ");
+
+                 //TODO: rotate with yaw
+
+                 pos.x = dx + this.uav_local_poses[_id].x;
+                 pos.y = dy + this.uav_local_poses[_id].y;
+                 pos.z = dz + this.uav_local_poses[_id].z;
+ 
+                 this.cmder.send_flyto_cmd(_id, pos);
             }
         }
 
@@ -202,7 +221,8 @@ class SwarmGCSUI {
             bat_vol:status.bat_vol.toFixed(2),
             ctrl_auth:ctrl_auths[status.control_auth],
             ctrl_mode:ctrl_modes[status.commander_mode],
-            flight_status:all_flight_status[status],
+            flight_status:all_flight_status[status.flight_status],
+            vo_valid:status.vo_valid,
             lps_time:status.lps_time,
             _id:_id,
             ui:obj
@@ -248,12 +268,19 @@ class SwarmGCSUI {
        };
     }
 
-    update_drone_localpose_in_coorinate(node_id, x, y, z, yaw, _id) {
-        if (!this.global_local_mode && _id == this.primary_id) {
+    update_drone_localpose_in_coorinate(node_id, x, y, z, yaw, base_id) {
+        if (!this.global_local_mode && base_id == this.primary_id) {
             // console.log(node_id);
             this.update_three_id_pose(node_id, x, y, z, yaw);
             this.threeview.set_uav_fused_mode(node_id);
-       } 
+            if (! (base_id in this.uav_local_poses_in_drone_coor)) {
+                this.uav_local_poses_in_drone_coor[base_id]  = {};
+            }
+
+            this.uav_local_poses_in_drone_coor[base_id][node_id] = {
+                x:x,y:y,z:z,yaw:yaw
+            };
+       }
     }
 
     on_select_uav (_id) {
@@ -360,8 +387,14 @@ class SwarmGCSUI {
     }
 
     set_primary_id(_id) {
-        this.primary_id = _id;
-        this.view.primary_id = _id;
+        if (_id != this.primary_id) {
+            this.primary_id = _id;
+            this.view.primary_id = _id;
+
+            this.threeview.clear_uavs();
+            this.threeview.clear_uav_fused();
+        }
+
     }
 
 }
@@ -371,8 +404,6 @@ class SwarmGCSUI {
 Vue.component('uav-component', {
     methods: {
         select_uav: function (ui, _id) {
-            // console.log(ui);
-            // console.log(_id);
             ui.on_select_uav(_id);
         }
       },
@@ -383,10 +414,16 @@ Vue.component('uav-component', {
       Drone: {{status._id}}
     </h5>
     <ul class="list-group list-group-flush">
-    <li class="list-group-item"> 
-      X:{{status.x}}
-      Y:{{status.y}}
-      Z:{{status.z}}
+    <li v-if="status.vo_valid" class="list-group-item"> 
+    INVAILD
+    X:<span style="color:green;"> {{status.x}} </span>
+    Y:<span style="color:green;"> {{status.y}} </span>
+    Z:<span style="color:green;"> {{status.z}} </span>
+    </li>
+    <li v-else class="list-group-item"> 
+        X:<span style="color:red;"> {{status.x}} </span>
+        Y:<span style="color:red;"> {{status.y}} </span>
+        Z:<span style="color:red;"> {{status.z}} </span>
     </li>
     <li class="list-group-item"> 
     <small>
