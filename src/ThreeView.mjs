@@ -17,7 +17,8 @@ import { FXAAShader } from '../libs/shaders/FXAAShader.js';
 
 let color_set_hot = { 
     red:"#DA5543",
-    yellow:"#F7F9D3",
+    // yellow:"#F7F9D3",
+    yellow:"#FFD300",
     orange:"#DE6645",
     white:"#F0FFFC",
     blue:"#BAACE7"
@@ -84,7 +85,7 @@ class ThreeView {
         } );
 
         window.addEventListener( 'mousemove', function(e) {
-            obj.onTouchMove(e, "mousehover");
+            // obj.onTouchMove(e, "mousehover");
         } );
 
 
@@ -99,24 +100,31 @@ class ThreeView {
         renderer.setPixelRatio(window.devicePixelRatio);
 
         this.outlinePassMouseHover = new OutlinePass(new THREE.Vector2($("#urdf").width(), $("#urdf").height()), this.scene, this.camera);
-        this.outlinePassMouseHover.edgeStrength = 2;
+        this.outlinePassMouseHover.edgeStrength = 3;
+        this.outlinePassMouseHover.edgeThickness = 2.0;
         this.outlinePassMouseHover.visibleEdgeColor.set(color_set_hot.white);
 
         this.outlinePassSelected = new OutlinePass(new THREE.Vector2($("#urdf").width(), $("#urdf").height()), this.scene, this.camera);
-        this.outlinePassSelected.edgeStrength = 3;
+        this.outlinePassSelected.edgeStrength = 5;
+        this.outlinePassSelected.edgeThickness = 5.0;
         this.outlinePassSelected.visibleEdgeColor.set(color_set_hot.red);
 
         this.outlinePassFused = new OutlinePass(new THREE.Vector2($("#urdf").width(), $("#urdf").height()), this.scene, this.camera);
-        this.outlinePassFused.edgeStrength = 4;
+        this.outlinePassFused.edgeStrength = 1;
+        this.outlinePassSelected.edgeThickness = 1.0;
         this.outlinePassFused.visibleEdgeColor.set(color_set_hot.yellow);
         
         this.composer = new EffectComposer(renderer);
         var renderPass = new RenderPass( this.scene, this.camera );
         this.composer.addPass( renderPass );
+
+        this.composer.addPass( this.outlinePassFused );
         this.composer.addPass( this.outlinePassMouseHover );
         this.composer.addPass( this.outlinePassSelected );
-        this.composer.addPass( this.outlinePassFused );
+
         let fxaaPass = new ShaderPass( FXAAShader );
+
+
 		var pixelRatio = renderer.getPixelRatio();
 		fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( $("#urdf").width() * pixelRatio );
 		fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / (  $("#urdf").height() * pixelRatio );
@@ -410,7 +418,7 @@ class ThreeView {
         object.position.y = this.uavs[_id].position.y;
         object.position.z = this.uavs[_id].position.z;
 
-        // console.log(object.position);
+        console.log(object.position);
         this.transform_control.attach(object);
 
     }

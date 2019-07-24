@@ -141,7 +141,7 @@ class SwarmCommander {
     }
 
     on_node_local_fused(_id, lps_time, msg) {
-        this.ui.update_drone_localpose_in_coorinate(msg.source_id, msg.x/1000.0, msg.y/1000.0, 
+        this.ui.update_drone_localpose_in_coorinate(msg.target_id, msg.x/1000.0, msg.y/1000.0, 
             msg.z/1000.0, msg.yaw/1000.0, _id);
     }
 

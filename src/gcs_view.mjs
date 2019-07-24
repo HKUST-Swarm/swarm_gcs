@@ -250,6 +250,7 @@ class SwarmGCSUI {
 
     update_drone_localpose_in_coorinate(node_id, x, y, z, yaw, _id) {
         if (!this.global_local_mode && _id == this.primary_id) {
+            // console.log(node_id);
             this.update_three_id_pose(node_id, x, y, z, yaw);
             this.threeview.set_uav_fused_mode(node_id);
        } 
