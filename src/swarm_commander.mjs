@@ -8,6 +8,9 @@ function _base64ToArrayBuffer(base64) {
     return bytes;
 }
 
+function tnow() {
+    return new Date().getTime() / 1000;
+}
   
 class SwarmCommander {
 
@@ -23,7 +26,7 @@ class SwarmCommander {
 
         this.setup_ros_conn();
     }
-
+    
     sub_vicon_id(i) {
         console.log("subscribing vicon "+ i);
         var vicon_sub = new ROSLIB.Topic({
@@ -49,13 +52,14 @@ class SwarmCommander {
             messageType: "inf_uwb_ros/remote_uwb_info",
             queue_length:1
           });
+          
        this.remote_nodes_listener.subscribe(function(msg) {
            self.on_remote_nodes_info(msg);
        });
 
 
 
-    this.incoming_data_listener = new ROSLIB.Topic({
+        this.incoming_data_listener = new ROSLIB.Topic({
             ros: ros,
             name: "/uwb_node/incoming_broadcast_data",
             messageType: "inf_uwb_ros/incoming_broadcast_data",
@@ -82,8 +86,8 @@ class SwarmCommander {
     setup_ros_conn () {
         let _ui = this.ui;
         let ros = this.ros = new ROSLIB.Ros({
-            // url: "ws://127.0.0.1:9090"
-            url: "ws://192.168.1.208:9090"
+            url: "ws://127.0.0.1:9090"
+            // url: "ws://192.168.1.208:9090"
         });
         let self = this;
         ros.on("connection", function () {
@@ -116,6 +120,7 @@ class SwarmCommander {
 
     on_incoming_data(incoming_msg) {
 
+        let ts = tnow();
         //note that message may come from different nodes, should fix here
         let buf = _base64ToArrayBuffer(incoming_msg.data);
         // console.log(buf);
@@ -140,6 +145,8 @@ class SwarmCommander {
                 }
             }
         }
+        let dt = tnow() - ts;
+        // console.log("Process time ", dt*1000);
     }
 
     on_node_local_fused(_id, lps_time, msg) {

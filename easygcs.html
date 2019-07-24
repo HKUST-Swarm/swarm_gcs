@@ -24,7 +24,7 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
     integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
     crossorigin="anonymous"></script>
-  <script src="./mavlink_bundle.js"></script>
+  <script src="./libs/mavlink_bundle.js"></script>
 </head>
 
 <body>
@@ -258,9 +258,9 @@
     }
     function on_drone_rt_info_recv(_id, lps_time, info) {
       // console.log(info);
-      // $("#x"+_id).html(info.x.toFixed(3));
-      // $("#y"+_id).html(info.y.toFixed(3));
-      // $("#z"+_id).html(info.z.toFixed(3));
+      $("#x"+_id).html(info.x.toFixed(3));
+      $("#y"+_id).html(info.y.toFixed(3));
+      $("#z"+_id).html(info.z.toFixed(3));
     }
 
     var warn_bat_count = 0;
