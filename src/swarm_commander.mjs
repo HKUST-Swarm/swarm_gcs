@@ -152,8 +152,9 @@ class SwarmCommander {
     }
 
     on_node_local_fused(_id, lps_time, msg) {
+        // console.log(msg);    
         this.ui.update_drone_localpose_in_coorinate(msg.target_id, msg.x/1000.0, msg.y/1000.0, 
-            msg.z/1000.0, msg.yaw/1000.0, _id);
+            msg.z/1000.0, msg.yaw/1000.0, _id, msg.cov_x/1000.0, msg.cov_y/1000.0, msg.cov_z/1000.0, msg.cov_yaw/1000.0);
     }
 
 
@@ -172,7 +173,7 @@ class SwarmCommander {
     on_drone_status_recv(_id, lps_time, status) {
         
         // console.log(status);
-        if (! (_id in this.vicon_subs)) {
+        if (! (_id in this.vicon_subs) && this.ui.global_local_mode ) {
             this.sub_vicon_id(_id);
         }
 
@@ -188,7 +189,9 @@ class SwarmCommander {
 
     on_drone_realtime_info_recv(_id, lps_time, info) {
         //console.log("RT msg");
-        this.ui.update_drone_selfpose(_id, info.x, info.y, info.z, info.yaw/1000.0);
+        // console.log(info.vx/ 100);
+        this.ui.update_drone_selfpose(_id, info.x, info.y, info.z, info.yaw/1000.0, info.vx/100.0, info.vy/100.0, info.vz/100.0);
+        // this.ui.update_drone_selfpose(_id, info.x, info.y, info.z, info.yaw/1000.0, info.vx/100.0, info.vy/100.0, info.vz/100.0);
     }
 
     send_takeoff_cmd(_id) {

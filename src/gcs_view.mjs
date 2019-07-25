@@ -240,12 +240,12 @@ class SwarmGCSUI {
 
     }
 
-    update_three_id_pose(_id, x, y, z, yaw = null) {
+    update_three_id_pose(_id, x, y, z, yaw = null, vx=null, vy=null, vz=null, covx=0, covy=0, covz=0, covyaw=0, update_yaw_cov = false) {
         if (!this.threeview.has_uav(_id)) {
             this.threeview.insert_uav(_id);
         }
         if (this.threeview.has_uav(_id)) {        
-            this.threeview.update_uav_pose(_id, x, y, z, yaw);
+            this.threeview.update_uav_pose(_id, x, y, z, yaw, vx, vy, vz, covx, covy, covz, covyaw, update_yaw_cov);
         }
     }
 
@@ -258,9 +258,9 @@ class SwarmGCSUI {
         };
     }
 
-    update_drone_selfpose(_id, x, y, z, yaw = null) {
+    update_drone_selfpose(_id, x, y, z, yaw = null, vx=null, vy=null, vz=null) {
        if (!this.global_local_mode && _id == this.primary_id) {
-            this.update_three_id_pose(_id, x, y, z, yaw);
+            this.update_three_id_pose(_id, x, y, z, yaw, vx, vy, vz);
        }
 
        this.uav_local_poses[_id] = {
@@ -268,10 +268,11 @@ class SwarmGCSUI {
        };
     }
 
-    update_drone_localpose_in_coorinate(node_id, x, y, z, yaw, base_id) {
+
+    update_drone_localpose_in_coorinate(node_id, x, y, z, yaw, base_id, covx=0, covy=0, covz=0, covyaw=0) {
         if (!this.global_local_mode && base_id == this.primary_id) {
             // console.log(node_id);
-            this.update_three_id_pose(node_id, x, y, z, yaw);
+            this.update_three_id_pose(node_id, x, y, z, yaw, null, null,null, covx, covy, covz, covyaw, true);
             this.threeview.set_uav_fused_mode(node_id);
             if (! (base_id in this.uav_local_poses_in_drone_coor)) {
                 this.uav_local_poses_in_drone_coor[base_id]  = {};
@@ -411,16 +412,16 @@ Vue.component('uav-component', {
     template:  `     
     <div v-on:click="select_uav(status.ui, status._id)" class="card" style="width: 100%; height=5em;">
     <h5>
-      Drone: {{status._id}}
+    <span class="glyphicon glyphicon-plane" aria-hidden="true"></span> {{status._id}}
     </h5>
     <ul class="list-group list-group-flush">
     <li v-if="status.vo_valid" class="list-group-item"> 
-    INVAILD
     X:<span style="color:green;"> {{status.x}} </span>
     Y:<span style="color:green;"> {{status.y}} </span>
     Z:<span style="color:green;"> {{status.z}} </span>
     </li>
     <li v-else class="list-group-item"> 
+        <span style="color:red;">INVAILD </span>
         X:<span style="color:red;"> {{status.x}} </span>
         Y:<span style="color:red;"> {{status.y}} </span>
         Z:<span style="color:red;"> {{status.z}} </span>

@@ -70,6 +70,8 @@ class ThreeView {
         this.init_scene();
 
         this.uavs = {}
+        this.uav_cov_spheres = {}
+        this.uav_cov_circles = {}
         this.name_uav_id = {}
 
         this.uav_waypoint_targets = {}
@@ -209,7 +211,7 @@ class ThreeView {
         if (!(_id in this.uavs)) {
             console.log("Creating new aircraft instance "+ _id);
             this.uavs[_id] = this.create_new_uav(_id);
-            // console.log(this.uavs);
+            this.uav_cov_spheres[_id] = this.create_cov_sphere();
         }
     }
 
@@ -259,7 +261,29 @@ class ThreeView {
         }
     }
 
-    update_uav_pose(_id, x, y, z, yaw) {
+    create_cov_sphere() {
+        var geometry = new THREE.SphereGeometry( 1.0, 10, 10 );
+        var material = new THREE.MeshPhongMaterial( {color: color_set_hot.blue} );
+        material.opacity=.5;
+        material.side = THREE.DoubleSide;
+        material.transparent=true;
+        var sphere = new THREE.Mesh( geometry, material );
+        this.scene.add(sphere);
+        return sphere;
+    }
+
+    create_cov_circle(yaw_var) {
+        //We use 
+        // console.log("cov circle from "+ (-yaw_var) +"to"+ yaw_var )
+        var geometry = new THREE.CircleGeometry( 0.4, 10, -yaw_var, 2*yaw_var);
+        var material = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
+        material.opacity=.3;
+        var circle = new THREE.Mesh( geometry, material );
+        this.scene.add( circle );
+        return circle;
+    }
+
+    update_uav_pose(_id, x, y, z, yaw, vx=null, vy=null, vz=null, covx=0, covy=0, covz=0, covyaw=0, update_yaw_var = false) {
         // console.log(_id)
         this.uavs[_id].position.x = x;
         this.uavs[_id].position.y = y;
@@ -267,6 +291,52 @@ class ThreeView {
         if (yaw !== null) {
             this.uavs[_id].quaternion.setFromEuler(new THREE.Euler(0, 0, yaw));
         }
+        // console.log(this.uav_cov_spheres);
+        
+        this.uav_cov_spheres[_id].position.x = x;
+        this.uav_cov_spheres[_id].position.y = y;
+        this.uav_cov_spheres[_id].position.z = z;
+        var sa = 3*Math.sqrt(covx);
+        var sb = 3*Math.sqrt(covy);
+        var sc = 3*Math.sqrt(covz);
+        sa = Math.min(Math.max(sa, 0.001), 0.5);
+        sb = Math.min(Math.max(sa, 0.001), 0.5);
+        sc = Math.min(Math.max(sa, 0.001), 0.5);
+
+        if (sb > 1) {
+            sb = 1;
+        }
+
+        if (sc > 1) {
+            sc = 1;
+        }
+
+        this.uav_cov_spheres[_id].scale.set(sa, sb, sc);
+
+        var var_yaw = Math.sqrt(covyaw);
+        // console.log("Var Yaw", var_yaw);
+        if (update_yaw_var) {
+            if (_id in this.uav_cov_circles) {
+                this.scene.remove(this.uav_cov_circles[_id]);
+            }
+
+            if (var_yaw > 0.15) {
+                if (var_yaw > Math.Pi) {
+                    var_yaw = Math.Pi;
+                } 
+                // console.log("Adding yaw var "+ var_yaw);
+                var cir = this.create_cov_circle(var_yaw);
+                cir.quaternion.setFromEuler(new THREE.Euler(0, 0, yaw));
+                this.uav_cov_circles[_id] = cir;
+                cir.position.x = x;
+                cir.position.y = y;
+                cir.position.z = z;
+            }
+        }
+        // console.log(this.uav_cov_spheres[_id].scale)
+        // if (vx !== null) {
+            // this.uavs[_id].linear_velocity.set( vx, vy, vz );
+        // }
 
     }
 
@@ -347,8 +417,14 @@ class ThreeView {
 
         // Materials
         var cbmaterials = [];
-        cbmaterials.push(new THREE.MeshPhongMaterial({ color: 0xeeeeee }));
-        cbmaterials.push(new THREE.MeshPhongMaterial({ color: 0x222222 }));
+        var m1 = new THREE.MeshPhongMaterial({ color: 0xeeeeee });
+        var m2 = new THREE.MeshPhongMaterial({ color: 0x222222 });
+        m1.opacity = 0.8;
+        m1.side = THREE.DoubleSide;
+        m2.opacity = 0.8;
+        m2.side = THREE.DoubleSide;
+        cbmaterials.push(m1);
+        cbmaterials.push(m2);
 
         var l = cbgeometry.faces.length / 2; // <-- Right here. This should still be 8x8 (64)
 
@@ -359,6 +435,9 @@ class ThreeView {
             cbgeometry.faces[j].materialIndex = ((i + Math.floor(i / 10)) % 2); // The code here is changed, replacing all 'i's with 'j's. KEEP THE 8
             cbgeometry.faces[j + 1].materialIndex = ((i + Math.floor(i / 10)) % 2); // Add this line in, the material index should stay the same, we're just doing the other half of the same face
         }
+
+        cbmaterials.opacity=.8;
+        cbmaterials.side = THREE.DoubleSide;
 
         // Mesh
         var cb = new THREE.Mesh(cbgeometry, new THREE.MeshFaceMaterial(cbmaterials));
