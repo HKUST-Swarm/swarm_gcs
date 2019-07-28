@@ -137,13 +137,14 @@ class SwarmCommander {
         // console.log(r);
         for (var k in msgs) {
           let msg = msgs[k];
-        //   console.log(msg);
             switch (msg.name) {
                 case "NODE_REALTIME_INFO": {
                     this.on_drone_realtime_info_recv(incoming_msg.remote_id, incoming_msg.lps_time, msg);
                     break;
                 }
+
                 case "DRONE_STATUS": {
+                    // console.log(msg);
                     this.on_drone_status_recv(incoming_msg.remote_id, incoming_msg.lps_time, msg);
                     break;
                 }
@@ -152,6 +153,8 @@ class SwarmCommander {
                     this.on_node_local_fused(incoming_msg.remote_id, incoming_msg.lps_time, msg);
                     break;
                 }
+                console.log(msg);
+
             }
         }
         let dt = tnow() - ts;

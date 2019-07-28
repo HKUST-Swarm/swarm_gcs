@@ -1525,6 +1525,7 @@ mavlink.messages.node_detected.prototype.pack = function(mav) {
                 flight_status             : Flight status of drone (uint8_t)
                 control_auth              : Control AUTH of drone (uint8_t)
                 commander_mode            : COMMANDER MODE (uint8_t)
+                input_mode                : CTRL INPUT MODE (uint8_t)
                 rc_valid                  : RC VAILD (uint8_t)
                 onboard_cmd_valid         : ONBOARD CMD VALID (uint8_t)
                 sdk_valid                 : SDK VALID (uint8_t)
@@ -1536,15 +1537,15 @@ mavlink.messages.node_detected.prototype.pack = function(mav) {
                 yaw                       : Yaw (float)
 
 */
-mavlink.messages.drone_status = function(lps_time, flight_status, control_auth, commander_mode, rc_valid, onboard_cmd_valid, sdk_valid, vo_valid, bat_vol, x, y, z, yaw) {
+mavlink.messages.drone_status = function(lps_time, flight_status, control_auth, commander_mode, input_mode, rc_valid, onboard_cmd_valid, sdk_valid, vo_valid, bat_vol, x, y, z, yaw) {
 
-    this.format = '<ifffffBBBBBBB';
+    this.format = '<ifffffBBBBBBBB';
     this.id = mavlink.MAVLINK_MSG_ID_DRONE_STATUS;
-    this.order_map = [0, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5];
-    this.crc_extra = 254;
+    this.order_map = [0, 6, 7, 8, 9, 10, 11, 12, 13, 1, 2, 3, 4, 5];
+    this.crc_extra = 124;
     this.name = 'DRONE_STATUS';
 
-    this.fieldnames = ['lps_time', 'flight_status', 'control_auth', 'commander_mode', 'rc_valid', 'onboard_cmd_valid', 'sdk_valid', 'vo_valid', 'bat_vol', 'x', 'y', 'z', 'yaw'];
+    this.fieldnames = ['lps_time', 'flight_status', 'control_auth', 'commander_mode', 'input_mode', 'rc_valid', 'onboard_cmd_valid', 'sdk_valid', 'vo_valid', 'bat_vol', 'x', 'y', 'z', 'yaw'];
 
 
     this.set(arguments);
@@ -1554,7 +1555,7 @@ mavlink.messages.drone_status = function(lps_time, flight_status, control_auth, 
 mavlink.messages.drone_status.prototype = new mavlink.message;
 
 mavlink.messages.drone_status.prototype.pack = function(mav) {
-    return mavlink.message.prototype.pack.call(this, mav, this.crc_extra, jspack.Pack(this.format, [ this.lps_time, this.bat_vol, this.x, this.y, this.z, this.yaw, this.flight_status, this.control_auth, this.commander_mode, this.rc_valid, this.onboard_cmd_valid, this.sdk_valid, this.vo_valid]));
+    return mavlink.message.prototype.pack.call(this, mav, this.crc_extra, jspack.Pack(this.format, [ this.lps_time, this.bat_vol, this.x, this.y, this.z, this.yaw, this.flight_status, this.control_auth, this.commander_mode, this.input_mode, this.rc_valid, this.onboard_cmd_valid, this.sdk_valid, this.vo_valid]));
 }
 
 /* 
@@ -6483,7 +6484,7 @@ mavlink.map = {
         201: { format: '<ihhhhB', type: mavlink.messages.node_relative_fused, order_map: [0, 5, 1, 2, 3, 4], crc_extra: 164 },
         202: { format: '<iiiiiiiiiiibB', type: mavlink.messages.swarm_remote_command, order_map: [0, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], crc_extra: 125 },
         203: { format: '<ihhhhb', type: mavlink.messages.node_detected, order_map: [0, 5, 1, 2, 3, 4], crc_extra: 94 },
-        204: { format: '<ifffffBBBBBBB', type: mavlink.messages.drone_status, order_map: [0, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5], crc_extra: 254 },
+        204: { format: '<ifffffBBBBBBBB', type: mavlink.messages.drone_status, order_map: [0, 6, 7, 8, 9, 10, 11, 12, 13, 1, 2, 3, 4, 5], crc_extra: 124 },
         205: { format: '<ihhhhhhhhhhb', type: mavlink.messages.drone_odom_gt, order_map: [0, 11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], crc_extra: 225 },
         206: { format: '<ihhhhb', type: mavlink.messages.drone_pose_gt, order_map: [0, 5, 1, 2, 3, 4], crc_extra: 241 },
         207: { format: '<ihhhhhhhhB', type: mavlink.messages.node_local_fused, order_map: [0, 9, 1, 2, 3, 4, 5, 6, 7, 8], crc_extra: 225 },

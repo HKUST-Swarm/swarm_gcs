@@ -225,6 +225,12 @@ class SwarmGCSUI {
             "INAIR",
             "CRASHED"
         ]
+        let ctrl_input_mode = [
+            "NONE",
+            "RC",
+            "ONBOARD"
+        ]
+
         let obj = this;
         Vue.set(this.view.uavs, _id, {
             x:status.x.toFixed(2),
@@ -233,6 +239,7 @@ class SwarmGCSUI {
             bat_vol:status.bat_vol.toFixed(2),
             ctrl_auth:ctrl_auths[status.control_auth],
             ctrl_mode:ctrl_modes[status.commander_mode],
+            ctrl_input_mode:ctrl_input_mode[status.input_mode],
             flight_status:all_flight_status[status.flight_status],
             vo_valid:status.vo_valid,
             lps_time:status.lps_time,
@@ -444,6 +451,7 @@ Vue.component('uav-component', {
     <small>
       LPS_TIME {{status.lps_time}}
       CTRL_AUTH <span style="color:green">{{status.ctrl_auth}}</span>
+      INPUT_MODE <span style="color:green">{{status.ctrl_input_mode}}</span>
       CTRL_MODE <span style="color:green">{{status.ctrl_mode}}</span>
       FLIGHT_STATUS <span style="color:green">{{status.flight_status}}</span>
       BATVOL: {{status.bat_vol}}
