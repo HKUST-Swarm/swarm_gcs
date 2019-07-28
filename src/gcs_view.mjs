@@ -22,6 +22,8 @@ class SwarmGCSUI {
         this.last_speak_time = tnow() - 10;
 
         this.count = 0;
+
+        this.server_ip = "127.0.0.1";
         
 
         this.global_local_mode = false;
@@ -49,7 +51,8 @@ class SwarmGCSUI {
                 select_id: -1,
                 marker_path:"",
                 display_mode:_dis_mode,
-                primary_id:this.primary_id
+                primary_id:this.primary_id,
+                server_ip: this.server_ip
             },
             methods: {
                 select_all: function() {
@@ -66,6 +69,9 @@ class SwarmGCSUI {
                 },
                 set_primary_id: function (_id) {
                     obj.set_primary_id(_id);
+                },
+                set_server_ip: function (_ip) {
+                    obj.set_server_ip(_ip);
                 }
             }
         });
@@ -78,6 +84,11 @@ class SwarmGCSUI {
         this.uav_local_poses_in_drone_coor = {};
     }
 
+    set_server_ip(_ip) {
+        this.server_ip = _ip;
+        this.view.server_ip = _ip;
+        this.cmder.set_server_ip(_ip)
+    }
 
     send_flyto_cmd(_id) {
         let pos = { 
@@ -197,6 +208,7 @@ class SwarmGCSUI {
     }
 
     set_drone_status(_id, status) {
+
         let ctrl_auths = ["RC", "APP", "ONBOARD"]
         let ctrl_modes = [
             "IDLE",
@@ -228,7 +240,9 @@ class SwarmGCSUI {
             ui:obj
         });
 
-
+        if (!(this.view.primary_id in this.view.uavs)) {
+            this.set_primary_id(_id)
+        }
         if (status.bat_vol < 14.8) {
             this.warn_battery_level(_id, status.bat_vol);
         }

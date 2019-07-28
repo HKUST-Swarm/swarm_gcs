@@ -23,6 +23,9 @@ class SwarmCommander {
 
         this.ui.cmder = this;        
 
+        this.landing_speed = 0.2;
+
+        this.server_ip = this.ui.server_ip;
         this.setup_ros_conn();
     }
     
@@ -78,6 +81,10 @@ class SwarmCommander {
         });
     }
 
+    set_server_ip(_ip) {
+        this.server_ip = _ip;
+    }
+
     on_vicon_msg(_id, msg) {
         this.ui.update_drone_globalpose(_id, msg.pose.position.x, msg.pose.position.y, msg.pose.position.z, 0);
     }
@@ -86,7 +93,7 @@ class SwarmCommander {
         let _ui = this.ui;
         let ros = this.ros = new ROSLIB.Ros({
             // url: "ws://127.0.0.1:9090"
-            url: "ws://192.168.1.208:9090"
+            url: "ws://"+ this.server_ip + ":9090"
         });
         let self = this;
         ros.on("connection", function () {
@@ -188,7 +195,7 @@ class SwarmCommander {
     }
 
     on_drone_realtime_info_recv(_id, lps_time, info) {
-        //console.log("RT msg");
+        // console.log("RT msg");
         // console.log(info.vx/ 100);
         this.ui.update_drone_selfpose(_id, info.x, info.y, info.z, info.yaw/1000.0, info.vx/100.0, info.vy/100.0, info.vz/100.0);
         // this.ui.update_drone_selfpose(_id, info.x, info.y, info.z, info.yaw/1000.0, info.vx/100.0, info.vy/100.0, info.vz/100.0);
@@ -204,7 +211,7 @@ class SwarmCommander {
     send_landing_cmd(_id) {
         console.log("Will send landing command");
         let landing_cmd = 6;
-        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, landing_cmd, 0, 3000, 0, 0, 0, 0, 0, 0, 0, 0);
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, landing_cmd, 0, this.landing_speed *10000, 0, 0, 0, 0, 0, 0, 0, 0);
         this.send_msg_to_swarm(scmd);
     }
 
