@@ -8,7 +8,7 @@ import { OBJLoader2 } from '../libs/jsm/loaders/OBJLoader2.js';
 import { MTLLoader } from '../libs/jsm/loaders/MTLLoader.js';
 import { MtlObjBridge } from "../libs/jsm/loaders/obj2/bridge/MtlObjBridge.js";
 // import { * } from "../libs/jszip.min.js";
-import Stats from '../libs/jsm/libs/stats.module.js';
+import Stats from '../libs/stats.module.js';
 import { EffectComposer } from '../libs/jsm/postprocessing/EffectComposer.js';
 import { OutlinePass } from '../libs/jsm/postprocessing/OutlinePass.js';
 import { RenderPass} from '../libs/jsm/postprocessing/RenderPass.js';
@@ -46,7 +46,8 @@ class ThreeView {
 
         document.getElementById("urdf").appendChild(this.renderer.domElement);
         this.stats = new Stats();
-        document.getElementById("urdf").appendChild(this.stats.dom);
+        document.getElementById("stats").appendChild(this.stats.dom);
+        // this.stats
         this.camera.position.z = 3.0;
         this.camera.position.x = -3;
         this.camera.position.y = -0.3;
@@ -65,7 +66,8 @@ class ThreeView {
 
         let orbit = this.orbit = new OrbitControls(camera, renderer.domElement);
         orbit.update();
-        
+        orbit.maxDistance = 20;
+        orbit.minDistance = 0.3;
         
         this.transform_control = new TransformControls(camera, renderer.domElement);
         this.transform_control.addEventListener('dragging-changed', function (event) {
