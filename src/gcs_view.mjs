@@ -322,6 +322,7 @@ class SwarmGCSUI {
                 this.update_three_id_pose(_id, ret.x, ret.y, ret.z, ret.yaw, ret.vx, ret.vy, ret.vz,
                     ret.covx, ret.covy, ret.covyaw);
             }
+            this.threeview.set_uav_fused_mode(_id);
        }
 
     }
@@ -525,11 +526,11 @@ Vue.component('uav-component', {
     </h5>
     <ul class="list-group list-group-flush">
     <li v-if="status.vo_valid" class="list-group-item"> 
-    <small>
-    X:<span style="color:white;"> {{status.x}} </span>
-    Y:<span style="color:white;"> {{status.y}} </span>
-    Z:<span style="color:white;"> {{status.z}} </span>
-    </small>
+    <span style="font-size:0.6em">
+    X:<span style="color:white;font-size:1.3em"> {{status.x}} </span>
+    Y:<span style="color:white;font-size:1.3em"> {{status.y}} </span>
+    Z:<span style="color:white;font-size:1.3em"> {{status.z}} </span>
+    </span>
     </li>
     <li v-else class="list-group-item"> 
         <span style="color:red;">INVAILD </span>
