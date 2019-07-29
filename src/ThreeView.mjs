@@ -1,6 +1,6 @@
 
 import * as THREE from '../build/three.module.js';
-import { OrbitControls } from '../libs/jsm/controls/OrbitControls.js';
+import { OrbitControls } from '../libs/OrbitControlsiPad.js';
 import { TransformControls } from '../libs/jsm/controls/TransformControls.js';
 import { ThreeMFLoader } from '../libs/jsm/loaders/3MFLoader.js';
 
@@ -20,6 +20,7 @@ import { FXAAShader } from '../libs/jsm/shaders/FXAAShader.js';
 function tnow() {
     return new Date().getTime() / 1000;
 }
+
 let color_set_hot = { 
     red:"#DA5543",
     // yellow:"#F7F9D3",
@@ -130,9 +131,9 @@ class ThreeView {
         var renderPass = new RenderPass( this.scene, this.camera );
         this.composer.addPass( renderPass );
 
-        this.composer.addPass( this.outlinePassFused );
+        // this.composer.addPass( this.outlinePassFused );
         // this.composer.addPass( this.outlinePassMouseHover );
-        this.composer.addPass( this.outlinePassSelected );
+        // this.composer.addPass( this.outlinePassSelected );
 
         let fxaaPass = new ShaderPass( FXAAShader );
 
@@ -142,7 +143,7 @@ class ThreeView {
 		fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / (  $("#urdf").height() * pixelRatio );
         this.composer.addPass( fxaaPass );
 
-        this.selectionBox = new SelectionBox( this.camera, this.scene );
+        // this.selectionBox = new SelectionBox( this.camera, this.scene );
 
 
         renderer.gammaOutput = true;
@@ -164,7 +165,7 @@ class ThreeView {
         this.camera.aspect = this.width / this.height;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize( this.width, this.height );
-        this.selectionBox = new SelectionBox( this.camera, this.scene );
+        // this.selectionBox = new SelectionBox( this.camera, this.scene );
 
         this.position = $("#urdf").position();
     }
