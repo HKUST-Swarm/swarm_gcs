@@ -25,6 +25,8 @@ class SwarmGCSUI {
         this.count = 0;
 
         this.server_ip = "127.0.0.1";
+
+        this.server_ip_list = ["127.0.0.1", "192.168.1.208"]
         
 
         this.global_local_mode = false;

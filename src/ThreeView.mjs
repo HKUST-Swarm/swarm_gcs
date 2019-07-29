@@ -50,7 +50,7 @@ class ThreeView {
         this.camera.up.z = 1;
         // renderer.setClearColor("white", 1);
         this.scene.background = new THREE.Color( 0xcff3fa );
-        this.enable_shadow = false;
+        this.enable_shadow = true;
         
         this.raycaster = new THREE.Raycaster();
 
@@ -176,7 +176,7 @@ class ThreeView {
             // obj.scene.add(object3d);
 
             object3d.traverse(function (child) {
-                // child.castShadow = true;
+                child.castShadow = obj.enable_shadow;
             });
 
             obj.aircraft_model = object3d;
@@ -392,7 +392,7 @@ class ThreeView {
         dirLight.shadow.camera.right = 10;
         dirLight.shadow.camera.near = 0.1;
         dirLight.shadow.camera.far = 200;
-        dirLight.shadow.mapSize.set(256, 256);
+        dirLight.shadow.mapSize.set(512, 512);
         this.scene.add(dirLight);
 
 
@@ -405,7 +405,7 @@ class ThreeView {
         dirLight.shadow.camera.right = 5;
         dirLight.shadow.camera.near = 0.1;
         dirLight.shadow.camera.far = 200;
-        dirLight.shadow.mapSize.set(-128, 128);
+        dirLight.shadow.mapSize.set(512, 512);
         // this.scene.add(dirLight);
 
     
@@ -420,9 +420,9 @@ class ThreeView {
         var m1 = new THREE.MeshPhongMaterial({ color: 0xeeeeee });
         var m2 = new THREE.MeshPhongMaterial({ color: 0x222222 });
         m1.opacity = 0.8;
-        m1.side = THREE.DoubleSide;
+        // m1.side = THREE.DoubleSide;
         m2.opacity = 0.8;
-        m2.side = THREE.DoubleSide;
+        // m2.side = THREE.DoubleSide;
         cbmaterials.push(m1);
         cbmaterials.push(m2);
 
@@ -437,7 +437,7 @@ class ThreeView {
         }
 
         cbmaterials.opacity=.8;
-        cbmaterials.side = THREE.DoubleSide;
+        // cbmaterials.side = THREE.DoubleSide;
 
         // Mesh
         var cb = new THREE.Mesh(cbgeometry, new THREE.MeshFaceMaterial(cbmaterials));
