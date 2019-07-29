@@ -25,7 +25,7 @@
   <!-- <script src='./libs/jszip.min.js'></script> -->
   <style>
     .text-gray {
-      color:gray;
+      color: gray;
     }
 
     body {
@@ -41,112 +41,219 @@
       -webkit-user-select: none;
       -ms-user-select: none;
       position: fixed;
-      width:100%;
-      height:100%;
+      width: 100%;
+      height: 100%;
+    }
+
+    #uavs {
+      border-radius: 30px;
+      /* background-color: aqua; */
+      background-color: rgba(124, 145, 150, 0.8);
+      /* filter: blur(10px); */
+      overflow-y: scroll;
+      height: 80%;
+      position: fixed;
+      left: 1em;
+      top: 5em;
+      padding: 5px 15px;
+    }
+
+    #uavs-wrap {
+      border-radius: 30px;
+      /* background-color: aqua; */
+      background-color: rgba(124, 145, 150, 0.8);
+      /* filter: blur(10px); */
+      overflow-y: scroll;
+      height: 10%;
+      position: fixed;
+      left: 1em;
+      top: 5em;
+      padding: 5px 15px;
+    }
+
+
+    #SWARM {
+      padding: 10px 5px;
+      text-align: center;
+      color: white;
+    }
+
+    .uav_comp {
+      border-radius: 20px;
+      background-color: #526164;
+    }
+
+    .uav_comp * {
+      padding: 5px 8px;
+      color: bisque;
+    }
+
+    .list-group-item {
+      background-color: transparent;
+    }
+
+    .uav_details {
+      font-size: 0.6em;
+    }
+
+
+    ::-webkit-scrollbar {
+      display: none;
+    }
+
+    .uav_bar {
+      background-color: rgba(124, 145, 150, 0.8);
+    }
+
+    #urdf {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      left: 0px;
+      top: 0px;
+    }
+
+    #cmdAera {
+      position: fixed;
+      right: 5%;
+      bottom: 5%;
+      width: 30%;
+      height: 25%;
+      z-index: 1000;
+      background: rgba(62,	72,	75, 0.8);
+      border-radius: 20px;
+      color:white;
+    }
+
+    #cmdAera * {
+      padding: 5px 5px;
+    }
+
+    #cmdAera * {
+      text-align: center;
+    }
+
+    .uav_component {
+      margin-bottom: 10px;
+      float: top;
+
     }
   </style>
+
+
 </head>
 
 
 <body draggable="false">
+  <div id="urdf"></div>
+
   <div class="container-fluid" style="width: 100%" id="container">
-    
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">SWARM GCS</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-      
-        <div class="collapse navbar-collapse  my-2 my-lg-0" id="navbarSupportedContent">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="#" v-bind:style="{ color: ros_conn_color }">ROS: {{ros_conn}}</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#" v-bind:style="{ color: self_id_color }">GCS_ID: {{self_id}}</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" v-bind:style="{ color: total_remote_color }">TOTAL: {{remote_nodes}}</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" v-bind:style="{ color: total_remote_color }">AVAIL: {{available_nodes}}</a>
-            </li>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href="#">SWARM GCS</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                DISPLAY_MODE:{{display_mode}}
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="#" v-on:click="set_display_mode_global">GLOBAL</a>
-                <a class="dropdown-item" href="#" v-on:click="set_display_mode_local">LOCAL</a>
-              </div>
-            </li>
+      <div class="collapse navbar-collapse  my-2 my-lg-0" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="#" v-bind:style="{ color: ros_conn_color }">ROS: {{ros_conn}}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" v-bind:style="{ color: self_id_color }">GCS_ID: {{self_id}}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" v-bind:style="{ color: total_remote_color }">TOTAL: {{remote_nodes}}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" v-bind:style="{ color: total_remote_color }">AVAIL: {{available_nodes}}</a>
+          </li>
 
-            
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  PRIMARY_ID:{{primary_id}}
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="#" v-for="(_, _id) in uavs" v-on:click="set_primary_id(_id)">{{_id}}</a>
-                </div>
-            </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              DISPLAY_MODE:{{display_mode}}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="#" v-on:click="set_display_mode_global">GLOBAL</a>
+              <a class="dropdown-item" href="#" v-on:click="set_display_mode_local">LOCAL</a>
+            </div>
+          </li>
 
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                SERVER_IP:{{server_ip}}
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <!-- <a class="dropdown-item" href="#" v-on:click="set_server_ip('127.0.0.1')">LOCALHOST</a> -->
-                <a class="dropdown-item" href="#" v-for="(_ip, _i) in server_ip_list" v-on:click="set_server_ip('_ip')">{{_ip}}</a>
-              </div>
-            </li>
-            
-            <li class="nav-item">
-              <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true" v-bind:style="{ color: lps_time_color }">LPS_TIME {{lps_time}}</a>
-            </li>
-          </ul>
-          <!-- <form class="form-inline my-2 my-lg-0">
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              PRIMARY_ID:{{primary_id}}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="#" v-for="(_, _id) in uavs" v-on:click="set_primary_id(_id)">{{_id}}</a>
+            </div>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              SERVER_IP:{{server_ip}}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <!-- <a class="dropdown-item" href="#" v-on:click="set_server_ip('127.0.0.1')">LOCALHOST</a> -->
+              <a class="dropdown-item" href="#" v-for="(_ip, _i) in server_ip_list"
+                v-on:click="set_server_ip(_ip)">{{_ip}}</a>
+            </div>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true"
+              v-bind:style="{ color: lps_time_color }">LPS_TIME {{lps_time}}</a>
+          </li>
+        </ul>
+        <!-- <form class="form-inline my-2 my-lg-0">
             <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
           </form> -->
-        </div>
-      </nav>
-    
-    <div class="row" style="height: 90%">
-
-      <div class="container-fluid col-2 border border-primary container-fluid" style="overflow-y: scroll; height: 100%;" id="uavs">
-              <h2 id="SWARM" class="text-dark" v-on:click="select_all">UAVs</h2>
-              <br />
-              <uav-component
-                v-for="(_status, status) in uavs"
-                v-bind:_id="_status._id"
-                v-bind:status="_status"
-              ></uav-component>
       </div>
-      <div class="col-10 border border-secondary" style="width: 100%; height:100%;" id="urdf"></div>
-      <div style="position: fixed; right:3%; top:10%" id="stats"></div>
+    </nav>
+
+    <div class="row" style="height: 90%"></div>
+    <div v-if="! is_wrap_swarm" class="container-fluid col-2 container-fluid" id="uavs" v-on:dblclick="wrap_swarm()">
+      <h2 id="SWARM" v-on:click="select_all">SWARM</h2>
+      <hr/>
+      <uav-component class="uav_comp" v-for="(_status, status) in uavs" v-bind:_id="_status._id"
+        v-bind:status="_status"></uav-component>
     </div>
-    <div v-if="select_id >=0 " style="position: fixed; right: 5%; top: 35%; width: 10%; z-index:1000; opacity: 0.8;">
-        <img :src="marker_path" width="100%"/>
-    </div>
-      <div style="position: fixed; right: 5%; bottom: 5%; width: 30%; height:25%; z-index:1000; opacity: 0.9; background: gray">
-        <h4>Command Aera:    <span id="select_id" style="color:red">{{selected_uav}}</span></h4>
-        <button type="button"  v-on:click="command('takeoff')" class="btn btn-lg btn-primary" id="takeoff">Takeoff</button>
-        <button type="button"  v-on:click="command('landing')" class="btn btn-primary btn-lg" id="landing">Landing</button>
-        <button type="button"  v-on:click="command('emergency')"class="btn btn-primary btn-lg" style="color:red" id="emlanding">Emergency</button>
-        <button type="button"  v-on:click="command('flyto')"class="btn btn-primary btn-lg" style="color:red" id="flyto">Flyto</button>
+
+    <div v-else class="container-fluid col-2 container-fluid" id="uavs-wrap" v-on:click="unwrap_swarm()">
+        <h2 id="SWARM" v-on:click="select_all">SWARM</h2>
         <hr/>
-        <button type="button" class="btn btn-lg btn-secondary" >Mission A</button>
-        <button type="button" class="btn btn-secondary btn-lg" >Mission B</button>
+    </div>
+
+    <div style="position: fixed; left:1em; bottom:1em" id="stats"></div>
+    <div v-if="select_id >=0 " style="position: fixed; right: 5%; top: 35%; width: 10%; z-index:1000; opacity: 0.8;">
+        <img :src="marker_path" width="100%" />
+      </div>
+      <div id="cmdAera">
+        <h4>Command Aera: <span id="select_id" style="color:red"> {{selected_uav}} </span></h4>
+        <div>
+          <button type="button" v-on:click="command('takeoff')" class="btn btn-lg btn-primary" id="takeoff">Takeoff</button>
+          <button type="button" v-on:click="command('landing')" class="btn btn-primary btn-lg" id="landing">Landing</button>
+          <button type="button" v-on:click="command('emergency')" class="btn btn-primary btn-lg" style="color:red"
+            id="emlanding">Emergency</button>
+          <button type="button" v-on:click="command('flyto')" class="btn btn-primary btn-lg" style="color:red"
+            id="flyto">Flyto</button>
+          <hr />
+          <button type="button" class="btn btn-lg btn-secondary">Mission A</button>
+          <button type="button" class="btn btn-secondary btn-lg">Mission B</button>
+        </div>
         <!-- <button type="button" class="btn btn-secondary btn-lg" >Mission C</button> -->
         <!-- <button type="button" class="btn btn-secondary btn-lg" >Mission D</button> -->
       </div>
   </div>
 
   <script type="module">
-    import {SwarmCommander} from './src/swarm_commander.mjs';
+    import { SwarmCommander } from './src/swarm_commander.mjs';
     import { SwarmGCSUI } from "./src/gcs_view.mjs";
     var ui = new SwarmGCSUI();
     // console.log(ui);

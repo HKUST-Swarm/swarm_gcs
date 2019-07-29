@@ -5,6 +5,8 @@ function tnow() {
     return new Date().getTime() / 1000;
 }
 
+let good_topbar_color = "#cff3fa";
+
 class SwarmGCSUI {
     constructor() {
         let obj = this;
@@ -57,7 +59,8 @@ class SwarmGCSUI {
                 display_mode:_dis_mode,
                 primary_id:this.primary_id,
                 server_ip: this.server_ip,
-                server_ip_list: this.server_ip_list
+                server_ip_list: this.server_ip_list,
+                is_wrap_swarm: false
             },
             methods: {
                 select_all: function() {
@@ -77,6 +80,12 @@ class SwarmGCSUI {
                 },
                 set_server_ip: function (_ip) {
                     obj.set_server_ip(_ip);
+                },
+                wrap_swarm : function () {
+                    obj.view.is_wrap_swarm = true;
+                },
+                unwrap_swarm : function () {
+                    obj.view.is_wrap_swarm = false;
                 }
             }
         });
@@ -93,15 +102,18 @@ class SwarmGCSUI {
     set_server_ip(_ip) {
         this.server_ip = _ip;
         this.view.server_ip = _ip;
-        this.cmder.set_server_ip(_ip)
+        this.cmder.set_server_ip(_ip, true)
     }
 
     select_next_server_ip() {
         console.log(this.server_ip_list.length);
         this.server_ip_index = (this.server_ip_index + 1) % this.server_ip_list.length;
         console.log("Select next ip" + this.server_ip_index);
-
-        this.set_server_ip(this.server_ip_list[this.server_ip_index])
+        let _ip = this.server_ip_list[this.server_ip_index];
+        this.server_ip = _ip;
+        this.view.server_ip = _ip;
+        this.cmder.set_server_ip(_ip)
+        // this.set_server_ip(this.server_ip_list[this.server_ip_index])
     }
 
     send_flyto_cmd(_id) {
@@ -192,31 +204,31 @@ class SwarmGCSUI {
     set_ros_conn(_conn) {
         this.view.ros_conn = _conn;
         if (_conn == "CONNECTED") {
-            this.view.ros_conn_color = "green";
+            this.view.ros_conn_color = good_topbar_color;
         } else {
             this.view.ros_conn_color = "red";
         }
     }
 
     set_self_id(_id) {
-        this.view.self_id_color = "green";
+        this.view.self_id_color = good_topbar_color;
         this.view.self_id = _id; 
     }
 
 
     set_available_drone_num( _num) {
         this.view.available_nodes = _num;
-        this.view.available_remote_color = "green";
+        this.view.available_remote_color = good_topbar_color;
     }
 
     set_total_drone_num(_num) {
-        this.view.total_remote_color = "green";
+        this.view.total_remote_color = good_topbar_color;
         this.view.remote_nodes = _num;
     }
 
     set_lps_time(_lps_time) {
         if (this.count ++ % 10 == 0) {
-            this.view.lps_time_color = "green"
+            this.view.lps_time_color = good_topbar_color;
             this.view.lps_time = _lps_time;
         }
     }
@@ -505,15 +517,19 @@ Vue.component('uav-component', {
       },
     props: ["_id", "status"],    
     template:  `     
-    <div v-on:click="select_uav(status.ui, status._id)" class="card" style="width: 100%; height=5em;">
+    <div v-on:click="select_uav(status.ui, status._id)" class="card uav_component" style="width: 100%; height=5em;">
+    <img v-bind:src="'./imgs/4x4_1000-'+status._id + '.svg'" style="height:3em; width:3em; right:0em; position:absolute;" />
+
     <h5>
     <span class="glyphicon glyphicon-plane" aria-hidden="true"></span> {{status._id}}
     </h5>
     <ul class="list-group list-group-flush">
     <li v-if="status.vo_valid" class="list-group-item"> 
-    X:<span style="color:green;"> {{status.x}} </span>
-    Y:<span style="color:green;"> {{status.y}} </span>
-    Z:<span style="color:green;"> {{status.z}} </span>
+    <small>
+    X:<span style="color:white;"> {{status.x}} </span>
+    Y:<span style="color:white;"> {{status.y}} </span>
+    Z:<span style="color:white;"> {{status.z}} </span>
+    </small>
     </li>
     <li v-else class="list-group-item"> 
         <span style="color:red;">INVAILD </span>
@@ -522,17 +538,16 @@ Vue.component('uav-component', {
         Z:<span style="color:red;"> {{status.z}} </span>
     </li>
     <li class="list-group-item"> 
-    <small>
+    <div class="uav_details">
       LPS_TIME {{status.lps_time}}
-      CTRL_AUTH <span style="color:green">{{status.ctrl_auth}}</span>
-      INPUT_MODE <span style="color:green">{{status.ctrl_input_mode}}</span>
-      CTRL_MODE <span style="color:green">{{status.ctrl_mode}}</span>
-      FLIGHT_STATUS <span style="color:green">{{status.flight_status}}</span>
+      CTRL_AUTH <span style="color:white">{{status.ctrl_auth}}</span>
+      INPUT_MODE <span style="color:white">{{status.ctrl_input_mode}}</span>
+      CTRL_MODE <span style="color:white">{{status.ctrl_mode}}</span>
+      FLIGHT_STATUS <span style="color:white">{{status.flight_status}}</span>
       BATVOL: {{status.bat_vol}}
-    </small>
+    </div>
     </li>
     </ul>
-    <img v-bind:src="'./imgs/4x4_1000-'+status._id + '.svg'" style="height:3em; width:3em; right:0em; position:absolute;" />
   </div>`
 })
 

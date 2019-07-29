@@ -27,6 +27,8 @@ class SwarmCommander {
 
         this.server_ip = this.ui.server_ip;
         this.setup_ros_conn();
+
+        this.connected = false;
     }
     
     sub_vicon_id(i) {
@@ -81,8 +83,20 @@ class SwarmCommander {
         });
     }
 
-    set_server_ip(_ip) {
-        this.server_ip = _ip;
+    set_server_ip(_ip, reconnect=false) {
+        if (reconnect && _ip != this.server_ip) {
+            console.log("Need reconect");
+            console.log(this.ros);
+
+            if(this.connected) {
+                this.ros.close();
+            }
+
+            this.server_ip = _ip;
+            this.setup_ros_conn();
+        } else {
+            this.server_ip = _ip;
+        }
     }
 
     on_vicon_msg(_id, msg) {
@@ -98,14 +112,17 @@ class SwarmCommander {
         let self = this;
         ros.on("connection", function () {
             // console.log("Connected to websocket server.");
+            self.connected = true;
             _ui.set_ros_conn("CONNECTED");
+
             self.setup_ros_sub_pub();
         });
         
         ros.on('error', function(error) {
             console.log('Error connecting to websocket server: ', error);
             _ui.set_ros_conn("ERROR");
-            this.vicon_subs = {};
+            self.connected = false;
+            self.vicon_subs = {};
             ros.close();
             // setTimeout(() => {
             //     self.setup_ros_conn();
@@ -115,9 +132,10 @@ class SwarmCommander {
         ros.on('close', function() {
             console.log('Connection to websocket server closed.');
             _ui.set_ros_conn("CLOSED..");
+            self.connected = false;
             _ui.select_next_server_ip();
             ros.close();
-            this.vicon_subs = {};
+            self.vicon_subs = {};
 
             setTimeout(() => {
                 self.setup_ros_conn();
