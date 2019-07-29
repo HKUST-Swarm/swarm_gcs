@@ -399,7 +399,7 @@ class SwarmGCSUI {
             this.view.marker_path = "";
 
         } else {
-            this.view.selected_uav = "Drone ID: " + _id;
+            this.view.selected_uav =  _id;
             this.view.marker_path = "./imgs/4x4_1000-"+_id + ".svg";
             // console.log(this.view.marker_path);
         }

@@ -29,6 +29,9 @@ let color_set_hot = {
     white:"#F0FFFC",
     blue:"#BAACE7"
 }
+
+let use_outline_passes = true;
+
 class ThreeView {
     constructor() {
         let obj = this;
@@ -133,9 +136,11 @@ class ThreeView {
         var renderPass = new RenderPass( this.scene, this.camera );
         this.composer.addPass( renderPass );
 
-        // this.composer.addPass( this.outlinePassFused );
-        // this.composer.addPass( this.outlinePassMouseHover );
-        // this.composer.addPass( this.outlinePassSelected );
+        if (use_outline_passes) {
+            this.composer.addPass( this.outlinePassFused );
+            this.composer.addPass( this.outlinePassMouseHover );
+            this.composer.addPass( this.outlinePassSelected );
+        }
 
         let fxaaPass = new ShaderPass( FXAAShader );
 

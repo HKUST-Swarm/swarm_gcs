@@ -138,7 +138,7 @@
       right: 1em;
       bottom: 1em;
       width: 30%;
-      height: 30%;
+      height: 33%;
       z-index: 1000;
       background: rgba(62,	72,	75, 0.8);
       border-radius: 20px;
@@ -182,8 +182,8 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="collapse navbar-collapse  my-2 my-lg-0" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
+      <div class="collapse navbar-collapse my-2 my-lg-0" id="navbarSupportedContent">
+        <ul class="nav navbar-nav navbar-center ml-auto">
           <li class="nav-item active">
             <a class="nav-link" href="#" v-bind:style="{ color: ros_conn_color }">ROS: {{ros_conn}}</a>
           </li>
@@ -273,7 +273,9 @@
         <img :src="marker_path" width="100%" />
       </div>
       <div id="cmdAera">
-        <h4>Command Aera: <span id="select_id" style="color:red"> {{selected_uav}} </span></h4>
+        <h4>Command Aera: <span id="select_id" style="color:red"> 
+          <img src="material-design-icons/maps/drawable-xxxhdpi/ic_flight_white_48dp.png" style="height: 1.4em; width: 1.4em;" />
+          {{selected_uav}} </span></h4>
         <div>
           <button type="button" v-on:click="command('takeoff')" class="btn btn-lg btn-primary" id="takeoff">
             <img src="material-design-icons/action/drawable-xxxhdpi/ic_flight_takeoff_white_48dp.png" class="small_icon" />
