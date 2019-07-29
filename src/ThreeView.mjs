@@ -31,6 +31,7 @@ let color_set_hot = {
 }
 
 // let use_outline_passes = true;
+let use_outline_passes = false;
 
 class ThreeView {
     constructor() {
