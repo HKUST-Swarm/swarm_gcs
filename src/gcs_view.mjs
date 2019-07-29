@@ -522,7 +522,7 @@ Vue.component('uav-component', {
     <img v-bind:src="'./imgs/4x4_1000-'+status._id + '.svg'" style="height:3em; width:3em; right:0em; position:absolute;" />
 
     <h5>
-    <span class="glyphicon glyphicon-plane" aria-hidden="true"></span> {{status._id}}
+    <img src="material-design-icons/maps/drawable-xxxhdpi/ic_flight_white_48dp.png" class="small_icon" />{{status._id}}
     </h5>
     <ul class="list-group list-group-flush">
     <li v-if="status.vo_valid" class="list-group-item"> 
