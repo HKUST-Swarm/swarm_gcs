@@ -1,20 +1,25 @@
 
-import * as THREE from '../libs/three.module.js';
-import { OrbitControls } from '../libs/controls/OrbitControls.js';
-import { TransformControls } from '../libs/controls/TransformControls.js';
-import { ThreeMFLoader } from '../libs/3MFLoader.js';
+import * as THREE from '../build/three.module.js';
+import { OrbitControls } from '../libs/jsm/controls/OrbitControls.js';
+import { TransformControls } from '../libs/jsm/controls/TransformControls.js';
+import { ThreeMFLoader } from '../libs/jsm/loaders/3MFLoader.js';
 
-import { OBJLoader2 } from '../libs/OBJLoader2.js';
-import { MTLLoader } from '../libs/MTLLoader.js';
-import { MtlObjBridge } from "../libs/obj2/bridge/MtlObjBridge.js";
+import { OBJLoader2 } from '../libs/jsm/loaders/OBJLoader2.js';
+import { MTLLoader } from '../libs/jsm/loaders/MTLLoader.js';
+import { MtlObjBridge } from "../libs/jsm/loaders/obj2/bridge/MtlObjBridge.js";
 // import { * } from "../libs/jszip.min.js";
-import Stats from '../libs/stats.module.js';
-import { EffectComposer } from '../libs/postprocessing/EffectComposer.js';
-import { OutlinePass } from '../libs/postprocessing/OutlinePass.js';
-import { RenderPass} from '../libs/postprocessing/RenderPass.js';
-import { ShaderPass} from '../libs/postprocessing/ShaderPass.js';
-import { FXAAShader } from '../libs/shaders/FXAAShader.js';
+import Stats from '../libs/jsm/libs/stats.module.js';
+import { EffectComposer } from '../libs/jsm/postprocessing/EffectComposer.js';
+import { OutlinePass } from '../libs/jsm/postprocessing/OutlinePass.js';
+import { RenderPass} from '../libs/jsm/postprocessing/RenderPass.js';
+import { ShaderPass} from '../libs/jsm/postprocessing/ShaderPass.js';
+import { FXAAShader } from '../libs/jsm/shaders/FXAAShader.js';
+// import { SelectionBox } from '../libs/jsm/interactive/SelectionBox.js';
+// import { SelectionHelper } from '../libs/jsm/interactive/SelectionHelper.js';
 
+function tnow() {
+    return new Date().getTime() / 1000;
+}
 let color_set_hot = { 
     red:"#DA5543",
     // yellow:"#F7F9D3",
@@ -50,7 +55,8 @@ class ThreeView {
         this.camera.up.z = 1;
         // renderer.setClearColor("white", 1);
         this.scene.background = new THREE.Color( 0xcff3fa );
-        this.enable_shadow = true;
+        // this.enable_shadow = true;
+        this.enable_shadow = false;
         
         this.raycaster = new THREE.Raycaster();
 
@@ -86,10 +92,14 @@ class ThreeView {
             obj.onTouchMove(e, "down");
         } );
 
+        window.addEventListener('touchstart', function(e) {
+            console.log(e);
+            obj.onTouchMove(e, "down");
+        });
+
         window.addEventListener( 'mousemove', function(e) {
             // obj.onTouchMove(e, "mousehover");
         } );
-
 
         window.addEventListener( 'resize', function (e) {
             obj.onWindowResize();
@@ -132,6 +142,9 @@ class ThreeView {
 		fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / (  $("#urdf").height() * pixelRatio );
         this.composer.addPass( fxaaPass );
 
+        this.selectionBox = new SelectionBox( this.camera, this.scene );
+
+
         renderer.gammaOutput = true;
         renderer.gammaFactor = 2.2;
         renderer.shadowMap.enabled = true;
@@ -151,6 +164,7 @@ class ThreeView {
         this.camera.aspect = this.width / this.height;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize( this.width, this.height );
+        this.selectionBox = new SelectionBox( this.camera, this.scene );
 
         this.position = $("#urdf").position();
     }
@@ -159,7 +173,7 @@ class ThreeView {
         let obj = this;
 
 
-        var loader = new ThreeMFLoader();
+        // var loader = new ThreeMFLoader();
         
         // loader.load( '../models/swarm-drone-0-0-4-ms.3mf', function ( object ) {
         //     object.traverse( function ( child ) {
@@ -177,10 +191,18 @@ class ThreeView {
 
             object3d.traverse(function (child) {
                 child.castShadow = obj.enable_shadow;
+                // child.material.emissive.setHex( 0xff0000 );
             });
 
             obj.aircraft_model = object3d;
             // console.log(object3d);
+            var mesh = object3d.children[0];
+            // console.log(mesh.material);
+            // for (var _i in mesh.material) {
+                // mesh.material[_i].emissive.setHex( 0xDA5543 );
+                // mesh.material[_i].emissiveIntensity = 0.2;
+            // }
+
             // console.log( 'Loading complete: ' + modelName );
             // scope._reportProgress( { detail: { text: '' } } );
         };
@@ -235,6 +257,8 @@ class ThreeView {
         mouse.x = ( x / this.width ) * 2 - 1;
         mouse.y = - ( y / this.height ) * 2 + 1;
 
+        // console.log("check mouse");
+        // console.log(mouse);
         if (m_type == "down") {
             this.checkIntersection(mouse, "select");
         } else {
@@ -243,22 +267,32 @@ class ThreeView {
     }
 
     checkIntersection(mouse, e) {
+        let t1 = tnow();
         var selected = []
         this.raycaster.setFromCamera( mouse, this.camera );
         var intersects = this.raycaster.intersectObjects( [ this.scene ], true );
         if (intersects.length == 0) {
             return;
         }
-        var selectedObject = intersects[ 0 ].object;
-        if (selectedObject.name in this.name_uav_id) {
-            selected.push(selectedObject);
-            if (e == "select") {
-                this.ui.on_select_uav(this.name_uav_id[selectedObject.name]);
+
+        
+        for (var i in intersects) {
+            var selectedObject = intersects[i].object;
+            console.log(selectedObject.name);
+            if (selectedObject.name in this.name_uav_id) {
+                console.log("Select " + selectedObject.name);
+                selected.push(selectedObject);
+                if (e == "select") {
+                    this.ui.on_select_uav(this.name_uav_id[selectedObject.name]);
+                }
+            }
+            if (e == "mousehover") {
+                this.outlinePassMouseHover.selectedObjects = selected;
             }
         }
-        if (e == "mousehover") {
-            this.outlinePassMouseHover.selectedObjects = selected;
-        }
+
+        let t2 = tnow();
+        console.log(t2-t1);
     }
 
     create_cov_sphere() {
@@ -497,7 +531,7 @@ class ThreeView {
         object.position.y = this.uavs[_id].position.y;
         object.position.z = this.uavs[_id].position.z;
 
-        console.log(object.position);
+        // console.log(object.position);
         this.transform_control.attach(object);
 
     }

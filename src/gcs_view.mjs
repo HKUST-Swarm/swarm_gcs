@@ -1,5 +1,5 @@
 import {ThreeView} from "./ThreeView.mjs"
-import * as THREE from '../libs/three.module.js';
+import * as THREE from '../build/three.module.js';
 
 function tnow() {
     return new Date().getTime() / 1000;
@@ -22,10 +22,11 @@ class SwarmGCSUI {
         this.warn_count = 0;
         this.last_speak_time = tnow() - 10;
 
+
         this.count = 0;
 
         this.server_ip = "127.0.0.1";
-
+        this.server_ip_index = 0;
         this.server_ip_list = ["127.0.0.1", "192.168.1.208", "192.168.1.195"]
         
 
@@ -55,7 +56,8 @@ class SwarmGCSUI {
                 marker_path:"",
                 display_mode:_dis_mode,
                 primary_id:this.primary_id,
-                server_ip: this.server_ip
+                server_ip: this.server_ip,
+                server_ip_list: this.server_ip_list
             },
             methods: {
                 select_all: function() {
@@ -92,6 +94,14 @@ class SwarmGCSUI {
         this.server_ip = _ip;
         this.view.server_ip = _ip;
         this.cmder.set_server_ip(_ip)
+    }
+
+    select_next_server_ip() {
+        console.log(this.server_ip_list.length);
+        this.server_ip_index = (this.server_ip_index + 1) % this.server_ip_list.length;
+        console.log("Select next ip" + this.server_ip_index);
+
+        this.set_server_ip(this.server_ip_list[this.server_ip_index])
     }
 
     send_flyto_cmd(_id) {

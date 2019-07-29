@@ -35,13 +35,20 @@
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
+      user-select: none;
+      -moz-user-select: none;
+      -webkit-user-drag: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      position: fixed;
+      width:100%;
+      height:100%;
     }
-}
   </style>
 </head>
 
 
-<body>
+<body draggable="false">
   <div class="container-fluid" style="width: 100%" id="container">
     
 
@@ -91,8 +98,8 @@
                 SERVER_IP:{{server_ip}}
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="#" v-on:click="set_server_ip('127.0.0.1')">LOCALHOST</a>
-                <a class="dropdown-item" href="#" v-on:click="set_server_ip('192.168.1.208')">192.168.1.208</a>
+                <!-- <a class="dropdown-item" href="#" v-on:click="set_server_ip('127.0.0.1')">LOCALHOST</a> -->
+                <a class="dropdown-item" href="#" v-for="(_ip, _i) in server_ip_list" v-on:click="set_server_ip('_ip')">{{_ip}}</a>
               </div>
             </li>
             
