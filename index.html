@@ -164,6 +164,17 @@
       /* #343a40 */
     }
 
+    .slide-fade-enter-active {
+      transition: all .3s ease;
+    }
+    .slide-fade-leave-active {
+      transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+    }
+    .slide-fade-enter, .slide-fade-leave-to
+    /* .slide-fade-leave-active for below version 2.1.8 */ {
+      transform: translateX(10px);
+      opacity: 0;
+    }
   </style>
 
 
@@ -244,29 +255,30 @@
     </nav>
 
     <div class="row" style="height: 90%"></div>
-    <div v-if="! is_wrap_swarm" class="container-fluid col-2 container-fluid" id="swarm-sidebar">
-      <h2 id="SWARM" v-on:click="select_all">SWARM</h2>
-      <img src="material-design-icons/navigation/drawable-hdpi/ic_expand_less_white_48dp.png" 
-      class="middle_icon" 
-      style="position: absolute; right:1em; top:1em;"
-      v-on:click="wrap_swarm()"
-      />
-      <hr/>
-      <div class="uav-list">
-      <uav-component class="uav_comp" v-for="(_status, status) in uavs" v-bind:_id="_status._id"
-        v-bind:status="_status"></uav-component>
-      </div>
-    </div>
-
-    <div v-else class="container-fluid col-2 container-fluid" id="swarm-sidebar-wrap">
+    <transition name="slide-fade">
+      <div v-if="! is_wrap_swarm" class="container-fluid col-2 container-fluid" id="swarm-sidebar">
         <h2 id="SWARM" v-on:click="select_all">SWARM</h2>
-        <img src="material-design-icons/navigation/drawable-hdpi/ic_expand_more_white_48dp.png" 
+        <img src="material-design-icons/navigation/drawable-hdpi/ic_expand_less_white_48dp.png" 
         class="middle_icon" 
         style="position: absolute; right:1em; top:1em;"
-        v-on:click="unwrap_swarm()"
+        v-on:click="wrap_swarm()"
         />
         <hr/>
-    </div>
+        <div class="uav-list">
+          <uav-component class="uav_comp" v-for="(_status, status) in uavs" v-bind:_id="_status._id"
+          v-bind:status="_status"></uav-component>
+        </div>
+      </div>
+      <div v-else class="container-fluid col-2 container-fluid" id="swarm-sidebar-wrap">
+          <h2 id="SWARM" v-on:click="select_all">SWARM</h2>
+          <img src="material-design-icons/navigation/drawable-hdpi/ic_expand_more_white_48dp.png" 
+          class="middle_icon" 
+          style="position: absolute; right:1em; top:1em;"
+          v-on:click="unwrap_swarm()"
+          />
+          <hr/>
+      </div>
+    </transition>
 
     <div style="position: fixed; left:1em; bottom:1em" id="stats"></div>
       <div v-if="select_id >=0 " style="position: fixed; right: 5%; top: 35%; width: 10%; z-index:1000; opacity: 0.8;">
