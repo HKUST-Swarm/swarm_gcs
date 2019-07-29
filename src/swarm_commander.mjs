@@ -153,7 +153,12 @@ class SwarmCommander {
                     this.on_node_local_fused(incoming_msg.remote_id, incoming_msg.lps_time, msg);
                     break;
                 }
-                console.log(msg);
+
+                case "NODE_BASED_FUSED": {
+                    // console.log(msg);
+                    this.on_node_based_coorindate(incoming_msg.remote_id, incoming_msg.lps_time, msg);
+                }
+                // console.log(msg);
 
             }
         }
@@ -165,6 +170,11 @@ class SwarmCommander {
         // console.log(msg);    
         this.ui.update_drone_localpose_in_coorinate(msg.target_id, msg.x/1000.0, msg.y/1000.0, 
             msg.z/1000.0, msg.yaw/1000.0, _id, msg.cov_x/1000.0, msg.cov_y/1000.0, msg.cov_z/1000.0, msg.cov_yaw/1000.0);
+    }
+
+    on_node_based_coorindate(_id, lps_time, msg) {
+        this.ui.update_drone_based_coorinate(msg.target_id, msg.rel_x/1000.0, msg.rel_y/1000.0, 
+            msg.rel_z/1000.0, msg.rel_yaw_offset/1000.0, _id, msg.cov_x/1000.0, msg.cov_y/1000.0, msg.cov_z/1000.0, msg.cov_yaw/1000.0);
     }
 
 

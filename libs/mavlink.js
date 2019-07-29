@@ -1237,6 +1237,7 @@ mavlink.MAVLINK_MSG_ID_DRONE_STATUS = 204
 mavlink.MAVLINK_MSG_ID_DRONE_ODOM_GT = 205
 mavlink.MAVLINK_MSG_ID_DRONE_POSE_GT = 206
 mavlink.MAVLINK_MSG_ID_NODE_LOCAL_FUSED = 207
+mavlink.MAVLINK_MSG_ID_NODE_BASED_FUSED = 208
 mavlink.MAVLINK_MSG_ID_HEARTBEAT = 0
 mavlink.MAVLINK_MSG_ID_SYS_STATUS = 1
 mavlink.MAVLINK_MSG_ID_SYSTEM_TIME = 2
@@ -1422,17 +1423,21 @@ mavlink.messages.node_realtime_info.prototype.pack = function(mav) {
                 rel_y                     : Relative Y Position*1000 (int16_t)
                 rel_z                     : Relative Z Position*1000 (int16_t)
                 rel_yaw_offset            : Relative Yaw coorinate offset *1000 (int16_t)
+                cov_x                     : X Position Cov*1000 (int16_t)
+                cov_y                     : Y Position Cov*1000 (int16_t)
+                cov_z                     : Z Position Cov*1000 (int16_t)
+                cov_yaw                   : Yaw Cov*1000 (int16_t)
 
 */
-mavlink.messages.node_relative_fused = function(lps_time, target_id, rel_x, rel_y, rel_z, rel_yaw_offset) {
+mavlink.messages.node_relative_fused = function(lps_time, target_id, rel_x, rel_y, rel_z, rel_yaw_offset, cov_x, cov_y, cov_z, cov_yaw) {
 
-    this.format = '<ihhhhB';
+    this.format = '<ihhhhhhhhB';
     this.id = mavlink.MAVLINK_MSG_ID_NODE_RELATIVE_FUSED;
-    this.order_map = [0, 5, 1, 2, 3, 4];
-    this.crc_extra = 164;
+    this.order_map = [0, 9, 1, 2, 3, 4, 5, 6, 7, 8];
+    this.crc_extra = 236;
     this.name = 'NODE_RELATIVE_FUSED';
 
-    this.fieldnames = ['lps_time', 'target_id', 'rel_x', 'rel_y', 'rel_z', 'rel_yaw_offset'];
+    this.fieldnames = ['lps_time', 'target_id', 'rel_x', 'rel_y', 'rel_z', 'rel_yaw_offset', 'cov_x', 'cov_y', 'cov_z', 'cov_yaw'];
 
 
     this.set(arguments);
@@ -1442,7 +1447,7 @@ mavlink.messages.node_relative_fused = function(lps_time, target_id, rel_x, rel_
 mavlink.messages.node_relative_fused.prototype = new mavlink.message;
 
 mavlink.messages.node_relative_fused.prototype.pack = function(mav) {
-    return mavlink.message.prototype.pack.call(this, mav, this.crc_extra, jspack.Pack(this.format, [ this.lps_time, this.rel_x, this.rel_y, this.rel_z, this.rel_yaw_offset, this.target_id]));
+    return mavlink.message.prototype.pack.call(this, mav, this.crc_extra, jspack.Pack(this.format, [ this.lps_time, this.rel_x, this.rel_y, this.rel_z, this.rel_yaw_offset, this.cov_x, this.cov_y, this.cov_z, this.cov_yaw, this.target_id]));
 }
 
 /* 
@@ -1660,6 +1665,42 @@ mavlink.messages.node_local_fused.prototype = new mavlink.message;
 
 mavlink.messages.node_local_fused.prototype.pack = function(mav) {
     return mavlink.message.prototype.pack.call(this, mav, this.crc_extra, jspack.Pack(this.format, [ this.lps_time, this.x, this.y, this.z, this.yaw, this.cov_x, this.cov_y, this.cov_z, this.cov_yaw, this.target_id]));
+}
+
+/* 
+
+
+                lps_time                  : LPS_TIME (int32_t)
+                target_id                 : Target ID of drone (uint8_t)
+                rel_x                     : Relative X Position*1000 (int16_t)
+                rel_y                     : Relative Y Position*1000 (int16_t)
+                rel_z                     : Relative Z Position*1000 (int16_t)
+                rel_yaw_offset            : Relative Yaw coorinate offset *1000 (int16_t)
+                cov_x                     : X Position Cov*1000 (int16_t)
+                cov_y                     : Y Position Cov*1000 (int16_t)
+                cov_z                     : Z Position Cov*1000 (int16_t)
+                cov_yaw                   : Yaw Cov*1000 (int16_t)
+
+*/
+mavlink.messages.node_based_fused = function(lps_time, target_id, rel_x, rel_y, rel_z, rel_yaw_offset, cov_x, cov_y, cov_z, cov_yaw) {
+
+    this.format = '<ihhhhhhhhB';
+    this.id = mavlink.MAVLINK_MSG_ID_NODE_BASED_FUSED;
+    this.order_map = [0, 9, 1, 2, 3, 4, 5, 6, 7, 8];
+    this.crc_extra = 216;
+    this.name = 'NODE_BASED_FUSED';
+
+    this.fieldnames = ['lps_time', 'target_id', 'rel_x', 'rel_y', 'rel_z', 'rel_yaw_offset', 'cov_x', 'cov_y', 'cov_z', 'cov_yaw'];
+
+
+    this.set(arguments);
+
+}
+        
+mavlink.messages.node_based_fused.prototype = new mavlink.message;
+
+mavlink.messages.node_based_fused.prototype.pack = function(mav) {
+    return mavlink.message.prototype.pack.call(this, mav, this.crc_extra, jspack.Pack(this.format, [ this.lps_time, this.rel_x, this.rel_y, this.rel_z, this.rel_yaw_offset, this.cov_x, this.cov_y, this.cov_z, this.cov_yaw, this.target_id]));
 }
 
 /* 
@@ -6479,13 +6520,14 @@ mavlink.messages.debug.prototype.pack = function(mav) {
 
 mavlink.map = {
         200: { format: '<ifffhhhh10HB', type: mavlink.messages.node_realtime_info, order_map: [0, 9, 1, 2, 3, 4, 5, 6, 7, 8], crc_extra: 61 },
-        201: { format: '<ihhhhB', type: mavlink.messages.node_relative_fused, order_map: [0, 5, 1, 2, 3, 4], crc_extra: 164 },
+        201: { format: '<ihhhhhhhhB', type: mavlink.messages.node_relative_fused, order_map: [0, 9, 1, 2, 3, 4, 5, 6, 7, 8], crc_extra: 236 },
         202: { format: '<iiiiiiiiiiibB', type: mavlink.messages.swarm_remote_command, order_map: [0, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], crc_extra: 125 },
         203: { format: '<ihhhhb', type: mavlink.messages.node_detected, order_map: [0, 5, 1, 2, 3, 4], crc_extra: 94 },
         204: { format: '<ifffffBBBBBBBB', type: mavlink.messages.drone_status, order_map: [0, 6, 7, 8, 9, 10, 11, 12, 13, 1, 2, 3, 4, 5], crc_extra: 124 },
         205: { format: '<ihhhhhhhhhhb', type: mavlink.messages.drone_odom_gt, order_map: [0, 11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], crc_extra: 225 },
         206: { format: '<ihhhhb', type: mavlink.messages.drone_pose_gt, order_map: [0, 5, 1, 2, 3, 4], crc_extra: 241 },
         207: { format: '<ihhhhhhhhB', type: mavlink.messages.node_local_fused, order_map: [0, 9, 1, 2, 3, 4, 5, 6, 7, 8], crc_extra: 225 },
+        208: { format: '<ihhhhhhhhB', type: mavlink.messages.node_based_fused, order_map: [0, 9, 1, 2, 3, 4, 5, 6, 7, 8], crc_extra: 216 },
         0: { format: '<IBBBBB', type: mavlink.messages.heartbeat, order_map: [1, 2, 3, 0, 4, 5], crc_extra: 50 },
         1: { format: '<IIIHHhHHHHHHb', type: mavlink.messages.sys_status, order_map: [0, 1, 2, 3, 4, 5, 12, 6, 7, 8, 9, 10, 11], crc_extra: 124 },
         2: { format: '<QI', type: mavlink.messages.system_time, order_map: [0, 1], crc_extra: 137 },

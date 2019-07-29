@@ -296,9 +296,9 @@ class ThreeView {
         this.uav_cov_spheres[_id].position.x = x;
         this.uav_cov_spheres[_id].position.y = y;
         this.uav_cov_spheres[_id].position.z = z;
-        var sa = 3*Math.sqrt(covx);
-        var sb = 3*Math.sqrt(covy);
-        var sc = 3*Math.sqrt(covz);
+        var sa = Math.sqrt(covx);
+        var sb = Math.sqrt(covy);
+        var sc = Math.sqrt(covz);
         sa = Math.min(Math.max(sa, 0.001), 0.5);
         sb = Math.min(Math.max(sa, 0.001), 0.5);
         sc = Math.min(Math.max(sa, 0.001), 0.5);

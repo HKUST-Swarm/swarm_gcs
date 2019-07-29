@@ -1,4 +1,5 @@
 import {ThreeView} from "./ThreeView.mjs"
+import * as THREE from '../libs/three.module.js';
 
 function tnow() {
     return new Date().getTime() / 1000;
@@ -82,6 +83,7 @@ class SwarmGCSUI {
         this.uav_local_poses = {};
         this.uav_global_poses = {};
         this.uav_local_poses_in_drone_coor = {};
+        this.other_vo_origin = {};
     }
 
     set_server_ip(_ip) {
@@ -250,7 +252,7 @@ class SwarmGCSUI {
         if (!(this.view.primary_id in this.view.uavs)) {
             this.set_primary_id(_id)
         }
-        if (status.bat_vol < 14.8) {
+        if (status.bat_vol < 14.7) {
             this.warn_battery_level(_id, status.bat_vol);
         }
 
@@ -287,6 +289,66 @@ class SwarmGCSUI {
        this.uav_local_poses[_id] = {
            x:x, y:y, z:z, yaw:yaw
        };
+
+
+       if (!this.global_local_mode && _id != this.primary_id) {
+        // Transfer coorindate with based coorinate
+            var ret = this.transfer_vo_with_based(x, y, z, yaw, _id, this.primary_id);
+            if (ret !== null) {
+                this.update_three_id_pose(_id, ret.x, ret.y, ret.z, ret.yaw, ret.vx, ret.vy, ret.vz,
+                    ret.covx, ret.covy, ret.covyaw);
+            }
+       }
+
+    }
+
+    transfer_vo_with_based(x, y, z, yaw, self_id, base_id) {
+        if (! (base_id in this.other_vo_origin) || !(self_id in this.other_vo_origin[base_id])) {
+            return null;
+        }
+
+        // p.position = a.attitude * b.position + a.position;
+        // p.attitude = a.attitude * b.attitude;
+        // p.update_yaw();
+
+        var other_vo_origin = this.other_vo_origin[base_id][self_id];//Is a
+
+        var euler_a = new THREE.Euler(0, 0, other_vo_origin.yaw, 'XYZ' );
+        var b_position = new THREE.Vector3( x, y, z);
+        b_position.applyEuler(euler_a);
+        b_position.add(new THREE.Vector3(other_vo_origin.x, other_vo_origin.y, other_vo_origin.z));
+
+        var res_yaw = other_vo_origin.yaw + yaw;
+        return {
+            x:b_position.x,
+            y:b_position.y,
+            z:b_position.z,
+            yaw:res_yaw,
+            vx:null,
+            vy:null,
+            vz:null,
+            covx:other_vo_origin.covx,
+            covx:other_vo_origin.covy,
+            covx:other_vo_origin.covz,
+            covyaw:other_vo_origin.covyaw
+        }
+    }
+
+    update_drone_based_coorinate(node_id, x, y, z, yaw, base_id, covx=0, covy=0, covz=0, covyaw=0) {
+        if (! (base_id in this.other_vo_origin)) {
+            this.other_vo_origin[base_id] = {};
+        }
+
+        this.other_vo_origin[base_id][node_id] = {
+            x:x,
+            y:y,
+            z:z,
+            yaw:yaw,
+            covx:covx,
+            covy:covy,
+            covz:covz,
+            covyaw:covyaw
+        }
     }
 
 
