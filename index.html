@@ -45,12 +45,12 @@
       height: 100%;
     }
 
-    #uavs {
+    #swarm-sidebar {
       border-radius: 30px;
       /* background-color: aqua; */
       background-color: rgba(124, 145, 150, 0.8);
       /* filter: blur(10px); */
-      overflow-y: scroll;
+      /* overflow-y: scroll; */
       height: 80%;
       position: fixed;
       left: 1em;
@@ -58,17 +58,24 @@
       padding: 5px 15px;
     }
 
-    #uavs-wrap {
+    #swarm-sidebar-wrap {
       border-radius: 30px;
       /* background-color: aqua; */
       background-color: rgba(124, 145, 150, 0.8);
       /* filter: blur(10px); */
-      overflow-y: scroll;
       height: 10%;
       position: fixed;
       left: 1em;
       top: 5em;
       padding: 5px 15px;
+    }
+    
+    .uav-list {
+      overflow-y: scroll;
+      height: 85%;
+      top:0%;
+      position: relative;
+      border-radius: 20px;
     }
 
 
@@ -105,6 +112,16 @@
       background-color: rgba(124, 145, 150, 0.8);
     }
 
+    .small_icon {
+      height:2.0em; 
+      width: 2.0em; 
+    }
+
+    .middle_icon {
+      height:2.5em; 
+      width: 2.5em; 
+    }
+
     #urdf {
       position: fixed;
       width: 100%;
@@ -115,10 +132,10 @@
 
     #cmdAera {
       position: fixed;
-      right: 5%;
-      bottom: 5%;
+      right: 1em;
+      bottom: 1em;
       width: 30%;
-      height: 25%;
+      height: 30%;
       z-index: 1000;
       background: rgba(62,	72,	75, 0.8);
       border-radius: 20px;
@@ -133,11 +150,22 @@
       text-align: center;
     }
 
+    #cmdAera button {
+      margin-bottom: 5px;
+      font-size: 1.0em;
+    }
+
     .uav_component {
       margin-bottom: 10px;
       float: top;
 
     }
+
+    .bg-dark {
+      background: rgba(52, 58, 64, 0.9) !important;
+      /* #343a40 */
+    }
+
   </style>
 
 
@@ -218,31 +246,52 @@
     </nav>
 
     <div class="row" style="height: 90%"></div>
-    <div v-if="! is_wrap_swarm" class="container-fluid col-2 container-fluid" id="uavs" v-on:dblclick="wrap_swarm()">
+    <div v-if="! is_wrap_swarm" class="container-fluid col-2 container-fluid" id="swarm-sidebar">
       <h2 id="SWARM" v-on:click="select_all">SWARM</h2>
+      <img src="material-design-icons/navigation/drawable-hdpi/ic_expand_less_white_48dp.png" 
+      class="middle_icon" 
+      style="position: absolute; right:1em; top:1em;"
+      v-on:click="wrap_swarm()"
+      />
       <hr/>
+      <div class="uav-list">
       <uav-component class="uav_comp" v-for="(_status, status) in uavs" v-bind:_id="_status._id"
         v-bind:status="_status"></uav-component>
+      </div>
     </div>
 
-    <div v-else class="container-fluid col-2 container-fluid" id="uavs-wrap" v-on:click="unwrap_swarm()">
+    <div v-else class="container-fluid col-2 container-fluid" id="swarm-sidebar-wrap">
         <h2 id="SWARM" v-on:click="select_all">SWARM</h2>
+        <img src="material-design-icons/navigation/drawable-hdpi/ic_expand_more_white_48dp.png" 
+        class="middle_icon" 
+        style="position: absolute; right:1em; top:1em;"
+        v-on:click="unwrap_swarm()"
+        />
         <hr/>
     </div>
 
     <div style="position: fixed; left:1em; bottom:1em" id="stats"></div>
-    <div v-if="select_id >=0 " style="position: fixed; right: 5%; top: 35%; width: 10%; z-index:1000; opacity: 0.8;">
+      <div v-if="select_id >=0 " style="position: fixed; right: 5%; top: 35%; width: 10%; z-index:1000; opacity: 0.8;">
         <img :src="marker_path" width="100%" />
       </div>
       <div id="cmdAera">
         <h4>Command Aera: <span id="select_id" style="color:red"> {{selected_uav}} </span></h4>
         <div>
-          <button type="button" v-on:click="command('takeoff')" class="btn btn-lg btn-primary" id="takeoff">Takeoff</button>
-          <button type="button" v-on:click="command('landing')" class="btn btn-primary btn-lg" id="landing">Landing</button>
-          <button type="button" v-on:click="command('emergency')" class="btn btn-primary btn-lg" style="color:red"
-            id="emlanding">Emergency</button>
+          <button type="button" v-on:click="command('takeoff')" class="btn btn-lg btn-primary" id="takeoff">
+            <img src="material-design-icons/action/drawable-xxxhdpi/ic_flight_takeoff_white_48dp.png" class="small_icon" />
+            Takeoff
+          </button>
+          <button type="button" v-on:click="command('landing')" class="btn btn-primary btn-lg" id="landing">
+              <img src="material-design-icons/action/drawable-xxxhdpi/ic_flight_land_white_48dp.png" class="small_icon" />
+            Landing</button>
+          <button type="button" v-on:click="command('emergency')" class="btn btn-primary btn-lg" style="color:red" id="emlanding">
+            <img src="material-design-icons/alert/drawable-xxxhdpi/ic_warning_white_48dp.png" class="small_icon" />
+            Emergency
+          </button>
           <button type="button" v-on:click="command('flyto')" class="btn btn-primary btn-lg" style="color:red"
-            id="flyto">Flyto</button>
+            id="flyto">
+            <img src="material-design-icons/content/drawable-xxxhdpi/ic_forward_white_48dp.png" class="small_icon" />
+            Flyto</button>
           <hr />
           <button type="button" class="btn btn-lg btn-secondary">Mission A</button>
           <button type="button" class="btn btn-secondary btn-lg">Mission B</button>
