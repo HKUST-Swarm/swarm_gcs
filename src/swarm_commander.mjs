@@ -1,3 +1,6 @@
+import * as THREE from '../build/three.module.js';
+
+
 function _base64ToArrayBuffer(base64) {
     var binary_string = window.atob(base64);
     var len = binary_string.length;
@@ -74,7 +77,10 @@ class SwarmCommander {
             self.on_incoming_data(incoming_msg);
         });
 
-        this.vicon_subs = {}
+        this.vicon_subs = {
+            2: this.sub_vicon_id(2),
+            0: this.sub_vicon_id(0)
+        }
        
         this.send_uwb_msg = new ROSLIB.Topic({
             ros : ros,
@@ -100,7 +106,14 @@ class SwarmCommander {
     }
 
     on_vicon_msg(_id, msg) {
-        this.ui.update_drone_globalpose(_id, msg.pose.position.x, msg.pose.position.y, msg.pose.position.z, 0);
+        // msg.qua
+        var euler = new THREE.Euler(0, 2.34, 0);
+
+        let _q = msg.pose.orientation;
+        var quat = new THREE.Quaternion(_q.x, _q.y, _q.z, _q.w);
+        euler.setFromQuaternion(quat);
+
+        this.ui.update_drone_globalpose(_id, msg.pose.position.x, msg.pose.position.y, msg.pose.position.z, euler.z);
     }
 
     setup_ros_conn () {
