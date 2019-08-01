@@ -3,7 +3,12 @@
 <head>
   <title>SWARM GCS</title>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" >
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" >
+  <meta name="apple-mobile-web-app-title" content="SwarmGCS">
+  <link rel="apple-touch-icon" type="image/png" href="./icon_ios.png" />
+
   <link rel="icon" type="image/png" href="./icon.png" />
 
   <!-- Bootstrap CSS -->
@@ -42,7 +47,9 @@
       -webkit-user-select: none;
       -ms-user-select: none;
       position: fixed;
+      -webkit-tap-highlight-color: transparent;
       width: 100%;
+      background-color:  rgba(52, 58, 64);
       height: 100%;
     }
 
@@ -138,7 +145,7 @@
       right: 1em;
       bottom: 1em;
       width: 30%;
-      height: 33%;
+      /* height: 33%; */
       z-index: 1000;
       background: rgba(62,	72,	75, 0.8);
       border-radius: 20px;
@@ -181,13 +188,13 @@
 </head>
 
 
-<body draggable="false">
+<body draggable="false"  ontouchstart=””>
   <div id="urdf"></div>
 
   <div class="container-fluid" style="width: 100%" id="container">
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <a class="navbar-brand" href="#">SWARM GCS</a>
+      <a class="navbar-brand" href="#" v-on:click="toggle_fullscreen()">SWARM GCS</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -319,6 +326,7 @@
     var ui = new SwarmGCSUI();
     // console.log(ui);
     var sc = new SwarmCommander(ui);
+
   </script>
 </body>
 

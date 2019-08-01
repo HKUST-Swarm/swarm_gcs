@@ -86,6 +86,9 @@ class SwarmGCSUI {
                 },
                 unwrap_swarm : function () {
                     obj.view.is_wrap_swarm = false;
+                },
+                toggle_fullscreen: function () {
+                    document.body.requestFullscreen();
                 }
             }
         });
