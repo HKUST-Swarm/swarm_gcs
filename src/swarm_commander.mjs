@@ -78,8 +78,8 @@ class SwarmCommander {
         });
 
         this.vicon_subs = {
-            2: this.sub_vicon_id(2),
-            0: this.sub_vicon_id(0)
+            // 2: this.sub_vicon_id(2),
+            // 0: this.sub_vicon_id(0)
         }
        
         this.send_uwb_msg = new ROSLIB.Topic({
