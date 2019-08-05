@@ -1,5 +1,5 @@
 import * as THREE from '../build/three.module.js';
-
+import {PointCloud2} from './pointcloud2.mjs';
 
 function _base64ToArrayBuffer(base64) {
     var binary_string = window.atob(base64);
@@ -87,6 +87,20 @@ class SwarmCommander {
             name : '/uwb_node/send_broadcast_data',
             messageType : 'inf_uwb_ros/data_buffer'
         });
+
+        this.sub_pcl = new ROSLIB.Topic({
+            ros:ros,
+            messageType:"sensor_msgs/PointCloud2",
+            name:"/surfel_fusion/pointcloud"
+        });
+
+        this.sub_pcl.subscribe(function (msg) {
+            console.log("Loading..");
+            console.log(msg.data.length/1000000);
+            let pcl = new PointCloud2(msg);
+            // console.log(pcl.points);
+        });
+
     }
 
     set_server_ip(_ip, reconnect=false) {
