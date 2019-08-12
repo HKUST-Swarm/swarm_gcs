@@ -95,6 +95,8 @@ class ThreeView {
 
         this.fused_pose_uavs = {};
 
+        this.pcl = null;
+
         window.addEventListener( 'mousedown', function(e) {
             obj.onTouchMove(e, "down");
         } );
@@ -176,6 +178,14 @@ class ThreeView {
         // this.selectionBox = new SelectionBox( this.camera, this.scene );
 
         this.position = $("#urdf").position();
+    }
+
+    update_pcl(pcl) {
+        if (this.pcl != null) {
+            this.scene.remove(this.pcl);            
+        }
+        this.pcl = pcl.points_object();
+        this.scene.add(this.pcl);
     }
 
     load_aircraft() {
@@ -301,7 +311,7 @@ class ThreeView {
         }
 
         let t2 = tnow();
-        console.log(t2-t1);
+        // console.log(t2-t1);
     }
 
     create_cov_sphere() {

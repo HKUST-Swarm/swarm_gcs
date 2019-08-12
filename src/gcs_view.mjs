@@ -29,7 +29,8 @@ class SwarmGCSUI {
 
         this.server_ip = "127.0.0.1";
         this.server_ip_index = 0;
-        this.server_ip_list = ["127.0.0.1", "192.168.1.208", "192.168.1.195"]
+        this.server_ip_list = ["127.0.0.1", "192.168.1.208", "192.168.1.195", "192.168.3.4"]
+        this.display_pcl = true;
         
 
         this.global_local_mode = false;
@@ -216,6 +217,13 @@ class SwarmGCSUI {
     set_self_id(_id) {
         this.view.self_id_color = good_topbar_color;
         this.view.self_id = _id; 
+    }
+
+
+    update_pcl(pcl) {
+        if (this.display_pcl) {
+            this.threeview.update_pcl(pcl);
+        }
     }
 
 

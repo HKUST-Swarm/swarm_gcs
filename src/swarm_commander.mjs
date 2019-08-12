@@ -31,6 +31,9 @@ class SwarmCommander {
         this.server_ip = this.ui.server_ip;
         this.setup_ros_conn();
 
+        this.last_recv_pcl = tnow();
+        this.pcl_duration = 0.3;
+
         this.connected = false;
     }
     
@@ -95,12 +98,18 @@ class SwarmCommander {
         });
 
         this.sub_pcl.subscribe(function (msg) {
-            console.log("Loading..");
-            console.log(msg.data.length/1000000);
-            let pcl = new PointCloud2(msg);
             // console.log(pcl.points);
+            self.on_pcl_recv(msg);
         });
 
+    }
+
+    on_pcl_recv(msg) {
+        if (tnow() - this.last_recv_pcl > this.pcl_duration) {
+            var pcl = new PointCloud2(msg);
+            this.ui.update_pcl(pcl);
+            this.last_recv_pcl = tnow();
+        }    
     }
 
     set_server_ip(_ip, reconnect=false) {

@@ -10,6 +10,10 @@
  * are copied every other 'pointRatio' records.
  * returns the number of decoded records
  */
+
+import * as THREE from '../build/three.module.js';
+
+
 function decode64(inbytes, outbytes, record_size, pointRatio) {
     var x,b=0,l=0,j=0,L=inbytes.length,A=outbytes.length;
     record_size = record_size || A; // default copies everything (no skipping)
@@ -59,13 +63,23 @@ for(var i=0;i<64;i++){decode64.e[decode64.S.charAt(i)]=i;}
  */
 class PointCloud2 {
     constructor(msg) {
-      this.max_pts = 10000;
+      this.max_pts = 100000;
       this.points = [];
       this.buffer = null;
       console.log("loading msg");
+      this.colors = []
+      this.points = []
+
       this.processMessage(msg);
+
     }
     processMessage (msg){
+
+    var fields = {};
+    for (var k in msg.fields) {
+      fields[msg.fields[k].name] = msg.fields[k];
+    }
+    // console.log(fields);
     // if(!this.points.setup(msg.header.frame_id, msg.point_step, msg.fields)) {
         // return;
     // }
@@ -87,18 +101,32 @@ class PointCloud2 {
 
     var dv = new DataView(this.buffer.buffer);
     var littleEndian = !msg.is_bigendian;
-    var x = 0;
-    var y = 0;
-    var z = 0;
-    var base, color;
+    var x = fields.x.offset;
+    var y = fields.y.offset;
+    var z = fields.z.offset;
+  
+    var base;
     for(var i = 0; i < n; i++){
       base = i * pointRatio * msg.point_step;
       // this.points.positions.array[3*i    ] = dv.getFloat32(base+x, littleEndian);
       // this.points.positions.array[3*i + 1] = dv.getFloat32(base+y, littleEndian);
       // this.points.positions.array[3*i + 2] = dv.getFloat32(base+z, littleEndian);
-      this.points.push(dv.getFloat32(base+x, littleEndian));
-      this.points.push(dv.getFloat32(base+y, littleEndian));
-      this.points.push(dv.getFloat32(base+z, littleEndian));
+
+      var px = dv.getFloat32(base+x, littleEndian);
+      var py = dv.getFloat32(base+y, littleEndian);
+      var pz = dv.getFloat32(base+z, littleEndian);
+
+      this.points.push(px);
+      this.points.push(py);
+      this.points.push(pz);
+
+      var vx = ( px / 10 ) + 0.5;
+			var vy = ( py / 10 ) + 0.5;
+      var vz = ( pz / 2.0 ) +1.5;
+      // console.log(vx);
+      var color = new THREE.Color();
+      color.setHSL(vz, 1, 0.5);
+			this.colors.push( color.r, color.g, color.b );
 
       // if(this.points.colors){
       //     color = this.points.colormap(this.points.getColor(dv,base,littleEndian));
@@ -107,8 +135,18 @@ class PointCloud2 {
       //     this.points.colors.array[3*i + 2] = color.b;
       // }
     }
-    console.log("PCL length", this.points.length/3)
+    console.log("PCL length" + (this.points.length/3/1000.0).toFixed(1) + "k points");
   };
+
+  points_object() {
+    var geometry = new THREE.BufferGeometry();
+    geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( this.points, 3 ) );
+    geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( this.colors, 3 ) );
+    geometry.computeBoundingSphere();
+    var material = new THREE.PointsMaterial( { size: 0.1, vertexColors: THREE.VertexColors } );
+    var points = new THREE.Points( geometry, material );
+    return points;
+  }
 }
 
 export {PointCloud2};
