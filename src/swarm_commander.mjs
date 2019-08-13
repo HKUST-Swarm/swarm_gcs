@@ -1,5 +1,5 @@
 import * as THREE from '../build/three.module.js';
-import {PointCloud2} from './pointcloud2.mjs';
+import {BaseCommander} from "./base_commander.mjs"
 
 function _base64ToArrayBuffer(base64) {
     var binary_string = window.atob(base64);
@@ -16,10 +16,10 @@ function tnow() {
 }
   
 let vaild_ids = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-class SwarmCommander {
+class SwarmCommander extends BaseCommander{
     constructor(ui) {
+        super(ui);
         this.mav = new MAVLink(null, 0, 0);
-        this.ui = ui;
 
         this.select_id = -1;
         this._lps_time = 0;
@@ -28,13 +28,9 @@ class SwarmCommander {
 
         this.landing_speed = 0.2;
 
-        this.server_ip = this.ui.server_ip;
-        this.setup_ros_conn();
-
         this.last_recv_pcl = tnow();
         this.pcl_duration = 0.3;
 
-        this.connected = false;
     }
     
     sub_vicon_id(i) {
@@ -90,46 +86,9 @@ class SwarmCommander {
             name : '/uwb_node/send_broadcast_data',
             messageType : 'inf_uwb_ros/data_buffer'
         });
-
-        this.sub_pcl = new ROSLIB.Topic({
-            ros:ros,
-            messageType:"sensor_msgs/PointCloud2",
-            name:"/surfel_fusion/pointcloud"
-        });
-
-        this.sub_pcl.subscribe(function (msg) {
-            // console.log(pcl.points);
-            self.on_pcl_recv(msg);
-        });
-
     }
 
-    on_pcl_recv(msg) {
-        if (tnow() - this.last_recv_pcl > this.pcl_duration) {
-            var ts = tnow();
-            var pcl = new PointCloud2(msg);
-            this.ui.update_pcl(pcl);
-            this.last_recv_pcl = tnow();
-            console.log("Total time " + ((tnow() - ts)*1000.0).toFixed(1) + "ms");
-        }    
-    }
-
-    set_server_ip(_ip, reconnect=false) {
-        if (reconnect && _ip != this.server_ip) {
-            console.log("Need reconect");
-            console.log(this.ros);
-
-            if(this.connected) {
-                this.ros.close();
-            }
-
-            this.server_ip = _ip;
-            this.setup_ros_conn();
-        } else {
-            this.server_ip = _ip;
-        }
-    }
-
+ 
     on_vicon_msg(_id, msg) {
         // msg.qua
         var euler = new THREE.Euler(0, 2.34, 0);
@@ -139,46 +98,6 @@ class SwarmCommander {
         euler.setFromQuaternion(quat);
 
         this.ui.update_drone_globalpose(_id, msg.pose.position.x, msg.pose.position.y, msg.pose.position.z, euler.z);
-    }
-
-    setup_ros_conn () {
-        let _ui = this.ui;
-        let ros = this.ros = new ROSLIB.Ros({
-            // url: "ws://127.0.0.1:9090"
-            url: "ws://"+ this.server_ip + ":9090"
-        });
-        let self = this;
-        ros.on("connection", function () {
-            // console.log("Connected to websocket server.");
-            self.connected = true;
-            _ui.set_ros_conn("CONNECTED");
-
-            self.setup_ros_sub_pub();
-        });
-        
-        ros.on('error', function(error) {
-            console.log('Error connecting to websocket server: ', error);
-            _ui.set_ros_conn("ERROR");
-            self.connected = false;
-            self.vicon_subs = {};
-            ros.close();
-            // setTimeout(() => {
-            //     self.setup_ros_conn();
-            // }, (1000));
-        });
-        
-        ros.on('close', function() {
-            console.log('Connection to websocket server closed.');
-            _ui.set_ros_conn("CLOSED..");
-            self.connected = false;
-            _ui.select_next_server_ip();
-            ros.close();
-            self.vicon_subs = {};
-
-            setTimeout(() => {
-                self.setup_ros_conn();
-            }, (1000));
-        });
     }
 
     on_incoming_data(incoming_msg) {

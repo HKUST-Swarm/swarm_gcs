@@ -337,19 +337,23 @@ class ThreeView {
         return circle;
     }
 
-    update_uav_pose(_id, x, y, z, yaw, vx=null, vy=null, vz=null, covx=0, covy=0, covz=0, covyaw=0, update_yaw_var = false) {
+    update_uav_pose(_id, pos, quat, vx=null, vy=null, vz=null, covx=0, covy=0, covz=0, covyaw=0, update_yaw_var = false) {
         // console.log(_id)
-        this.uavs[_id].position.x = x;
-        this.uavs[_id].position.y = y;
-        this.uavs[_id].position.z = z;
-        if (yaw !== null) {
-            this.uavs[_id].quaternion.setFromEuler(new THREE.Euler(0, 0, yaw));
-        }
+        this.uavs[_id].position.x = pos[0];
+        this.uavs[_id].position.y = pos[1];
+        this.uavs[_id].position.z = pos[2];
+        this.uavs[_id].quaternion.w = quat[0];
+        this.uavs[_id].quaternion.x = quat[1];
+        this.uavs[_id].quaternion.y = quat[2];
+        this.uavs[_id].quaternion.z = quat[3];
+        // if (yaw !== null) {
+            // this.uavs[_id].quaternion.setFromEuler(new THREE.Euler(0, 0, yaw));
+        // }
         // console.log(this.uav_cov_spheres);
         
-        this.uav_cov_spheres[_id].position.x = x;
-        this.uav_cov_spheres[_id].position.y = y;
-        this.uav_cov_spheres[_id].position.z = z;
+        this.uav_cov_spheres[_id].position.x = pos[0];
+        this.uav_cov_spheres[_id].position.y = pos[1];
+        this.uav_cov_spheres[_id].position.z = pos[2];
         var sa = Math.sqrt(covx);
         var sb = Math.sqrt(covy);
         var sc = Math.sqrt(covz);
@@ -380,7 +384,7 @@ class ThreeView {
                 } 
                 // console.log("Adding yaw var "+ var_yaw);
                 var cir = this.create_cov_circle(var_yaw);
-                cir.quaternion.setFromEuler(new THREE.Euler(0, 0, yaw));
+                cir.quaternion = this.uavs[_id].quaternion;
                 this.uav_cov_circles[_id] = cir;
                 cir.position.x = x;
                 cir.position.y = y;

@@ -298,40 +298,40 @@ class SwarmGCSUI {
 
     }
 
-    update_three_id_pose(_id, x, y, z, yaw = null, vx=null, vy=null, vz=null, covx=0, covy=0, covz=0, covyaw=0, update_yaw_cov = false) {
+    update_three_id_pose(_id, pos, quat, vx=null, vy=null, vz=null, covx=0, covy=0, covz=0, covyaw=0, update_yaw_cov = false) {
         if (!this.threeview.has_uav(_id)) {
             this.threeview.insert_uav(_id);
         }
         if (this.threeview.has_uav(_id)) {        
-            this.threeview.update_uav_pose(_id, x, y, z, yaw, vx, vy, vz, covx, covy, covz, covyaw, update_yaw_cov);
+            this.threeview.update_uav_pose(_id, pos, quat, vx, vy, vz, covx, covy, covz, covyaw, update_yaw_cov);
         }
     }
 
-    update_drone_globalpose(_id, x, y, z, yaw = null) {
+    update_drone_globalpose(_id, pos, quat) {
         if (this.global_local_mode) {
-            this.update_three_id_pose(_id, x, y, z, yaw);
+            this.update_three_id_pose(_id, pos, quat);
         }
         this.uav_global_poses[_id]= {
-            x:x, y:y, z:z, yaw:yaw
+            pos:pos, quat:quat
         };
     }
 
-    update_drone_selfpose(_id, x, y, z, yaw = null, vx=null, vy=null, vz=null) {
+    update_drone_selfpose(_id, pos, quat, vx=null, vy=null, vz=null) {
        if (!this.global_local_mode && _id == this.primary_id) {
-            this.update_three_id_pose(_id, x, y, z, yaw, vx, vy, vz);
+            this.update_three_id_pose(_id, pos, quat, vx, vy, vz);
        }
 
        this.uav_local_poses[_id] = {
-           x:x, y:y, z:z, yaw:yaw
+           pos:pos, quat:quat
        };
 
 
        if (!this.global_local_mode && _id != this.primary_id) {
         // Transfer coorindate with based coorinate
-            var ret = this.transfer_vo_with_based(x, y, z, yaw, _id, this.primary_id);
+            var ret = this.transfer_vo_with_based(x, y, z, quat, _id, this.primary_id);
             if (ret !== null) {
-                this.update_three_id_pose(_id, ret.x, ret.y, ret.z, ret.yaw, ret.vx, ret.vy, ret.vz,
-                    ret.covx, ret.covy, ret.covyaw);
+                this.update_three_id_pose(_id, pos, quat, ret.vx, ret.vy, ret.vz,
+                    ret.covx, ret.covy, ret.covz, ret.covyaw);
             }
             this.threeview.set_uav_fused_mode(_id);
        }

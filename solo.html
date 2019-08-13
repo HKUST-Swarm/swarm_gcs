@@ -233,7 +233,6 @@
   void main() {
     if (is_border()) {
       gl_FragColor = vec4(0.043, 0.235, 0.431, 1.0);
-      gl_FragColor = vec4(0.043, 0.235, 0.431, 1.0);
 
     } else {
       gl_FragColor = vColor;
@@ -376,11 +375,11 @@
   </div>
 
   <script type="module">
-    import { SwarmCommander } from './src/swarm_commander.mjs';
+    import { SoloCommander } from './src/solo_commander.mjs';
     import { SwarmGCSUI } from "./src/gcs_view.mjs";
     var ui = new SwarmGCSUI();
     // console.log(ui);
-    var sc = new SwarmCommander(ui);
+    var sc = new SoloCommander(ui);
 
   </script>
 </body>

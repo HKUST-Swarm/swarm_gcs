@@ -68,22 +68,68 @@ for(var i=0;i<64;i++){decode64.e[decode64.S.charAt(i)]=i;}
  *  * colormap (optional) - function that turns the colorsrc field value to a color
  */
 class PointCloud2 {
-    constructor(msg) {
+    constructor(msg, is_pcl2 = true) {
       this.max_pts = 100000;
       this.points = [];
       this.buffer = null;
       console.log("loading msg");
       this.colors = []
       this.points = []
-      this.grid_size = 0.1;
+      this.grid_size = 0.15;
 
       this.grid_map = {}
 
-      this.processMessage(msg);
+      if (is_pcl2) {
+        this.processMessage_pcl2(msg);
+      } else {
+        this.processMessage_pcl(msg);
+      }
 
 
     }
-    processMessage (msg){
+    processMessage_pcl (msg) {
+      var ts = tnow();
+
+      for(var i = 0; i < msg.points.length; i++){
+        var px = msg.points[i].x;
+        var py = msg.points[i].y;
+        var pz = msg.points[i].z;
+  
+        var pxn = Math.round(px / this.grid_size);
+        var pyn = Math.round(py / this.grid_size);
+        var pzn = Math.round(pz / this.grid_size);
+        px = pxn * this.grid_size;
+        py = pyn * this.grid_size;
+        pz = pzn * this.grid_size;
+  
+        var obj = pxn.toString() + "|" + pyn.toString() + "|" + pzn.toString();
+        // console.log(obj);
+        if (isNaN(px) || isNaN(py) || isNaN(pz)) {
+          continue;
+        }
+  
+        if (this.grid_map[obj] == true) {
+          continue;
+        } else {
+          this.grid_map[obj] = true;
+        }
+  
+        this.points.push(px);
+        this.points.push(py);
+        this.points.push(pz);
+  
+        var vx = ( px / 10 ) + 0.5;
+        var vy = ( py / 10 ) + 0.5;
+        var vz = ( pz / 10 ) + 0.5;
+        // console.log(vx);
+        var color = new THREE.Color();
+        color.setHSL(vz, 1, 0.5);
+        this.colors.push( color.r, color.g, color.b );
+  
+      }
+      console.log("PCL length" + (this.points.length/3/1000.0).toFixed(1) + "k points; total size " + (msg.points.length/1000.0).toFixed(1) + "k cost time " + ((tnow() - ts)*1000).toFixed(1) + "ms");
+    }
+    processMessage_pcl2 (msg){
 
     var ts = tnow();
 
@@ -166,7 +212,7 @@ class PointCloud2 {
       //     this.points.colors.array[3*i + 2] = color.b;
       // }
     }
-    console.log("PCL length" + (this.points.length/3/1000.0).toFixed(1) + "k points; total size " + (n/1000.0).toFixed(1) + "k cost time " + ((tnow() - ts)*1000).toFixed(1) + "ms");
+    console.log("PCL2 length" + (this.points.length/3/1000.0).toFixed(1) + "k points; total size " + (n/1000.0).toFixed(1) + "k cost time " + ((tnow() - ts)*1000).toFixed(1) + "ms");
   };
 
   points_object() {
@@ -219,7 +265,7 @@ class PointCloud2 {
 
     geometry.addAttribute( 'offset', offsetAttribute );
     geometry.addAttribute( 'ca', colorAttribute );
-    geometry.addAttribute('edgeColor', new Float32Array([0, 0, 0]))
+    // geometry.addAttribute('edgeColor', new Float32Array([0, 0, 0]))
     var mesh = new THREE.Mesh( geometry, material );
     return mesh;
     
