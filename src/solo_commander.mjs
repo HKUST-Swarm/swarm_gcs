@@ -46,7 +46,7 @@ class SoloCommander extends BaseCommander {
         this.sub_vo = new ROSLIB.Topic({
             ros:this.ros,
             messageType:"nav_msgs/Odometry",
-            name:"/vins_estimator/imu_propagate_throttle"
+            name:"/vins_estimator/imu_propagate"
         });
 
         this.sub_vo.subscribe(function (msg) {
