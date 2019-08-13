@@ -467,7 +467,7 @@ class ThreeView {
     }
 
     chessboard() {
-        var cbgeometry = new THREE.PlaneGeometry(10, 10, 10, 10);
+        var cbgeometry = new THREE.PlaneGeometry(100, 100, 100, 100);
 
         // Materials
         var cbmaterials = [];
@@ -486,8 +486,8 @@ class ThreeView {
 
         for (var i = 0; i < l; i++) {
             var j = i * 2; // <-- Added this back so we can do every other 'face'
-            cbgeometry.faces[j].materialIndex = ((i + Math.floor(i / 10)) % 2); // The code here is changed, replacing all 'i's with 'j's. KEEP THE 8
-            cbgeometry.faces[j + 1].materialIndex = ((i + Math.floor(i / 10)) % 2); // Add this line in, the material index should stay the same, we're just doing the other half of the same face
+            cbgeometry.faces[j].materialIndex = ((i + Math.floor(i / 100)) % 2); // The code here is changed, replacing all 'i's with 'j's. KEEP THE 8
+            cbgeometry.faces[j + 1].materialIndex = ((i + Math.floor(i / 100)) % 2); // Add this line in, the material index should stay the same, we're just doing the other half of the same face
         }
 
         cbmaterials.opacity=.8;
@@ -498,7 +498,7 @@ class ThreeView {
         // var cb = new THREE.Mesh( cbgeometry , new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
 				
         cb.receiveShadow = this.enable_shadow;
-        cb.position.z = -0.1;
+        cb.position.z = -0.3;
         this.scene.add(cb);
     }
 
