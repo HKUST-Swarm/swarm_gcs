@@ -45,6 +45,7 @@ class ThreeView {
         this.position = $("#urdf").position();
 
         this.renderer.setSize(this.width, this.height);
+        renderer.context.getExtension('OES_standard_derivatives');
 
         var camera = this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 1000);
 
@@ -184,7 +185,7 @@ class ThreeView {
         if (this.pcl != null) {
             this.scene.remove(this.pcl);            
         }
-        this.pcl = pcl.points_object();
+        this.pcl = pcl.boxes_object();
         this.scene.add(this.pcl);
     }
 

@@ -106,9 +106,11 @@ class SwarmCommander {
 
     on_pcl_recv(msg) {
         if (tnow() - this.last_recv_pcl > this.pcl_duration) {
+            var ts = tnow();
             var pcl = new PointCloud2(msg);
             this.ui.update_pcl(pcl);
             this.last_recv_pcl = tnow();
+            console.log("Total time " + ((tnow() - ts)*1000.0).toFixed(1) + "ms");
         }    
     }
 

@@ -191,6 +191,56 @@
 
 </head>
 
+<script id="vertexShader" type="x-shader/x-vertex">
+  #extension GL_OES_standard_derivatives : enable
+  precision highp float;
+  uniform mat4 modelViewMatrix;
+  uniform mat4 projectionMatrix;
+  attribute vec3 position;
+  attribute vec3 offset;
+  varying vec4 vColor;
+  attribute vec4 ca;
+  attribute vec4 edgeColor;
+
+  attribute vec3 center;
+  varying vec3 vCenter;
+  varying vec4 vedgeColor;
+  attribute vec2 uv;
+  varying vec2 vUv;
+
+
+  void main() {
+    vCenter = center;
+    vedgeColor = edgeColor;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4( offset + position, 1.0 );
+    vColor = ca;
+    vUv = uv;
+
+  }
+</script>
+
+<script id="fshader" type="x-shader/x-fragment">
+  precision highp float;
+  varying vec4 vColor;
+  varying vec3 vCenter;
+  varying vec2 vUv;
+  varying vec4 vedgeColor;
+
+  bool is_border() {
+    float vEdgeWidth = 0.05;
+    return vUv.x > 1.0 - vEdgeWidth || vUv.x < vEdgeWidth|| vUv.y > 1.0 - vEdgeWidth || vUv.y < vEdgeWidth;
+  }
+  void main() {
+    if (is_border()) {
+      gl_FragColor = vec4(0.6, 0.6, 0.6, 1.0);
+
+    } else {
+      gl_FragColor = vColor;
+
+    }
+  }
+</script>
+
 
 <body draggable="false"  ontouchstart=””>
   <div id="urdf"></div>

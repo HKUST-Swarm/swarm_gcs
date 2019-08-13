@@ -11,6 +11,12 @@
  * returns the number of decoded records
  */
 
+
+
+function tnow() {
+  return new Date().getTime() / 1000;
+}
+
 import * as THREE from '../build/three.module.js';
 
 
@@ -69,11 +75,17 @@ class PointCloud2 {
       console.log("loading msg");
       this.colors = []
       this.points = []
+      this.grid_size = 0.1;
+
+      this.grid_map = {}
 
       this.processMessage(msg);
 
+
     }
     processMessage (msg){
+
+    var ts = tnow();
 
     var fields = {};
     for (var k in msg.fields) {
@@ -116,13 +128,32 @@ class PointCloud2 {
       var py = dv.getFloat32(base+y, littleEndian);
       var pz = dv.getFloat32(base+z, littleEndian);
 
+      var pxn = Math.round(px / this.grid_size);
+      var pyn = Math.round(py / this.grid_size);
+      var pzn = Math.round(pz / this.grid_size);
+      px = pxn * this.grid_size;
+      py = pyn * this.grid_size;
+      pz = pzn * this.grid_size;
+
+      var obj = pxn.toString() + "|" + pyn.toString() + "|" + pzn.toString();
+      // console.log(obj);
+      if (isNaN(px) || isNaN(py) || isNaN(pz)) {
+        continue;
+      }
+
+      if (this.grid_map[obj] == true) {
+        continue;
+      } else {
+        this.grid_map[obj] = true;
+      }
+
       this.points.push(px);
       this.points.push(py);
       this.points.push(pz);
 
       var vx = ( px / 10 ) + 0.5;
 			var vy = ( py / 10 ) + 0.5;
-      var vz = ( pz / 2.0 ) +1.5;
+      var vz = ( pz / 10 ) + 0.5;
       // console.log(vx);
       var color = new THREE.Color();
       color.setHSL(vz, 1, 0.5);
@@ -135,7 +166,7 @@ class PointCloud2 {
       //     this.points.colors.array[3*i + 2] = color.b;
       // }
     }
-    console.log("PCL length" + (this.points.length/3/1000.0).toFixed(1) + "k points");
+    console.log("PCL length" + (this.points.length/3/1000.0).toFixed(1) + "k points; total size " + (n/1000.0).toFixed(1) + "k cost time " + ((tnow() - ts)*1000).toFixed(1) + "ms");
   };
 
   points_object() {
@@ -145,7 +176,53 @@ class PointCloud2 {
     geometry.computeBoundingSphere();
     var material = new THREE.PointsMaterial( { size: 0.1, vertexColors: THREE.VertexColors } );
     var points = new THREE.Points( geometry, material );
+
     return points;
+  }
+  boxes_object() {
+    var bufferGeometry = new THREE.BoxBufferGeometry(this.grid_size, this.grid_size, this.grid_size );
+    var geometry = new THREE.InstancedBufferGeometry();
+    geometry.index = bufferGeometry.index;
+    geometry.attributes.position = bufferGeometry.attributes.position;
+    geometry.attributes.uv = bufferGeometry.attributes.uv;
+
+    var colorAttribute = new THREE.InstancedBufferAttribute( new Float32Array( this.colors ), 3 );
+    var offsetAttribute = new THREE.InstancedBufferAttribute( new Float32Array( this.points ), 3 );
+    
+    
+    var material = new THREE.RawShaderMaterial( {
+      // wireframe: true,
+      vertexShader: document.getElementById( 'vertexShader' ).textContent,
+      fragmentShader: document.getElementById( 'fshader' ).textContent
+    } );
+    material.extensions.derivatives = true;
+
+
+    var vectors = [
+      new THREE.Vector3( 1, 0, 0 ),
+      new THREE.Vector3( 0, 1, 0 ),
+      new THREE.Vector3( 0, 0, 1 )
+    ];
+
+    var centers = new Float32Array( offsetAttribute.count * 3);
+    for ( var i = 0, l = offsetAttribute.count; i < l; i ++ ) {
+      vectors[ i % 3 ].toArray( centers, i * 3 );
+    }
+
+    // console.log(centers);
+
+    // console.log(this.centers)
+
+    geometry.addAttribute( 'center', 
+      new THREE.InstancedBufferAttribute( new Float32Array( centers), 3 )
+    );
+
+    geometry.addAttribute( 'offset', offsetAttribute );
+    geometry.addAttribute( 'ca', colorAttribute );
+    geometry.addAttribute('edgeColor', new Float32Array([0, 0, 0]))
+    var mesh = new THREE.Mesh( geometry, material );
+    return mesh;
+    
   }
 }
 
