@@ -34,10 +34,10 @@ let color_set_hot = {
 let use_outline_passes = false;
 
 class ThreeView {
-    constructor() {
+    constructor(opt) {
         let obj = this;
         this.scene = new THREE.Scene();
-
+        this.opt = opt;
         var renderer = this.renderer = new THREE.WebGLRenderer();
 
         this.width = $("#urdf").width();
@@ -413,13 +413,6 @@ class ThreeView {
     }
 
     init_scene() {
-        // var size = 10;
-        // var divisions = 10;
-        // var gridHelper = new THREE.GridHelper(size, divisions, 0x440000, 0x004400);
-        // gridHelper.quaternion.setFromEuler(new THREE.Euler(- Math.PI / 2, 0, 0));
-        // this.scene.add(gridHelper);
-
-
         var dirx = new THREE.Vector3(1.0, 0, 0);
         var diry = new THREE.Vector3(0.0, 1, 0);
         var dirz = new THREE.Vector3(0.0, 0, 1);
@@ -466,12 +459,25 @@ class ThreeView {
         dirLight.shadow.mapSize.set(512, 512);
         // this.scene.add(dirLight);
 
-    
-        this.chessboard()
+        if (this.opt.chessboard) {
+            this.add_chessboard()
+        } 
+        
+        if (this.opt.grid) {
+            this.add_grid();
+        }
+
+    }
+    add_grid() {
+        var size = 100;
+        var divisions = 100;
+        var gridHelper = new THREE.GridHelper(size, divisions, 0x444444, 0x999999);
+        gridHelper.quaternion.setFromEuler(new THREE.Euler(- Math.PI / 2, 0, 0));
+        this.scene.add(gridHelper);
     }
 
-    chessboard() {
-        var cbgeometry = new THREE.PlaneGeometry(100, 100, 100, 100);
+    add_chessboard() {
+        var cbgeometry = new THREE.PlaneGeometry(10, 10, 10, 10);
 
         // Materials
         var cbmaterials = [];
@@ -490,8 +496,8 @@ class ThreeView {
 
         for (var i = 0; i < l; i++) {
             var j = i * 2; // <-- Added this back so we can do every other 'face'
-            cbgeometry.faces[j].materialIndex = ((i + Math.floor(i / 100)) % 2); // The code here is changed, replacing all 'i's with 'j's. KEEP THE 8
-            cbgeometry.faces[j + 1].materialIndex = ((i + Math.floor(i / 100)) % 2); // Add this line in, the material index should stay the same, we're just doing the other half of the same face
+            cbgeometry.faces[j].materialIndex = ((i + Math.floor(i / 10)) % 2); // The code here is changed, replacing all 'i's with 'j's. KEEP THE 8
+            cbgeometry.faces[j + 1].materialIndex = ((i + Math.floor(i / 10)) % 2); // Add this line in, the material index should stay the same, we're just doing the other half of the same face
         }
 
         cbmaterials.opacity=.8;

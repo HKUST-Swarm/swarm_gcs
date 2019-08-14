@@ -200,31 +200,25 @@
   attribute vec3 offset;
   varying vec4 vColor;
   attribute vec4 ca;
-  attribute vec4 edgeColor;
+  // attribute vec4 edgeColor;
 
-  attribute vec3 center;
-  varying vec3 vCenter;
-  varying vec4 vedgeColor;
+  // varying vec4 vedgeColor;
   attribute vec2 uv;
   varying vec2 vUv;
 
 
   void main() {
-    vCenter = center;
-    vedgeColor = edgeColor;
+    //vedgeColor = edgeColor;
     gl_Position = projectionMatrix * modelViewMatrix * vec4( offset + position, 1.0 );
     vColor = ca;
     vUv = uv;
-
   }
 </script>
 
 <script id="fshader" type="x-shader/x-fragment">
   precision highp float;
   varying vec4 vColor;
-  varying vec3 vCenter;
   varying vec2 vUv;
-  varying vec4 vedgeColor;
 
   bool is_border() {
     float vEdgeWidth = 0.05;
@@ -346,7 +340,10 @@
   <script type="module">
     import { SoloCommander } from './src/solo_commander.mjs';
     import { SwarmGCSUI } from "./src/gcs_view.mjs";
-    var ui = new SwarmGCSUI();
+    var ui = new SwarmGCSUI({}, {
+      chessboard:false,
+      grid: true
+    });
     // console.log(ui);
     var sc = new SoloCommander(ui);
 

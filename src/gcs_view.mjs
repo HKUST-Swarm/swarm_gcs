@@ -8,7 +8,7 @@ function tnow() {
 let good_topbar_color = "#cff3fa";
 
 class SwarmGCSUI {
-    constructor() {
+    constructor(opt_ui, opt_3d) {
         let obj = this;
        
         let dstatus = {
@@ -94,7 +94,7 @@ class SwarmGCSUI {
             }
         });
 
-        this.threeview = new ThreeView();
+        this.threeview = new ThreeView(opt_3d);
         this.threeview.ui = this;
 
         this.uav_local_poses = {};
