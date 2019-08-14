@@ -328,9 +328,9 @@ class SwarmGCSUI {
 
        if (!this.global_local_mode && _id != this.primary_id) {
         // Transfer coorindate with based coorinate
-            var ret = this.transfer_vo_with_based(x, y, z, quat, _id, this.primary_id);
+            var ret = this.transfer_vo_with_based(pos, quat, _id, this.primary_id);
             if (ret !== null) {
-                this.update_three_id_pose(_id, pos, quat, ret.vx, ret.vy, ret.vz,
+                this.update_three_id_pose(_id, ret.pos, ret.quat, ret.vx, ret.vy, ret.vz,
                     ret.covx, ret.covy, ret.covz, ret.covyaw);
             }
             this.threeview.set_uav_fused_mode(_id);
@@ -338,7 +338,7 @@ class SwarmGCSUI {
 
     }
 
-    transfer_vo_with_based(x, y, z, yaw, self_id, base_id) {
+    transfer_vo_with_based(pos, quat, self_id, base_id) {
         if (! (base_id in this.other_vo_origin) || !(self_id in this.other_vo_origin[base_id])) {
             return null;
         }
@@ -350,16 +350,16 @@ class SwarmGCSUI {
         var other_vo_origin = this.other_vo_origin[base_id][self_id];//Is a
 
         var euler_a = new THREE.Euler(0, 0, other_vo_origin.yaw, 'XYZ' );
-        var b_position = new THREE.Vector3( x, y, z);
+        var b_position = pos.clone();
         b_position.applyEuler(euler_a);
         b_position.add(new THREE.Vector3(other_vo_origin.x, other_vo_origin.y, other_vo_origin.z));
-
-        var res_yaw = other_vo_origin.yaw + yaw;
+        
+        var quat_a = new THREE.Quaternion();
+        quat_a.setFromEuler(euler_a);
+        quat_a.multiply(quat);
         return {
-            x:b_position.x,
-            y:b_position.y,
-            z:b_position.z,
-            yaw:res_yaw,
+            pos:b_position,
+            quat:quat_a,
             vx:null,
             vy:null,
             vz:null,
@@ -388,17 +388,17 @@ class SwarmGCSUI {
     }
 
 
-    update_drone_localpose_in_coorinate(node_id, x, y, z, yaw, base_id, covx=0, covy=0, covz=0, covyaw=0) {
+    update_drone_localpose_in_coorinate(node_id, pos, quat, base_id, covx=0, covy=0, covz=0, covyaw=0) {
         if (!this.global_local_mode && base_id == this.primary_id) {
             // console.log(node_id);
-            this.update_three_id_pose(node_id, x, y, z, yaw, null, null,null, covx, covy, covz, covyaw, true);
+            this.update_three_id_pose(node_id, pos, quat, null, null,null, covx, covy, covz, covyaw, true);
             this.threeview.set_uav_fused_mode(node_id);
             if (! (base_id in this.uav_local_poses_in_drone_coor)) {
                 this.uav_local_poses_in_drone_coor[base_id]  = {};
             }
 
             this.uav_local_poses_in_drone_coor[base_id][node_id] = {
-                x:x,y:y,z:z,yaw:yaw
+                pos:pos,quat:quat
             };
        }
     }

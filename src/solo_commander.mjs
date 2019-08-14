@@ -1,5 +1,6 @@
 import {BaseCommander} from "./base_commander.mjs"
 import {PointCloud2} from './pointcloud2.mjs';
+import * as THREE from '../build/three.module.js';
 
 function tnow() {
     return new Date().getTime() / 1000;
@@ -75,17 +76,15 @@ class SoloCommander extends BaseCommander {
         var x = msg.pose.pose.position.x;
         var y = msg.pose.pose.position.y;
         var z = msg.pose.pose.position.z;
-        var pos = [x, y, z];
         this.status.x = x;
         this.status.y = y;
         this.status.z = z;
         this.status.vo_valid = true;
-        var quat = [
-            msg.pose.pose.orientation.w,
-            msg.pose.pose.orientation.x,
-            msg.pose.pose.orientation.y,
-            msg.pose.pose.orientation.z
-        ];
+
+        let _q = msg.pose.pose.orientation;
+        var quat = new THREE.Quaternion(_q.x, _q.y, _q.z, _q.w);
+        var pos = new THREE.Vector3(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.position.z);
+
         this.ui.update_drone_selfpose(0, pos, quat);
         this.update_status();
     }

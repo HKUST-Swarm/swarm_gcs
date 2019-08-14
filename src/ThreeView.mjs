@@ -339,13 +339,13 @@ class ThreeView {
 
     update_uav_pose(_id, pos, quat, vx=null, vy=null, vz=null, covx=0, covy=0, covz=0, covyaw=0, update_yaw_var = false) {
         // console.log(_id)
-        this.uavs[_id].position.x = pos[0];
-        this.uavs[_id].position.y = pos[1];
-        this.uavs[_id].position.z = pos[2];
-        this.uavs[_id].quaternion.w = quat[0];
-        this.uavs[_id].quaternion.x = quat[1];
-        this.uavs[_id].quaternion.y = quat[2];
-        this.uavs[_id].quaternion.z = quat[3];
+        this.uavs[_id].position.x = pos.x;
+        this.uavs[_id].position.y = pos.y;
+        this.uavs[_id].position.z = pos.z;
+        this.uavs[_id].quaternion.w = quat.w;
+        this.uavs[_id].quaternion.x = quat.x;
+        this.uavs[_id].quaternion.y = quat.y;
+        this.uavs[_id].quaternion.z = quat.z;
         // if (yaw !== null) {
             // this.uavs[_id].quaternion.setFromEuler(new THREE.Euler(0, 0, yaw));
         // }

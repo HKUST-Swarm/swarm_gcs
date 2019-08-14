@@ -95,9 +95,9 @@ class SwarmCommander extends BaseCommander{
 
         let _q = msg.pose.orientation;
         var quat = new THREE.Quaternion(_q.x, _q.y, _q.z, _q.w);
-        euler.setFromQuaternion(quat);
+        var pos = new THREE.Vector3(msg.pose.position.x, msg.pose.position.y, msg.pose.position.z);
 
-        this.ui.update_drone_globalpose(_id, msg.pose.position.x, msg.pose.position.y, msg.pose.position.z, euler.z);
+        this.ui.update_drone_globalpose(_id, pos, quat);
     }
 
     on_incoming_data(incoming_msg) {
@@ -144,8 +144,11 @@ class SwarmCommander extends BaseCommander{
 
     on_node_local_fused(_id, lps_time, msg) {
         // console.log(msg);    
-        this.ui.update_drone_localpose_in_coorinate(msg.target_id, msg.x/1000.0, msg.y/1000.0, 
-            msg.z/1000.0, msg.yaw/1000.0, _id, msg.cov_x/1000.0, msg.cov_y/1000.0, msg.cov_z/1000.0, msg.cov_yaw/1000.0);
+        var pos = new THREE.Vector3(msg.x/1000.0, msg.y/1000.0, msg.z/1000.0);
+        var quat = new THREE.Quaternion();
+        quat.setFromEuler(new THREE.Euler(0, 0, msg.yaw/1000.0));
+
+        this.ui.update_drone_localpose_in_coorinate(msg.target_id, pos, quat, _id, msg.cov_x/1000.0, msg.cov_y/1000.0, msg.cov_z/1000.0, msg.cov_yaw/1000.0);
     }
 
     on_node_based_coorindate(_id, lps_time, msg) {
@@ -184,9 +187,10 @@ class SwarmCommander extends BaseCommander{
     }
 
     on_drone_realtime_info_recv(_id, lps_time, info) {
-        // console.log("RT msg");
-        // console.log(info.vx/ 100);
-        this.ui.update_drone_selfpose(_id, info.x, info.y, info.z, info.yaw/1000.0, info.vx/100.0, info.vy/100.0, info.vz/100.0);
+        var pos = new THREE.Vector3(info.x. info.y, info.z);
+        var quat = new THREE.Quaternion();
+        quat.setFromEuler(new THREE.Euler(0, 0, info.yaw/1000.0));
+        this.ui.update_drone_selfpose(_id, pos, quat, info.vx/100.0, info.vy/100.0, info.vz/100.0);
         // this.ui.update_drone_selfpose(_id, info.x, info.y, info.z, info.yaw/1000.0, info.vx/100.0, info.vy/100.0, info.vz/100.0);
     }
 
