@@ -120,7 +120,7 @@ class PointCloud2 {
   
         var vx = ( px / 10 ) + 0.5;
         var vy = ( py / 10 ) + 0.5;
-        var vz = ( pz / 10 ) + 0.5;
+        var vz = ( (2 - pz) / 10 ) + 0.5;
         // console.log(vx);
         var color = new THREE.Color();
         color.setHSL(vz, 1, 0.5);
@@ -199,7 +199,7 @@ class PointCloud2 {
 
       var vx = ( px / 10 ) + 0.5;
 			var vy = ( py / 10 ) + 0.5;
-      var vz = ( pz / 10 ) + 0.5;
+      var vz = ( (3 - pz) / 10 ) + 0.5;
       // console.log(vx);
       var color = new THREE.Color();
       color.setHSL(vz, 1, 0.5);
@@ -267,6 +267,7 @@ class PointCloud2 {
     geometry.addAttribute( 'ca', colorAttribute );
     // geometry.addAttribute('edgeColor', new Float32Array([0, 0, 0]))
     var mesh = new THREE.Mesh( geometry, material );
+    mesh.frustumCulled = false;
     return mesh;
     
   }

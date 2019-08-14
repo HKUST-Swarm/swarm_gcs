@@ -448,7 +448,7 @@ class ThreeView {
         dirLight.shadow.camera.bottom = - 10;
         dirLight.shadow.camera.left = - 10;
         dirLight.shadow.camera.right = 10;
-        dirLight.shadow.camera.near = 0.1;
+        dirLight.shadow.camera.near = 0.0;
         dirLight.shadow.camera.far = 200;
         dirLight.shadow.mapSize.set(512, 512);
         this.scene.add(dirLight);
