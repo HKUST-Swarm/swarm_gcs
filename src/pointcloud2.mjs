@@ -68,11 +68,14 @@ for(var i=0;i<64;i++){decode64.e[decode64.S.charAt(i)]=i;}
  *  * colormap (optional) - function that turns the colorsrc field value to a color
  */
 class PointCloud2 {
-    constructor(msg, is_pcl2 = true) {
+    constructor(msg, is_pcl2 = true, debug_output = true  ) {
       this.max_pts = 100000;
       this.points = [];
       this.buffer = null;
-      console.log("loading msg");
+      this.debug_output = debug_output;
+      if (this.debug_output) {
+        console.log("loading msg");
+      }
       this.colors = []
       this.points = []
       this.grid_size = 0.15;
@@ -127,7 +130,9 @@ class PointCloud2 {
         this.colors.push( color.r, color.g, color.b );
   
       }
-      console.log("PCL length" + (this.points.length/3/1000.0).toFixed(1) + "k points; total size " + (msg.points.length/1000.0).toFixed(1) + "k cost time " + ((tnow() - ts)*1000).toFixed(1) + "ms");
+      if (this.debug_output) {
+        console.log("PCL length" + (this.points.length/3/1000.0).toFixed(1) + "k points; total size " + (msg.points.length/1000.0).toFixed(1) + "k cost time " + ((tnow() - ts)*1000).toFixed(1) + "ms");
+      }
     }
     processMessage_pcl2 (msg){
 
@@ -141,7 +146,9 @@ class PointCloud2 {
     // if(!this.points.setup(msg.header.frame_id, msg.point_step, msg.fields)) {
         // return;
     // }
-    console.log("Loading pointcloud");
+    if (this.debug_output) {
+      console.log("Loading pointcloud");
+    }
 
     var n, pointRatio = this.points.pointRatio;
     var bufSz = this.max_pts * msg.point_step;
@@ -212,7 +219,11 @@ class PointCloud2 {
       //     this.points.colors.array[3*i + 2] = color.b;
       // }
     }
-    console.log("PCL2 length" + (this.points.length/3/1000.0).toFixed(1) + "k points; total size " + (n/1000.0).toFixed(1) + "k cost time " + ((tnow() - ts)*1000).toFixed(1) + "ms");
+
+    if (this.debug_output) {
+      console.log("PCL2 length" + (this.points.length/3/1000.0).toFixed(1) + "k points; total size " + (n/1000.0).toFixed(1) + "k cost time " + ((tnow() - ts)*1000).toFixed(1) + "ms");
+    }
+
   };
 
   points_object() {

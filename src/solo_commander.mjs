@@ -16,6 +16,19 @@ class SoloCommander extends BaseCommander {
         this.last_recv_pcl = tnow();
         this.pcl_duration = 0.3;
   
+        this.ui.set_drone_status(0, {
+            x:0,
+            y:0,
+            z:0,
+            control_auth:0,
+            commander_mode:0,
+            input_mode:0,
+            flight_status:0,
+            vo_valid:0,
+            bat_vol:0,
+            lps_time:0
+        }); 
+        //Should use rostopic to update this
     }
     
     setup_ros_sub_pub() {
@@ -34,19 +47,19 @@ class SoloCommander extends BaseCommander {
   
         this.sub_pcl = new ROSLIB.Topic({
             ros:this.ros,
-            messageType:"sensor_msgs/PointCloud",
-            name:"/sdf_map/occ_pc"
+            messageType:"sensor_msgs/PointCloud2",
+            name:"/sdf_map/occ_pc_pcl2"
         });
   
         this.sub_pcl.subscribe(function (msg) {
             // console.log(pcl.points);
-            self.on_pcl_recv(msg, false);
+            self.on_localmap_recv(msg);
         });
 
         this.sub_vo = new ROSLIB.Topic({
             ros:this.ros,
             messageType:"nav_msgs/Odometry",
-            name:"/vins_estimator/imu_propagate"
+            name:"/vins_estimator/imu_propagate_throttle"
         });
 
         this.sub_vo.subscribe(function (msg) {
@@ -78,14 +91,14 @@ class SoloCommander extends BaseCommander {
         }    
     }
   
-    on_pcl_recv(msg) {
+    on_localmap_recv(msg) {
         // if (tnow() - this.last_recv_pcl > this.pcl_duration) 
         {
             var ts = tnow();
-            var pcl = new PointCloud2(msg, false);
+            var pcl = new PointCloud2(msg);
             this.ui.update_pcl(pcl);
             this.last_recv_pcl = tnow();
-            console.log("Total time " + ((tnow() - ts)*1000.0).toFixed(1) + "ms");
+            // console.log("Total time " + ((tnow() - ts)*1000.0).toFixed(1) + "ms");
         }    
     }
   

@@ -1,7 +1,7 @@
 <html>
 
 <head>
-  <title>SWARM GCS</title>
+  <title>SOLO GCS</title>
   <meta charset="utf-8" />
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" >
@@ -59,7 +59,7 @@
       background-color: rgba(124, 145, 150, 0.8);
       /* filter: blur(10px); */
       /* overflow-y: scroll; */
-      height: 80%;
+      height: 50%;
       position: fixed;
       left: 1em;
       top: 5em;
@@ -248,7 +248,7 @@
   <div class="container-fluid" style="width: 100%" id="container">
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <a class="navbar-brand" href="#" v-on:click="toggle_fullscreen()">SWARM GCS</a>
+      <a class="navbar-brand" href="#" v-on:click="toggle_fullscreen()">SOLO GCS</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -258,37 +258,6 @@
         <ul class="nav navbar-nav navbar-center ml-auto">
           <li class="nav-item active">
             <a class="nav-link" href="#" v-bind:style="{ color: ros_conn_color }">ROS: {{ros_conn}}</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#" v-bind:style="{ color: self_id_color }">GCS_ID: {{self_id}}</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#" v-bind:style="{ color: total_remote_color }">TOTAL: {{remote_nodes}}</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#" v-bind:style="{ color: total_remote_color }">AVAIL: {{available_nodes}}</a>
-          </li>
-
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-              aria-haspopup="true" aria-expanded="false">
-              DISPLAY_MODE:{{display_mode}}
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="#" v-on:click="set_display_mode_global">GLOBAL</a>
-              <a class="dropdown-item" href="#" v-on:click="set_display_mode_local">LOCAL</a>
-            </div>
-          </li>
-
-
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-              aria-haspopup="true" aria-expanded="false">
-              PRIMARY_ID:{{primary_id}}
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="#" v-for="(_, _id) in uavs" v-on:click="set_primary_id(_id)">{{_id}}</a>
-            </div>
           </li>
 
           <li class="nav-item dropdown">
@@ -305,7 +274,7 @@
 
           <li class="nav-item">
             <a class="nav-link disabled lps_time" href="#" tabindex="-1" aria-disabled="true"
-              v-bind:style="{ color: lps_time_color }">LPS_TIME {{lps_time}}</a>
+              v-bind:style="{ color: lps_time_color }">ROS_TIME {{lps_time}}</a>
           </li>
         </ul>
         <!-- <form class="form-inline my-2 my-lg-0">
@@ -318,7 +287,7 @@
     <div class="row" style="height: 90%"></div>
     <transition name="slide-fade">
       <div v-if="! is_wrap_swarm" class="container-fluid col-2 container-fluid" id="swarm-sidebar">
-        <h2 id="SWARM" v-on:click="select_all">SWARM</h2>
+        <h2 id="SWARM">UAV</h2>
         <img src="material-design-icons/navigation/drawable-hdpi/ic_expand_less_white_48dp.png" 
         class="middle_icon" 
         style="position: absolute; right:1em; top:1em;"
@@ -331,7 +300,7 @@
         </div>
       </div>
       <div v-else class="container-fluid col-2 container-fluid" id="swarm-sidebar-wrap">
-          <h2 id="SWARM" v-on:click="select_all">SWARM</h2>
+          <h2 id="SWARM">UAV</h2>
           <img src="material-design-icons/navigation/drawable-hdpi/ic_expand_more_white_48dp.png" 
           class="middle_icon" 
           style="position: absolute; right:1em; top:1em;"
