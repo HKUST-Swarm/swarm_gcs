@@ -1,0 +1,8 @@
+<launch>
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+    <node name="point_cloud_converter" pkg="point_cloud_converter" type="point_cloud_converter_node">
+        <remap from="/points_in" to="/sdf_map/occ_pc" />
+        <remap from="/points2_out" to="/sdf_map/occ_pc_pcl2" />
+    </node>
+    <node name="throttle" pkg="topic_tools" type="throttle" args="messages /vins_estimator/imu_propagate 50" />
+</launch>

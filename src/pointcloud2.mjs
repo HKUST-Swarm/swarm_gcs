@@ -49,26 +49,8 @@ decode64.e={};
 for(var i=0;i<64;i++){decode64.e[decode64.S.charAt(i)]=i;}
 
 
-/**
- * A PointCloud2 client that listens to a given topic and displays the points.
- *
- * @constructor
- * @param options - object with following keys:
- *
- *  * ros - the ROSLIB.Ros connection handle
- *  * topic - the marker topic to listen to (default: '/points')
- *  * tfClient - the TF client handle to use
- *  * compression (optional) - message compression (default: 'cbor')
- *  * rootObject (optional) - the root object to add this marker to use for the points.
- *  * max_pts (optional) - number of points to draw (default: 10000)
- *  * pointRatio (optional) - point subsampling ratio (default: 1, no subsampling)
- *  * messageRatio (optional) - message subsampling ratio (default: 1, no subsampling)
- *  * material (optional) - a material object or an option to construct a PointsMaterial.
- *  * colorsrc (optional) - the field to be used for coloring (default: 'rgb')
- *  * colormap (optional) - function that turns the colorsrc field value to a color
- */
 class PointCloud2 {
-    constructor(msg, is_pcl2 = true, debug_output = true  ) {
+    constructor(msg, is_pcl2 = true, debug_output = false ) {
       this.max_pts = 100000;
       this.points = [];
       this.buffer = null;

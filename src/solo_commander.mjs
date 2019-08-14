@@ -15,8 +15,7 @@ class SoloCommander extends BaseCommander {
   
         this.last_recv_pcl = tnow();
         this.pcl_duration = 0.3;
-  
-        this.ui.set_drone_status(0, {
+        this.status = {
             x:0,
             y:0,
             z:0,
@@ -27,8 +26,13 @@ class SoloCommander extends BaseCommander {
             vo_valid:0,
             bat_vol:0,
             lps_time:0
-        }); 
+        };
+        this.ui.set_drone_status(0, this.status); 
         //Should use rostopic to update this
+    }
+
+    update_status() {
+        this.ui.set_drone_status(0, this.status); 
     }
     
     setup_ros_sub_pub() {
@@ -72,6 +76,10 @@ class SoloCommander extends BaseCommander {
         var y = msg.pose.pose.position.y;
         var z = msg.pose.pose.position.z;
         var pos = [x, y, z];
+        this.status.x = x;
+        this.status.y = y;
+        this.status.z = z;
+        this.status.vo_valid = true;
         var quat = [
             msg.pose.pose.orientation.w,
             msg.pose.pose.orientation.x,
@@ -79,6 +87,7 @@ class SoloCommander extends BaseCommander {
             msg.pose.pose.orientation.z
         ];
         this.ui.update_drone_selfpose(0, pos, quat);
+        this.update_status();
     }
   
     on_pcl2_recv(msg) {
