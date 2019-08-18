@@ -187,7 +187,8 @@ class SwarmCommander extends BaseCommander{
     }
 
     on_drone_realtime_info_recv(_id, lps_time, info) {
-        var pos = new THREE.Vector3(info.x. info.y, info.z);
+        // console.log(info);
+        var pos = new THREE.Vector3(info.x, info.y, info.z);
         var quat = new THREE.Quaternion();
         quat.setFromEuler(new THREE.Euler(0, 0, info.yaw/1000.0));
         this.ui.update_drone_selfpose(_id, pos, quat, info.vx/100.0, info.vy/100.0, info.vz/100.0);
