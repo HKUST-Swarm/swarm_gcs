@@ -14,7 +14,7 @@ import { OutlinePass } from '../libs/jsm/postprocessing/OutlinePass.js';
 import { RenderPass} from '../libs/jsm/postprocessing/RenderPass.js';
 import { ShaderPass} from '../libs/jsm/postprocessing/ShaderPass.js';
 import { FXAAShader } from '../libs/jsm/shaders/FXAAShader.js';
-import { SelectionBox } from '../libs/jsm/interactive/SelectionBox.js';
+import { SelectionBox } from './UAVSelectionBox.js';
 import { SelectionHelper } from './SelectionHelper.js';
 
 function tnow() {
@@ -130,6 +130,9 @@ class ThreeView {
     }
 
     init_rangeselect() {
+
+        this.selectionBox = new SelectionBox( this.camera, this.scene, 100, this.uavs );
+
         let selectionBox = this.selectionBox;
         var renderer = this.renderer 
         let helper = this.helper = new SelectionHelper( selectionBox, renderer, 'selectBox' );
@@ -150,19 +153,18 @@ class ThreeView {
 
         } );
         document.addEventListener( 'mousemove', function ( event ) {
-            // if ( helper.isDown && this.in_range_select) {
-// 
-            // }
         } );
 
         document.addEventListener( 'mouseup', function ( event ) {
             if (event.button == 0 && obj.enable_rangeselect && obj.in_range_select) {
-                console.log("Start computing range select");
+                // console.log("Start computing range select");
                 selectionBox.endPoint.set(
                     ( event.clientX / window.innerWidth ) * 2 - 1,
                     - ( event.clientY / window.innerHeight ) * 2 + 1,
                     0.5 );
-                var allSelected = selectionBox.select();
+                var ts = tnow();
+                var allSelected = selectionBox.selectUAVs();
+                // console.log("Time use", tnow() - ts, allSelected);
                 obj.selectObjects(allSelected, "select");
             }
 
@@ -206,7 +208,6 @@ class ThreeView {
 		fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / (  $("#urdf").height() * pixelRatio );
         this.composer.addPass( fxaaPass );
 
-        this.selectionBox = new SelectionBox( this.camera, this.scene );
 
 
         renderer.gammaOutput = true;
@@ -228,7 +229,7 @@ class ThreeView {
         this.camera.aspect = this.width / this.height;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize( this.width, this.height );
-        this.selectionBox = new SelectionBox( this.camera, this.scene );
+        this.selectionBox = new SelectionBox( this.camera, this.scene, 100, this.uavs );
 
         this.position = $("#urdf").position();
     }

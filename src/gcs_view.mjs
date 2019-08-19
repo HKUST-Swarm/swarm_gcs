@@ -7,6 +7,14 @@ function tnow() {
 
 let good_topbar_color = "#cff3fa";
 
+function toFixedString(n, dec=2) {
+    var sign = "+";
+    if (n < 0) {
+        sign = "";
+    }
+    return sign + n.toFixed(dec);
+}
+
 class SwarmGCSUI {
     constructor(opt_ui, opt_3d) {
         let obj = this;
@@ -273,9 +281,9 @@ class SwarmGCSUI {
 
         let obj = this;
         Vue.set(this.view.uavs, _id, {
-            x:status.x.toFixed(2),
-            y:status.y.toFixed(2),
-            z:status.z.toFixed(2),
+            x:toFixedString(status.x, 2),
+            y:toFixedString(status.y, 2),
+            z:toFixedString(status.z, 2),
             bat_vol:status.bat_vol.toFixed(2),
             ctrl_auth:ctrl_auths[status.control_auth],
             ctrl_mode:ctrl_modes[status.commander_mode],
@@ -541,20 +549,20 @@ Vue.component('uav-component', {
     <ul class="list-group list-group-flush">
     <li v-if="status.vo_valid" class="list-group-item"> 
     <span style="font-size:0.6em">
-    X:<span style="color:white;font-size:1.3em"> {{status.x}} </span>
-    Y:<span style="color:white;font-size:1.3em"> {{status.y}} </span>
-    Z:<span style="color:white;font-size:1.3em"> {{status.z}} </span>
+    X:<span style="color:white;font-size:1.3em" class="number"> {{status.x}} </span>
+    Y:<span style="color:white;font-size:1.3em" class="number"> {{status.y}} </span>
+    Z:<span style="color:white;font-size:1.3em" class="number"> {{status.z}} </span>
     </span>
     </li>
     <li v-else class="list-group-item"> 
         <span style="color:red;">INVAILD </span>
-        X:<span style="color:red;"> {{status.x}} </span>
-        Y:<span style="color:red;"> {{status.y}} </span>
-        Z:<span style="color:red;"> {{status.z}} </span>
+        X:<span style="color:red;" class="number"> {{status.x}} </span>
+        Y:<span style="color:red;" class="number"> {{status.y}} </span>
+        Z:<span style="color:red;" class="number"> {{status.z}} </span>
     </li>
     <li class="list-group-item"> 
     <div class="uav_details">
-      LPS_TIME {{status.lps_time}}
+      LPS_TIME <span  class="number"> {{status.lps_time}} </span>
       CTRL_AUTH <span style="color:white">{{status.ctrl_auth}}</span>
       INPUT_MODE <span style="color:white">{{status.ctrl_input_mode}}</span>
       CTRL_MODE <span style="color:white">{{status.ctrl_mode}}</span>

@@ -140,11 +140,16 @@
   }
 
   .lps_time {
-    width:10em;
+    width:12em;
+    text-align: right;
   }
 
   .selectBox {
-              border: 1px solid #55aaff;
-              background-color: rgba(75, 160, 255, 0.3);
-              position: fixed;
-          }
+    border: 1px solid #55aaff;
+    background-color: rgba(75, 160, 255, 0.3);
+    position: fixed;
+  }
+
+  .number {
+    font-family: monospace; 
+  }
