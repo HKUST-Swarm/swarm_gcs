@@ -70,6 +70,9 @@ class SwarmGCSUI {
                 command: function(_cmd) {
                     obj.send_command(_cmd);
                 },
+                range_select:function() {
+
+                },
                 set_display_mode_local : function () {
                     obj.set_display_mode("LOCAL");
                 },

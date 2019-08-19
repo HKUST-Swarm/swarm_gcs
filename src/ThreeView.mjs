@@ -14,8 +14,8 @@ import { OutlinePass } from '../libs/jsm/postprocessing/OutlinePass.js';
 import { RenderPass} from '../libs/jsm/postprocessing/RenderPass.js';
 import { ShaderPass} from '../libs/jsm/postprocessing/ShaderPass.js';
 import { FXAAShader } from '../libs/jsm/shaders/FXAAShader.js';
-// import { SelectionBox } from '../libs/jsm/interactive/SelectionBox.js';
-// import { SelectionHelper } from '../libs/jsm/interactive/SelectionHelper.js';
+import { SelectionBox } from '../libs/jsm/interactive/SelectionBox.js';
+import { SelectionHelper } from './SelectionHelper.js';
 
 function tnow() {
     return new Date().getTime() / 1000;
@@ -115,6 +115,41 @@ class ThreeView {
             obj.onWindowResize();
         }, false );
 
+        this.init_rangeselect();
+    }
+
+    init_rangeselect() {
+        let selectionBox = this.selectionBox;
+        var renderer = this.renderer 
+        let helper = new SelectionHelper( selectionBox, renderer, 'selectBox' );
+        let obj = this;
+
+        document.addEventListener( 'mousedown', function ( event ) {
+            if (event.button == 0) {
+                selectionBox.startPoint.set(
+                    ( event.clientX / window.innerWidth ) * 2 - 1,
+                    - ( event.clientY / window.innerHeight ) * 2 + 1,
+                    0.5 );
+            }
+
+        } );
+        document.addEventListener( 'mousemove', function ( event ) {
+            if ( helper.isDown ) {
+
+            }
+        } );
+        document.addEventListener( 'mouseup', function ( event ) {
+            if (event.button == 0) {
+                selectionBox.endPoint.set(
+                    ( event.clientX / window.innerWidth ) * 2 - 1,
+                    - ( event.clientY / window.innerHeight ) * 2 + 1,
+                    0.5 );
+                var allSelected = selectionBox.select();
+                console.log(allSelected);
+                obj.selectObjects(allSelected, "select");
+            }
+
+        } );
     }
 
     init_postprocessing() {
@@ -154,7 +189,7 @@ class ThreeView {
 		fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / (  $("#urdf").height() * pixelRatio );
         this.composer.addPass( fxaaPass );
 
-        // this.selectionBox = new SelectionBox( this.camera, this.scene );
+        this.selectionBox = new SelectionBox( this.camera, this.scene );
 
 
         renderer.gammaOutput = true;
@@ -176,7 +211,7 @@ class ThreeView {
         this.camera.aspect = this.width / this.height;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize( this.width, this.height );
-        // this.selectionBox = new SelectionBox( this.camera, this.scene );
+        this.selectionBox = new SelectionBox( this.camera, this.scene );
 
         this.position = $("#urdf").position();
     }
@@ -286,19 +321,11 @@ class ThreeView {
         }
     }
 
-    checkIntersection(mouse, e) {
-        let t1 = tnow();
+    selectObjects(objects, e="") {
         var selected = []
-        this.raycaster.setFromCamera( mouse, this.camera );
-        var intersects = this.raycaster.intersectObjects( [ this.scene ], true );
-        if (intersects.length == 0) {
-            return;
-        }
-
         
-        for (var i in intersects) {
-            var selectedObject = intersects[i].object;
-            console.log(selectedObject.name);
+        for (var i in objects) {
+            let selectedObject = objects[i];
             if (selectedObject.name in this.name_uav_id) {
                 console.log("Select " + selectedObject.name);
                 selected.push(selectedObject);
@@ -310,6 +337,25 @@ class ThreeView {
                 this.outlinePassMouseHover.selectedObjects = selected;
             }
         }
+    }
+
+
+    checkIntersection(mouse, e) {
+        let t1 = tnow();
+        this.raycaster.setFromCamera( mouse, this.camera );
+        var intersects = this.raycaster.intersectObjects( [ this.scene ], true );
+        if (intersects.length == 0) {
+            return;
+        }
+
+        var objects = []
+        for (var i in intersects) {
+            var selectedObject = intersects[i].object;
+            objects.push(selectedObject);
+        }
+        console.log(objects);
+
+        this.selectObjects(objects, e);
 
         let t2 = tnow();
         // console.log(t2-t1);

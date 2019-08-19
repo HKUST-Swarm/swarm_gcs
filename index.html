@@ -29,164 +29,22 @@
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
   <!-- <script src='./libs/jszip.min.js'></script> -->
+  <link rel="stylesheet" type="text/css" href="gcs_common.css">
   <style>
-    .text-gray {
-      color: gray;
-    }
-
-    body {
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      -khtml-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-      user-select: none;
-      -moz-user-select: none;
-      -webkit-user-drag: none;
-      -webkit-user-select: none;
-      -ms-user-select: none;
-      position: fixed;
-      -webkit-tap-highlight-color: transparent;
-      width: 100%;
-      background-color:  rgba(52, 58, 64);
-      height: 100%;
-    }
-
     #swarm-sidebar {
-      border-radius: 30px;
-      /* background-color: aqua; */
-      background-color: rgba(124, 145, 150, 0.8);
-      /* filter: blur(10px); */
-      /* overflow-y: scroll; */
-      height: 80%;
-      position: fixed;
-      left: 1em;
-      top: 5em;
-      padding: 5px 15px;
-    }
-
-    #swarm-sidebar-wrap {
-      border-radius: 30px;
-      /* background-color: aqua; */
-      background-color: rgba(124, 145, 150, 0.8);
-      /* filter: blur(10px); */
-      height: 10%;
-      position: fixed;
-      left: 1em;
-      top: 5em;
-      padding: 5px 15px;
-    }
-    
-    .uav-list {
-      overflow-y: scroll;
-      height: 85%;
-      top:0%;
-      position: relative;
-      border-radius: 20px;
-    }
-
-
-    #SWARM {
-      padding: 10px 5px;
-      text-align: center;
-      color: white;
-    }
-
-    .uav_comp {
-      border-radius: 20px;
-      background-color: rgba(82, 97, 100, 0.7);
-      margin-bottom: 10px;
-      float: top;
-    }
-
-    .uav_comp * {
-      padding: 5px 8px;
-      color: bisque;
-    }
-
-    .list-group-item {
-      background-color: transparent;
-    }
-
-    .uav_details {
-      font-size: 0.6em;
-    }
-
-
-    ::-webkit-scrollbar {
-      display: none;
-    }
-
-    .uav_bar {
-      background-color: rgba(124, 145, 150, 0.8);
-    }
-
-    .small_icon {
-      height:2.0em; 
-      width: 2.0em; 
-    }
-
-    .middle_icon {
-      height:2.5em; 
-      width: 2.5em; 
-    }
-
-    #urdf {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      left: 0px;
-      top: 0px;
-    }
-
-    #cmdAera {
-      position: fixed;
-      right: 1em;
-      bottom: 1em;
-      width: 30%;
-      /* height: 33%; */
-      z-index: 1000;
-      background: rgba(62,	72,	75, 0.8);
-      border-radius: 20px;
-      color:white;
-    }
-
-    #cmdAera * {
-      padding: 5px 5px;
-    }
-
-    #cmdAera * {
-      text-align: center;
-    }
-
-    #cmdAera button {
-      margin-bottom: 5px;
-      font-size: 1.0em;
-    }
-
-
-    .bg-dark {
-      background: rgba(52, 58, 64, 0.9) !important;
-      /* #343a40 */
-    }
-
-    .slide-fade-enter-active {
-      transition: all .3s ease;
-    }
-    .slide-fade-leave-active {
-      transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
-    }
-    .slide-fade-enter, .slide-fade-leave-to
-    /* .slide-fade-leave-active for below version 2.1.8 */ {
-      transform: translateX(10px);
-      opacity: 0;
-    }
-
-    .lps_time {
-      width:10em;
-    }
+    border-radius: 30px;
+    /* background-color: aqua; */
+    background-color: rgba(124, 145, 150, 0.8);
+    /* filter: blur(10px); */
+    /* overflow-y: scroll; */
+    height: 80%;
+    position: fixed;
+    left: 1em;
+    top: 5em;
+    padding: 5px 15px;
+  }
   </style>
+
 
 
 </head>
@@ -366,6 +224,11 @@
             id="flyto">
             <img src="material-design-icons/content/drawable-xxxhdpi/ic_forward_white_48dp.png" class="small_icon" />
             Flyto</button>
+
+            <button type="button" v-on:click="range_select" class="btn btn-primary btn-lg"
+            id="range_select">
+            <img src="material-design-icons/content/drawable-xxxhdpi/ic_select_all_white_48dp.png" class="small_icon" />
+            Select</button>
           <hr />
           <button type="button" class="btn btn-lg btn-secondary">Mission A</button>
           <button type="button" class="btn btn-secondary btn-lg">Mission B</button>

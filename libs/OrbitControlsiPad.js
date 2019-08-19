@@ -705,6 +705,7 @@ var OrbitControls = function ( object, domElement ) {
 
 			case scope.mouseButtons.LEFT:
 
+
 				if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
 
 					if ( scope.enablePan === false ) return;
@@ -717,9 +718,9 @@ var OrbitControls = function ( object, domElement ) {
 
 					if ( scope.enableRotate === false ) return;
 
-					handleMouseDownRotate( event );
+					//handleMouseDownRotate( event );
 
-					state = STATE.ROTATE;
+					//state = STATE.ROTATE;
 
 				}
 
