@@ -77,6 +77,7 @@ class ThreeView {
         this.transform_control = new TransformControls(camera, renderer.domElement);
         this.transform_control.addEventListener('dragging-changed', function (event) {
             orbit.enabled = !event.value;
+            obj.toggle_rangeselect(!obj.enable_rangeselect);
         });
 
         this.scene.add(this.transform_control);
@@ -95,6 +96,8 @@ class ThreeView {
         this.aircraft_model = null;
 
         this.fused_pose_uavs = {};
+
+        this.enable_rangeselect = true;
 
         this.pcl = null;
 
@@ -118,14 +121,27 @@ class ThreeView {
         this.init_rangeselect();
     }
 
+    toggle_rangeselect(enable) {
+        this.enable_rangeselect = enable;
+        this.helper.toggle_rangeselect(enable);
+        if (!enable) {
+            this.in_range_select = false;
+        }
+    }
+
     init_rangeselect() {
         let selectionBox = this.selectionBox;
         var renderer = this.renderer 
-        let helper = new SelectionHelper( selectionBox, renderer, 'selectBox' );
+        let helper = this.helper = new SelectionHelper( selectionBox, renderer, 'selectBox' );
         let obj = this;
 
+        this.in_range_select = false;
+
         document.addEventListener( 'mousedown', function ( event ) {
-            if (event.button == 0) {
+            // console.log("Start range select");
+
+            if (event.button == 0 && obj.enable_rangeselect) {
+                obj.in_range_select = true;
                 selectionBox.startPoint.set(
                     ( event.clientX / window.innerWidth ) * 2 - 1,
                     - ( event.clientY / window.innerHeight ) * 2 + 1,
@@ -134,18 +150,19 @@ class ThreeView {
 
         } );
         document.addEventListener( 'mousemove', function ( event ) {
-            if ( helper.isDown ) {
-
-            }
+            // if ( helper.isDown && this.in_range_select) {
+// 
+            // }
         } );
+
         document.addEventListener( 'mouseup', function ( event ) {
-            if (event.button == 0) {
+            if (event.button == 0 && obj.enable_rangeselect && obj.in_range_select) {
+                console.log("Start computing range select");
                 selectionBox.endPoint.set(
                     ( event.clientX / window.innerWidth ) * 2 - 1,
                     - ( event.clientY / window.innerHeight ) * 2 + 1,
                     0.5 );
                 var allSelected = selectionBox.select();
-                console.log(allSelected);
                 obj.selectObjects(allSelected, "select");
             }
 
@@ -353,12 +370,10 @@ class ThreeView {
             var selectedObject = intersects[i].object;
             objects.push(selectedObject);
         }
-        console.log(objects);
 
         this.selectObjects(objects, e);
 
         let t2 = tnow();
-        // console.log(t2-t1);
     }
 
     create_cov_sphere() {

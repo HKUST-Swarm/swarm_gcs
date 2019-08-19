@@ -19,11 +19,12 @@ var SelectionHelper = ( function () {
 		this.startPoint = new Vector2();
 		this.pointTopLeft = new Vector2();
 		this.pointBottomRight = new Vector2();
+		this.enable_rangeselect = true;
 
 		this.isDown = false;
 
 		this.renderer.domElement.addEventListener( 'mousedown', function ( event ) {
-			if (event.button == 0) {
+			if (event.button == 0 && this.enable_rangeselect) {
 				this.isDown = true;
 				this.onSelectStart( event );
 			}
@@ -32,7 +33,7 @@ var SelectionHelper = ( function () {
 
 		this.renderer.domElement.addEventListener( 'mousemove', function ( event ) {
 
-			if ( this.isDown) {
+			if ( this.isDown && this.enable_rangeselect) {
 
 				this.onSelectMove( event );
 
@@ -41,7 +42,7 @@ var SelectionHelper = ( function () {
 		}.bind( this ), false );
 
 		this.renderer.domElement.addEventListener( 'mouseup', function ( event ) {
-			if (event.button == 0) {
+			if (event.button == 0 && this.enable_rangeselect) {
 				this.isDown = false;
 				this.onSelectOver( event );
 			}
@@ -50,9 +51,11 @@ var SelectionHelper = ( function () {
 		}.bind( this ), false );
 
 	}
+	SelectionHelper.prototype.toggle_rangeselect = function (enable) {
+		this.enable_rangeselect = enable;
+	}
 
 	SelectionHelper.prototype.onSelectStart = function ( event ) {
-
 		this.renderer.domElement.parentElement.appendChild( this.element );
 
 		this.element.style.left = event.clientX + 'px';
@@ -62,11 +65,9 @@ var SelectionHelper = ( function () {
 
 		this.startPoint.x = event.clientX;
 		this.startPoint.y = event.clientY;
-
 	};
 
 	SelectionHelper.prototype.onSelectMove = function ( event ) {
-
 		this.pointBottomRight.x = Math.max( this.startPoint.x, event.clientX );
 		this.pointBottomRight.y = Math.max( this.startPoint.y, event.clientY );
 		this.pointTopLeft.x = Math.min( this.startPoint.x, event.clientX );
@@ -76,13 +77,10 @@ var SelectionHelper = ( function () {
 		this.element.style.top = this.pointTopLeft.y + 'px';
 		this.element.style.width = ( this.pointBottomRight.x - this.pointTopLeft.x ) + 'px';
 		this.element.style.height = ( this.pointBottomRight.y - this.pointTopLeft.y ) + 'px';
-
 	};
 
 	SelectionHelper.prototype.onSelectOver = function () {
-
 		this.element.parentElement.removeChild( this.element );
-
 	};
 
 	return SelectionHelper;
