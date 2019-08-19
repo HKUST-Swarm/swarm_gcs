@@ -705,44 +705,36 @@ var OrbitControls = function ( object, domElement ) {
 
 			case scope.mouseButtons.LEFT:
 
-
-				if ( event.ctrlKey || event.metaKey || event.shiftKey ) {
-
-					if ( scope.enablePan === false ) return;
-
-					handleMouseDownPan( event );
-
-					state = STATE.PAN;
-
-				} else {
-
-					if ( scope.enableRotate === false ) return;
-
-					//handleMouseDownRotate( event );
-
-					//state = STATE.ROTATE;
-
-				}
-
 				break;
 
 			case scope.mouseButtons.MIDDLE:
-
+				/*
 				if ( scope.enableZoom === false ) return;
 
-				handleMouseDownDolly( event );
 
 				state = STATE.DOLLY;
+				*/
+				if ( scope.enableRotate === false ) return;
 
+					handleMouseDownRotate( event );
+
+					state = STATE.ROTATE;
 				break;
 
 			case scope.mouseButtons.RIGHT:
+
+				// if ( scope.enablePan === false ) return;
+
+				// handleMouseDownPan( event );
+
+				// state = STATE.PAN;
 
 				if ( scope.enablePan === false ) return;
 
 				handleMouseDownPan( event );
 
 				state = STATE.PAN;
+
 
 				break;
 
