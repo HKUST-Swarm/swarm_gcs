@@ -55,7 +55,7 @@ class SwarmGCSUI {
                 remote_nodes: 0,
                 available_nodes: 0,
                 lps_time: 0,
-                ros_conn: "UNCONNECTED",
+                ros_conn: "FAIL",
                 ros_conn_color: "red",
                 self_id_color: "gray",
                 total_remote_color: "gray",
@@ -250,7 +250,7 @@ class SwarmGCSUI {
 
     set_ros_conn(_conn) {
         this.view.ros_conn = _conn;
-        if (_conn == "CONNECTED") {
+        if (_conn == "OK") {
             this.view.ros_conn_color = good_topbar_color;
         } else {
             this.view.ros_conn_color = "red";

@@ -10,16 +10,16 @@ function createWindow () {
     width: 1280,
     height: 720,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: false
     }
+    // frame:false
   })
 
   // and load the index.html of the app.
-  win.loadFile('gcs.html')
-
+  win.loadURL('http://127.0.0.1/')
   // Open the DevTools.
 //   win.webContents.openDevTools()
-
+  win.setAutoHideMenuBar(true);
   // Emitted when the window is closed.
   win.on('closed', () => {
     // Dereference the window object, usually you would store windows
@@ -32,6 +32,7 @@ function createWindow () {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+
 app.on('ready', createWindow)
 
 // Quit when all windows are closed.
@@ -50,3 +51,6 @@ app.on('activate', () => {
     createWindow()
   }
 })
+
+
+

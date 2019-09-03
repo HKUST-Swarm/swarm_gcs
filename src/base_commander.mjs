@@ -39,7 +39,7 @@ class BaseCommander {
       ros.on("connection", function () {
           // console.log("Connected to websocket server.");
           self.connected = true;
-          _ui.set_ros_conn("CONNECTED");
+          _ui.set_ros_conn("OK");
 
           self.setup_ros_sub_pub();
       });
@@ -57,7 +57,7 @@ class BaseCommander {
       
       ros.on('close', function() {
           console.log('Connection to websocket server closed.');
-          _ui.set_ros_conn("CLOSED..");
+          _ui.set_ros_conn("CLOSED");
           self.connected = false;
           _ui.select_next_server_ip();
           ros.close();

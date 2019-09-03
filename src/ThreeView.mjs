@@ -55,9 +55,9 @@ class ThreeView {
         this.opt = opt;
         var renderer = this.renderer = new THREE.WebGLRenderer();
 
-        this.width = $("#urdf").width();
-        this.height = $("#urdf").height();
-        this.position = $("#urdf").position();
+        this.width =document.getElementById("urdf").offsetWidth;
+        this.height = document.getElementById("urdf").offsetHeight;
+        // this.position = $("#urdf").position();
 
         this.renderer.setSize(this.width, this.height);
         renderer.context.getExtension('OES_standard_derivatives');
@@ -220,17 +220,17 @@ class ThreeView {
         let renderer = this.renderer;
         renderer.setPixelRatio(window.devicePixelRatio);
 
-        this.outlinePassMouseHover = new OutlinePass(new THREE.Vector2($("#urdf").width(), $("#urdf").height()), this.scene, this.camera);
+        this.outlinePassMouseHover = new OutlinePass(new THREE.Vector2(this.width, this.height), this.scene, this.camera);
         this.outlinePassMouseHover.edgeStrength = 3;
         this.outlinePassMouseHover.edgeThickness = 2.0;
         this.outlinePassMouseHover.visibleEdgeColor.set(color_set_hot.white);
 
-        this.outlinePassSelected = new OutlinePass(new THREE.Vector2($("#urdf").width(), $("#urdf").height()), this.scene, this.camera);
+        this.outlinePassSelected = new OutlinePass(new THREE.Vector2(this.width, this.height), this.scene, this.camera);
         this.outlinePassSelected.edgeStrength = 5;
         this.outlinePassSelected.edgeThickness = 5.0;
         this.outlinePassSelected.visibleEdgeColor.set(color_set_hot.red);
 
-        this.outlinePassFused = new OutlinePass(new THREE.Vector2($("#urdf").width(), $("#urdf").height()), this.scene, this.camera);
+        this.outlinePassFused = new OutlinePass(new THREE.Vector2(this.width, this.height), this.scene, this.camera);
         this.outlinePassFused.edgeStrength = 1;
         this.outlinePassSelected.edgeThickness = 1.0;
         this.outlinePassFused.visibleEdgeColor.set(color_set_hot.yellow);
@@ -249,8 +249,8 @@ class ThreeView {
 
 
 		var pixelRatio = renderer.getPixelRatio();
-		fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( $("#urdf").width() * pixelRatio );
-		fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / (  $("#urdf").height() * pixelRatio );
+		fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( this.width * pixelRatio );
+		fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( this.height * pixelRatio );
         this.composer.addPass( fxaaPass );
 
 
@@ -268,15 +268,18 @@ class ThreeView {
     }
 
     onWindowResize() {
-        this.width = $("#urdf").width();
-        this.height = $("#urdf").height();
+        // this.width = $("#urdf").width();
+        // this.height = $("#urdf").height();
+        
+        this.width =document.getElementById("urdf").offsetWidth;
+        this.height = document.getElementById("urdf").offsetHeight;
         
         this.camera.aspect = this.width / this.height;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize( this.width, this.height );
         this.selectionBox = new SelectionBox( this.camera, this.scene, 100, this.uavs );
 
-        this.position = $("#urdf").position();
+        // this.position = $("#urdf").position();
     }
 
     update_pcl(pcl) {
@@ -369,8 +372,8 @@ class ThreeView {
             y = event.clientY;
         }
         // console.log(this.position);
-        x = x - this.position.left;
-        y = y - this.position.top;
+        // x = x - this.position.left;
+        // y = y - this.position.top;
         var mouse = new THREE.Vector2();
         mouse.x = ( x / this.width ) * 2 - 1;
         mouse.y = - ( y / this.height ) * 2 + 1;
