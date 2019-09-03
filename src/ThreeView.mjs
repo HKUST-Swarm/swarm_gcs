@@ -30,6 +30,21 @@ let color_set_hot = {
     blue:"#BAACE7"
 }
 
+// let traj_colors = {
+//     drone_0:"#4277ff",
+//     drone_1:"#84aff9",
+//     drone_2:"#d6e2aa",
+//     drone_3:"#ffe877",
+//     drone_4:"#ff96a2"
+// }
+let traj_colors = {
+    drone_0:"#ff6750",
+    drone_1:"#eac435",
+    drone_2:"#345995",
+    drone_3:"#05f3a3",
+    drone_4:"#e40066"
+}
+
 // let use_outline_passes = true;
 let use_outline_passes = false;
 
@@ -88,6 +103,7 @@ class ThreeView {
         this.uav_cov_spheres = {}
         this.uav_cov_circles = {}
         this.name_uav_id = {}
+        this.trajs = {};
 
         this.uav_waypoint_targets = {}
 
@@ -129,6 +145,35 @@ class ThreeView {
         }
     }
 
+    clear_drone_trajs() {
+        for (var ns in this.trajs) {
+            this.scene.remove(this.trajs[ns]);
+        } 
+    }
+
+    update_drone_traj(ns, traj) {
+        console.log("Loading traj....");
+        if (ns in this.trajs) {
+            this.scene.remove(this.trajs[ns]);
+        }
+        var arr = [];
+        
+        for (var i in traj) {
+            arr.push(new THREE.Vector3(traj[i].x, traj[i].y, traj[i].z ));
+        }
+
+        var geometry = new THREE.BufferGeometry().setFromPoints( arr );
+        
+        var material = new THREE.LineBasicMaterial( { color : traj_colors[ns], linewidth: 20 } );
+        
+        // Create the final object to add to the scene
+        var splineObject = new THREE.Line( geometry, material );     
+  
+
+        this.scene.add(splineObject);
+        this.trajs[ns] = splineObject;
+    }
+    
     init_rangeselect() {
 
         this.selectionBox = new SelectionBox( this.camera, this.scene, 100, this.uavs );

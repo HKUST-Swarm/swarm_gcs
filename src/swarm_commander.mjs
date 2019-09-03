@@ -59,11 +59,21 @@ class SwarmCommander extends BaseCommander{
             queue_length:1
           });
           
-       this.remote_nodes_listener.subscribe(function(msg) {
-           self.on_remote_nodes_info(msg);
-       });
+        this.remote_nodes_listener.subscribe(function(msg) {
+            self.on_remote_nodes_info(msg);
+        });
 
-
+        this.traj_viz_listener = new ROSLIB.Topic({
+            ros: ros,
+            name: "/traj_viz",
+            messageType: "visualization_msgs/Marker",
+            queue_length:10
+        });
+        
+        this.traj_viz_listener.subscribe(function (msg) {
+            // console.log(msg);
+            self.ui.update_drone_traj(msg.ns, msg.points)
+        });
 
         this.incoming_data_listener = new ROSLIB.Topic({
             ros: ros,
@@ -245,9 +255,15 @@ class SwarmCommander extends BaseCommander{
         var request = new ROSLIB.ServiceRequest({
             next_formation: next_trans
         });
-        
+        let obj = this;
         this.change_formation_client.callService(request, function(result) {
             console.log(result);
+            obj.ui.set_active_formation(result.current_formation, 0);
+
+            setTimeout(function() {
+                obj.ui.set_active_formation(result.current_formation, 1);
+                obj.ui.clear_drone_trajs();
+            }, result.period*1000);
         });
     }
 

@@ -232,22 +232,22 @@
             Select</button> -->
           <hr />
           <h4>FORMATIONs</h4> 
-          <button type="button" class="btn btn-lg btn-secondary" v-on:click="formation(0)">
+          <button type="button" v-on:click="formation(0)" v-bind:class="[formation_class[0]]">
               <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />            
             0</button>
-          <button type="button" class="btn btn-lg btn-secondary" v-on:click="formation(1)">
+          <button type="button" v-on:click="formation(1)" v-bind:class="[formation_class[1]]">
               <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />                        
             1</button>
-          <button type="button" class="btn btn-lg btn-secondary" v-on:click="formation(2)">
+          <button type="button" v-on:click="formation(2)" v-bind:class="[formation_class[2]]">
               <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />                        
             2</button>
-          <button type="button" class="btn btn-lg btn-secondary" v-on:click="formation(3)">
-              <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />                        
+          <button type="button" v-on:click="formation(3)" v-bind:class="[formation_class[3]]">
+              <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />                       
             3</button>
-          <button type="button" class="btn btn-lg btn-secondary" v-on:click="formation(4)">
+          <button type="button" v-on:click="formation(4)" v-bind:class="[formation_class[4]]">
               <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />            
             4</button>
-          <button type="button" class="btn btn-lg btn-secondary" v-on:click="stop_formation()">
+          <button type="button" class="btn btn-secondary" v-on:click="stop_formation()">
               <img src="material-design-icons/navigation/drawable-xxxhdpi/ic_cancel_white_48dp.png" class="small_icon" />
             STOP</button>
         </div>

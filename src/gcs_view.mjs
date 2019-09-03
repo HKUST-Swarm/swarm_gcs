@@ -69,7 +69,8 @@ class SwarmGCSUI {
                 primary_id:this.primary_id,
                 server_ip: this.server_ip,
                 server_ip_list: this.server_ip_list,
-                is_wrap_swarm: false
+                is_wrap_swarm: false,
+                formation_class : ["btn btn-secondary", "btn btn-secondary", "btn btn-secondary", "btn btn-secondary", "btn btn-secondary"]
             },
             methods: {
                 select_all: function() {
@@ -120,6 +121,16 @@ class SwarmGCSUI {
         this.other_vo_origin = {};
     }
 
+    set_active_formation(_index, status) {
+        this.view.formation_class= ["btn btn-secondary", "btn btn-secondary", "btn btn-secondary", "btn btn-secondary", "btn btn-secondary"];
+        if (status == 0) {
+            this.view.formation_class[_index] = "btn btn-warning";
+        }
+        if (status == 1) {
+            this.view.formation_class[_index] = "btn btn-success";
+        }
+    }
+
     formation(_next) {
         this.cmder.request_transformation_change(_next);
     }
@@ -142,6 +153,14 @@ class SwarmGCSUI {
         this.view.server_ip = _ip;
         this.cmder.set_server_ip(_ip)
         // this.set_server_ip(this.server_ip_list[this.server_ip_index])
+    }
+
+    update_drone_traj(ns, traj) {
+        this.threeview.update_drone_traj(ns, traj);
+    }
+
+    clear_drone_trajs() {
+        this.threeview.clear_drone_trajs();
     }
 
     send_flyto_cmd(_id) {
