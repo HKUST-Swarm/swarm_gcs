@@ -86,6 +86,13 @@ class SwarmCommander extends BaseCommander{
             name : '/uwb_node/send_broadcast_data',
             messageType : 'inf_uwb_ros/data_buffer'
         });
+
+        this.change_formation_client = new ROSLIB.Service({
+            ros : ros,
+            name : '/transformation',
+            serviceType : 'swarm_transformation/transformation'
+        });
+        
     }
 
  
@@ -231,6 +238,28 @@ class SwarmCommander extends BaseCommander{
         let _data = _msg.pack(this.mav);
         var msg = new ROSLIB.Message({data : _data});
         this.send_uwb_msg.publish(msg);
+    }
+
+    request_transformation_change(next_trans) {
+        console.log("Try to request formation, ", next_trans);
+        var request = new ROSLIB.ServiceRequest({
+            next_formation: next_trans
+        });
+        
+        this.change_formation_client.callService(request, function(result) {
+            console.log(result);
+        });
+    }
+
+    stop_transformation_thread() {
+        console.log("Try to stop formation thread");
+        var request = new ROSLIB.ServiceRequest({
+            next_formation: -1
+        });
+        
+        this.change_formation_client.callService(request, function(result) {
+            console.log(result);
+        });
     }
 }
 

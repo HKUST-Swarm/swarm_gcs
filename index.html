@@ -122,11 +122,9 @@
             <a class="nav-link" href="#" v-bind:style="{ color: self_id_color }">GCS_ID: {{self_id}}</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#" v-bind:style="{ color: total_remote_color }">TOTAL: {{remote_nodes}}</a>
+            <a class="nav-link" href="#" v-bind:style="{ color: total_remote_color }">NODES: {{available_nodes}}/{{remote_nodes}}</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#" v-bind:style="{ color: total_remote_color }">AVAIL: {{available_nodes}}</a>
-          </li>
+         
 
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
@@ -139,11 +137,17 @@
             </div>
           </li>
 
+          <li class="nav-item">
+              <a class="nav-link" href="#">
+              <img src="material-design-icons/maps/drawable-xxxhdpi/ic_flight_white_48dp.png" style="height: 1.4em; width: 1.4em;" />
+                SELECTED:{{selected_uav}}
+              </a>
+          </li>
 
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
-              PRIMARY_ID:{{primary_id}}
+              PRIMARY:{{primary_id}}
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" href="#" v-for="(_, _id) in uavs" v-on:click="set_primary_id(_id)">{{_id}}</a>
@@ -153,7 +157,7 @@
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
-              SERVER_IP:{{server_ip}}
+              SERVER:{{server_ip}}
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <!-- <a class="dropdown-item" href="#" v-on:click="set_server_ip('127.0.0.1')">LOCALHOST</a> -->
@@ -205,9 +209,6 @@
         <img :src="marker_path" width="100%" />
       </div>
       <div id="cmdAera">
-        <h4>Command Aera: <span id="select_id" style="color:red"> 
-          <img src="material-design-icons/maps/drawable-xxxhdpi/ic_flight_white_48dp.png" style="height: 1.4em; width: 1.4em;" />
-          {{selected_uav}} </span></h4>
         <div>
           <button type="button" v-on:click="command('takeoff')" class="btn btn-lg btn-primary" id="takeoff">
             <img src="material-design-icons/action/drawable-xxxhdpi/ic_flight_takeoff_white_48dp.png" class="small_icon" />
@@ -225,13 +226,30 @@
             <img src="material-design-icons/content/drawable-xxxhdpi/ic_forward_white_48dp.png" class="small_icon" />
             Flyto</button>
 
-            <button type="button" v-on:click="range_select" class="btn btn-primary btn-lg"
+            <!-- <button type="button" v-on:click="range_select" class="btn btn-primary btn-lg"
             id="range_select">
             <img src="material-design-icons/content/drawable-xxxhdpi/ic_select_all_white_48dp.png" class="small_icon" />
-            Select</button>
+            Select</button> -->
           <hr />
-          <button type="button" class="btn btn-lg btn-secondary">Mission A</button>
-          <button type="button" class="btn btn-secondary btn-lg">Mission B</button>
+          <h4>FORMATIONs</h4> 
+          <button type="button" class="btn btn-lg btn-secondary" v-on:click="formation(0)">
+              <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />            
+            0</button>
+          <button type="button" class="btn btn-lg btn-secondary" v-on:click="formation(1)">
+              <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />                        
+            1</button>
+          <button type="button" class="btn btn-lg btn-secondary" v-on:click="formation(2)">
+              <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />                        
+            2</button>
+          <button type="button" class="btn btn-lg btn-secondary" v-on:click="formation(3)">
+              <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />                        
+            3</button>
+          <button type="button" class="btn btn-lg btn-secondary" v-on:click="formation(4)">
+              <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />            
+            4</button>
+          <button type="button" class="btn btn-lg btn-secondary" v-on:click="stop_formation()">
+              <img src="material-design-icons/navigation/drawable-xxxhdpi/ic_cancel_white_48dp.png" class="small_icon" />
+            STOP</button>
         </div>
         <!-- <button type="button" class="btn btn-secondary btn-lg" >Mission C</button> -->
         <!-- <button type="button" class="btn btn-secondary btn-lg" >Mission D</button> -->

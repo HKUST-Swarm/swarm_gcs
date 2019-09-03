@@ -101,6 +101,12 @@ class SwarmGCSUI {
                 },
                 toggle_fullscreen: function () {
                     document.body.requestFullscreen();
+                },
+                formation: function(_next) {
+                    obj.formation(_next);
+                },
+                stop_formation: function() {
+                    obj.stop_formation();
                 }
             }
         });
@@ -112,6 +118,13 @@ class SwarmGCSUI {
         this.uav_global_poses = {};
         this.uav_local_poses_in_drone_coor = {};
         this.other_vo_origin = {};
+    }
+
+    formation(_next) {
+        this.cmder.request_transformation_change(_next);
+    }
+    stop_formation() {
+        this.cmder.stop_transformation_thread();
     }
 
     set_server_ip(_ip) {
