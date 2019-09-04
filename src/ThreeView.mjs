@@ -217,6 +217,7 @@ class ThreeView {
     }
 
     init_postprocessing() {
+        console.log("Init post");
         let renderer = this.renderer;
         renderer.setPixelRatio(window.devicePixelRatio);
 
@@ -278,7 +279,7 @@ class ThreeView {
         this.camera.updateProjectionMatrix();
         this.renderer.setSize( this.width, this.height );
         this.selectionBox = new SelectionBox( this.camera, this.scene, 100, this.uavs );
-
+        this.init_postprocessing();
         // this.position = $("#urdf").position();
     }
 
