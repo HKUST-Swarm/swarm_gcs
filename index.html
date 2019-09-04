@@ -103,7 +103,6 @@
 
 <body draggable="false"  ontouchstart=””>
   <div id="urdf"></div>
-
   <div class="container-fluid" style="width: 100%" id="container">
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -254,6 +253,8 @@
         <!-- <button type="button" class="btn btn-secondary btn-lg" >Mission C</button> -->
         <!-- <button type="button" class="btn btn-secondary btn-lg" >Mission D</button> -->
       </div>
+  <div class="drone_id" v-for="(_, _id) in uav_screen_pos"  v-bind:style="{ top: uav_screen_pos[_id].y, left: uav_screen_pos[_id].x, position: 'fixed'}">{{_id}}</div>
+
   </div>
 
   <script type="module">

@@ -17,6 +17,7 @@
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {
+    "electron": "^6.0.7",
     "jspack": "0.0.4",
     "underscore": "^1.9.1"
   }

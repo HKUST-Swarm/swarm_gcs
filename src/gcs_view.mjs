@@ -63,6 +63,7 @@ class SwarmGCSUI {
                 lps_time_color:"gray",
                 uavs: {}, // { 0:dstatus},
                 selected_uav: "All",
+                uav_screen_pos: {},
                 select_id: -1,
                 marker_path:"",
                 display_mode:_dis_mode,
@@ -119,6 +120,11 @@ class SwarmGCSUI {
         this.uav_global_poses = {};
         this.uav_local_poses_in_drone_coor = {};
         this.other_vo_origin = {};
+    }
+
+    update_uav_label_pos(_id, pos) {
+        // console.log(_id, pos);
+        this.view.uav_screen_pos[_id] = pos;
     }
 
     set_active_formation(_index, status) {
@@ -557,8 +563,8 @@ class SwarmGCSUI {
             this.threeview.clear_uavs();
             this.threeview.clear_uav_fused();
         }
-
     }
+
 
 }
 

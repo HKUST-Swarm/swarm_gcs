@@ -135,6 +135,8 @@ class ThreeView {
         }, false );
 
         this.init_rangeselect();
+
+        this.count = 0;
     }
 
     toggle_rangeselect(enable) {
@@ -684,6 +686,20 @@ class ThreeView {
         }
     }
 
+    update_uav_labels() {
+        for (var _id in this.uavs) {
+            var object = this.uavs[_id];
+            //console.log(object.position);
+
+            var pos = object.position.clone();
+            pos.z = pos.z + 0.3;
+            var pos2d = toScreenPosition(pos, this.camera, this.renderer);
+            pos2d.x  = pos2d.x - 15;
+            pos2d.y  = pos2d.y - 15;
+            this.ui.update_uav_label_pos(_id, pos2d);
+        }
+    }
+
     animate() {
         // console.log("anaimate");
         let obj = this;
@@ -695,10 +711,31 @@ class ThreeView {
         this.composer.render();
         // this.renderer.render(this.scene, this.camera);
         this.stats.update();
-
+        this.update_uav_labels();
     }
 
 
 }
 
+function toScreenPosition(position, camera, renderer) {
+    var vector = new THREE.Vector3();
+
+    var widthHalf = 0.5*renderer.context.canvas.width;
+    var heightHalf = 0.5*renderer.context.canvas.height;
+
+    var matrixWorld = new THREE.Matrix4();
+    matrixWorld.compose( position, new THREE.Quaternion(), new THREE.Vector3() );
+
+    vector.setFromMatrixPosition(matrixWorld);
+    vector.project(camera);
+
+    vector.x = ( vector.x * widthHalf ) + widthHalf;
+    vector.y = - ( vector.y * heightHalf ) + heightHalf;
+
+    return { 
+        x: (vector.x/window.devicePixelRatio).toFixed(0),
+        y: (vector.y/window.devicePixelRatio).toFixed(0)
+    };
+
+};
 export { ThreeView };

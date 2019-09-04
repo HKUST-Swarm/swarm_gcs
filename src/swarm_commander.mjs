@@ -31,6 +31,8 @@ class SwarmCommander extends BaseCommander{
         this.last_recv_pcl = tnow();
         this.pcl_duration = 0.3;
 
+        this.current_formation = 0;
+
     }
     
     sub_vicon_id(i) {
@@ -226,6 +228,7 @@ class SwarmCommander extends BaseCommander{
     }
 
     send_landing_cmd(_id) {
+        this.stop_transformation_thread();
         console.log("Will send landing command");
         let landing_cmd = 6;
         let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, landing_cmd, 0, this.landing_speed *10000, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -244,6 +247,7 @@ class SwarmCommander extends BaseCommander{
     }
 
     send_emergency_cmd() {
+        this.stop_transformation_thread();
         console.log("Will send emergency command");
         let landing_cmd = 6;
         let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, -1, landing_cmd, 1, 10000, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -258,9 +262,14 @@ class SwarmCommander extends BaseCommander{
 
     request_transformation_change(next_trans) {
         console.log("Try to request formation, ", next_trans);
+        if (this.current_formation < 0) {
+            next_trans = next_trans + 100;
+        }
+
         var request = new ROSLIB.ServiceRequest({
             next_formation: next_trans
         });
+        
         let obj = this;
         this.change_formation_client.callService(request, function(result) {
             console.log(result);
@@ -268,6 +277,8 @@ class SwarmCommander extends BaseCommander{
 
             setTimeout(function() {
                 obj.ui.set_active_formation(result.current_formation, 1);
+                obj.current_formation = result.current_formation;
+
                 obj.ui.clear_drone_trajs();
             }, result.period*1000);
         });
@@ -278,9 +289,10 @@ class SwarmCommander extends BaseCommander{
         var request = new ROSLIB.ServiceRequest({
             next_formation: -1
         });
-        
+        let obj = this;        
         this.change_formation_client.callService(request, function(result) {
             console.log(result);
+            obj.current_formation = result.current_formation;
         });
     }
 }
