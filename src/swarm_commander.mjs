@@ -197,12 +197,10 @@ class SwarmCommander extends BaseCommander{
 
         this.ui.set_drone_status(_id, status)
 
-        var pos = new THREE.Vector3(status.x, status.y, status.z);
-        var quat = new THREE.Quaternion();
-        quat.setFromEuler(new THREE.Euler(0, 0, status.yaw));
-        this.ui.update_drone_selfpose(_id, pos, quat, 0, 0, 0);
-
-        // this.ui.update_drone_selfpose(_id, status.x, status.y, status.z);
+        // var pos = new THREE.Vector3(status.x, status.y, status.z);
+        // var quat = new THREE.Quaternion();
+        // quat.setFromEuler(new THREE.Euler(0, 0, status.yaw));
+        // this.ui.update_drone_selfpose(_id, pos, quat, 0, 0, 0);
 
         // this.ui.set_bat_level(_id, status.bat_vol);
         // this.ui.set_drone_lps_time(_id, lps_time);
@@ -221,6 +219,7 @@ class SwarmCommander extends BaseCommander{
     }
 
     send_takeoff_cmd(_id) {
+        this.stop_transformation_thread();
         console.log("Will send takeoff command");
         let takeoff_cmd = 5;
         let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id,  takeoff_cmd, 10000, 15000, 0, 0, 0, 0, 0, 0, 0, 0);

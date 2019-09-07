@@ -32,6 +32,7 @@
     left: 1em;
     top: 5em;
     padding: 5px 15px;
+    z-index: 1001;
   }
   
   .uav-list {
@@ -157,10 +158,12 @@
   .drone_id {
     position: fixed;
     text-align: center;
-    z-index: 1000;
+    z-index: 900;
     width: 30px;
     height: 30px;
     font-size: 30px;
-    color: #00ff00;
+    /* color: #00ff00; */
+    color: #0000ff;
+
     text-shadow: 0 0 10px;
   }
