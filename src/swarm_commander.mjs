@@ -32,7 +32,13 @@ class SwarmCommander extends BaseCommander{
         this.pcl_duration = 0.3;
 
         this.current_formation = 0;
+        
+        this.missions = {}
 
+
+        this.uav_pos = {}
+
+        this.mission_update();
     }
     
     sub_vicon_id(i) {
@@ -103,6 +109,12 @@ class SwarmCommander extends BaseCommander{
             ros : ros,
             name : '/transformation',
             serviceType : 'swarm_transformation/transformation'
+        });
+
+        this.translation_flyto_client = new ROSLIB.Service({
+            ros : ros,
+            name : '/translation',
+            serviceType : 'swarm_transformation/translation'
         });
         
     }
@@ -215,6 +227,7 @@ class SwarmCommander extends BaseCommander{
         var quat = new THREE.Quaternion();
         quat.setFromEuler(new THREE.Euler(0, 0, info.yaw/1000.0));
         this.ui.update_drone_selfpose(_id, pos, quat, info.vx/100.0, info.vy/100.0, info.vz/100.0);
+        this.uav_pos[_id] = pos;
         // this.ui.update_drone_selfpose(_id, info.x, info.y, info.z, info.yaw/1000.0, info.vx/100.0, info.vy/100.0, info.vz/100.0);
     }
 
@@ -236,7 +249,7 @@ class SwarmCommander extends BaseCommander{
 
     send_flyto_cmd(_id, pos) {
         //When use VO coordinates
-        console.log("Fly to ", pos);
+        // console.log("Fly to ", pos);
         let flyto_cmd = 0;
         let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, flyto_cmd, 
             Math.floor(pos.x*10000), 
@@ -253,10 +266,122 @@ class SwarmCommander extends BaseCommander{
         this.send_msg_to_swarm(scmd);
     }
 
+    send_traj_cmd(_id, cmd) {
+        console.log("send traj", cmd);
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, 100+cmd, 
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        this.send_msg_to_swarm(scmd);
+    }
+
     send_msg_to_swarm(_msg) {
         let _data = _msg.pack(this.mav);
         var msg = new ROSLIB.Message({data : _data});
         this.send_uwb_msg.publish(msg);
+    }
+
+    start_circle_fly(_id, origin, r=1, T=10, yaw_mode="fixed") {
+        if (_id < 0) {
+            return;
+        }
+        if (origin == null) {
+            origin = {
+                x:this.uav_pos[_id].x,
+                y:this.uav_pos[_id].y + r,
+                z:this.uav_pos[_id].z
+            }
+        }
+
+        this.missions[_id] = {
+            "mission": "circle",
+            "origin": origin,
+            "T": T,
+            "ts": tnow(),
+            "r": r,
+            "yaw_mode": yaw_mode
+        }
+    }
+
+    stop_mission_id(_id) {
+        if (_id == -1) {
+            this.missions = {};
+        }
+        delete this.missions[_id];
+    }
+
+    circle_mission(_id, mission, _tnow) {
+        // console.log("circle mission");
+        let flyto_cmd = 0;
+        var t = _tnow - mission.ts;
+        var r = mission.r;
+        var yaw_mode = mission.yaw_mode;
+        var ox = mission.origin.x;
+        var oy = mission.origin.y;
+        var oz = mission.origin.z;
+        var T = mission.T;
+
+        var pi = Math.PI;
+        var x = ox + Math.sin(t*pi*2/T)*r;
+        var y = oy - Math.cos(t*pi*2/T)*r;
+        var vx = Math.cos(t*pi*2/T) * r * pi*2/T;
+        var vy = Math.sin(t*pi*2/T) * r * pi*2/T;
+        var ax = - Math.sin(t*pi*2/T) * r * pi*2/T * pi*2/T;
+        var ay = Math.cos(t*pi*2/T) * r * pi*2/T * pi*2/T;
+        // console.log(x, y, oz);
+
+        var param1 = Math.floor(x*10000)
+        var param2 = Math.floor(y*10000)
+        var param3 = Math.floor(oz*10000)
+        var param5 = Math.floor(vx*10000)
+        var param6 = Math.floor(vy*10000)
+        var param7 = 0
+        var param4 = 666666;
+        if (yaw_mode == "follow") {
+            param4 = Math.floor(-t*pi*2*10000/T);
+        }
+        var param8 = Math.floor(ax*10000)
+        var param9 = Math.floor(ay*10000)
+
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, flyto_cmd, 
+            param1, param2, param3, param4, 
+            param5, param6, param7, param8, param9, 0);
+        this.send_msg_to_swarm(scmd);
+    }
+
+    mission_update() {
+        // console.log("ms");
+        var _tnow = tnow();
+        for (var _id in this.missions) {
+            var mission = this.missions[_id];
+            
+            if (mission.mission == "circle") {
+                this.circle_mission(_id, mission, _tnow);
+            }
+        }
+
+        let self = this;
+        setTimeout(function() {
+            self.mission_update();
+        }, 30);
+    }
+
+    formation_flyto(pos) {
+        if (this.current_formation < 0) {
+            return;
+        }
+        
+        var request = new ROSLIB.ServiceRequest({
+            next_formation: this.current_formation,
+            des_x: pos.x,
+            des_y: pos.y,
+            des_z: pos.z
+        });
+
+        console.log("Target pos", pos.x, pos.y, pos.z);
+        let obj = this;
+        this.translation_flyto_client.callService(request, function(result) {
+            console.log(result);
+            obj.current_formation = result.current_formation;
+        });
     }
 
     request_transformation_change(next_trans) {

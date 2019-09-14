@@ -15,6 +15,12 @@ function toFixedString(n, dec=2) {
     return sign + n.toFixed(dec);
 }
 
+
+let uav_label_colors = {
+    unselected: "#0000ff",
+    selected: "#ff0000"
+}
+
 class SwarmGCSUI {
     constructor(opt_ui, opt_3d) {
         let obj = this;
@@ -64,6 +70,7 @@ class SwarmGCSUI {
                 uavs: {}, // { 0:dstatus},
                 selected_uav: "All",
                 uav_screen_pos: {},
+                uav_label_colors: {},
                 select_id: -1,
                 marker_path:"",
                 display_mode:_dis_mode,
@@ -125,6 +132,9 @@ class SwarmGCSUI {
     update_uav_label_pos(_id, pos) {
         // console.log(_id, pos);
         this.view.uav_screen_pos[_id] = pos;
+        if (!(_id in this.view.uav_label_colors)) {
+            this.view.uav_label_colors[_id] = uav_label_colors.unselected;
+        }
     }
 
     set_active_formation(_index, status) {
@@ -141,6 +151,7 @@ class SwarmGCSUI {
         this.cmder.request_transformation_change(_next);
     }
     stop_formation() {
+        this.cmder.stop_mission_id(-1);
         this.cmder.stop_transformation_thread();
     }
 
@@ -202,20 +213,18 @@ class SwarmGCSUI {
                 pos.y = t_pos.y;
                 pos.z = t_pos.z;
                 this.cmder.send_flyto_cmd(_id, pos);
+            } else if (_id == -1) {
+                pos.x = t_pos.x;
+                pos.y = t_pos.y;
+                pos.z = t_pos.z;
+                console.log("Send all formation command", pos);
+                this.cmder.formation_flyto(pos);
             } else {
                 let _local_pos_in_base_now = this.uav_local_poses_in_drone_coor[this.primary_id][_id];
                 let dx = t_pos.x - _local_pos_in_base_now.x;
                 let dy = t_pos.y - _local_pos_in_base_now.y;
                 let dz = t_pos.z - _local_pos_in_base_now.z;
                 
-                // console.log("LOCAL IN BASE");
-                // console.log(_local_pos_in_base_now);
-                // console.log("T POS");
-                // console.log(t_pos);
-                // console.log("DPOS" + dx + " " + dy + " " + dz + " ");
-
-                 //TODO: rotate with yaw
-
                  pos.x = dx + this.uav_local_poses[_id].x;
                  pos.y = dy + this.uav_local_poses[_id].y;
                  pos.z = dz + this.uav_local_poses[_id].z;
@@ -232,7 +241,7 @@ class SwarmGCSUI {
                 return;
             }
         }
-
+        console.log(_cmd);
         switch (_cmd) {
             case "takeoff":
                 this.cmder.send_takeoff_cmd(this.select_id);
@@ -243,8 +252,17 @@ class SwarmGCSUI {
             case "emergency":
                 this.cmder.send_emergency_cmd(this.select_id);
                 break;
+            case "circle":
+                this.cmder.start_circle_fly(this.select_id, null, 1.5, 20, "follow");
+                break;
             case "flyto":
                 this.send_flyto_cmd(this.select_id);
+                break;
+            case "traj1":
+                this.cmder.send_traj_cmd(this.select_id, 1);
+                break;
+            case "traj2":
+                this.cmder.send_traj_cmd(this.select_id, 2);
                 break;
             default:
                 break;
@@ -452,6 +470,25 @@ class SwarmGCSUI {
        }
     }
 
+    on_select_uavs (_ids) {
+        if (_ids.length == 1) {
+            this.on_select_uav(_ids[0]);
+        } else {
+        
+            for (var _id in this.view.uav_label_colors) {
+                this.view.uav_label_colors[_id] = uav_label_colors.unselected;
+            }
+
+            for (var i in _ids) {
+                let _id = _ids[i];
+                this.view.uav_label_colors[_id] = uav_label_colors.selected;
+            }
+            
+            this.threeview.on_select_uavs(_ids);
+        }
+
+    }
+
     on_select_uav (_id) {
         this.select_id = _id;
         if (_id < 0) {
@@ -482,9 +519,16 @@ class SwarmGCSUI {
         this.last_speak_time = tnow();
 
         if (_id >= 0) {
+            for (_id in this.view.uav_label_colors) {
+                this.view.uav_label_colors[_id] = uav_label_colors.unselected;
+            }
+            this.view.uav_label_colors[_id] = uav_label_colors.selected;
             this.threeview.on_select_uavs([_id]);
         } else {
-            this.threeview.on_select_uavs([]);
+            for (_id in this.view.uav_label_colors) {
+                this.view.uav_label_colors[_id] = uav_label_colors.selected;
+            }
+            this.threeview.on_select_uavs([-1]);
         }
     }
 
@@ -532,6 +576,9 @@ class SwarmGCSUI {
                 case "flyto":
                     cmd = "飞向";
                     break;
+                case "circle":
+                        cmd = "绕圈";
+                        break;
                 default:
                     cmd = _cmd;
             }

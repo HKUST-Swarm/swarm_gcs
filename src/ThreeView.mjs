@@ -392,19 +392,25 @@ class ThreeView {
 
     selectObjects(objects, e="") {
         var selected = []
+        var selected_ids = []
         
         for (var i in objects) {
             let selectedObject = objects[i];
             if (selectedObject.name in this.name_uav_id) {
                 console.log("Select " + selectedObject.name);
                 selected.push(selectedObject);
-                if (e == "select") {
-                    this.ui.on_select_uav(this.name_uav_id[selectedObject.name]);
-                }
+                selected_ids.push(this.name_uav_id[selectedObject.name]);
+                
             }
-            if (e == "mousehover") {
-                this.outlinePassMouseHover.selectedObjects = selected;
-            }
+            // if (e == "mousehover") {
+            //     this.outlinePassMouseHover.selectedObjects = selected;
+            // }
+        }
+
+        if (selected.length > 0) {
+            if (e == "select") {
+                this.ui.on_select_uavs(selected_ids);
+            }    
         }
     }
 
@@ -626,7 +632,6 @@ class ThreeView {
     }
 
     on_select_uavs(drone_ids) {
-
         var selectedObjects = [];
         for (var i in drone_ids) {
             // console.log("Select " + this.uavs[drone_ids[i]]);
@@ -637,10 +642,13 @@ class ThreeView {
         // console.log(selectedObjects);
         this.outlinePassSelected.selectedObjects = selectedObjects;
         
-        if (drone_ids[0] >= 0) {
-            this.create_aircraft_waypoint(drone_ids[0]);
-        } else {
-
+        if (drone_ids.length == 1) {
+            if (drone_ids[0] >= 0) {
+                this.create_aircraft_waypoint(drone_ids[0]);
+            }
+        } else if (drone_ids.length > 1)  {
+            //> 1 then control all
+            this.create_aircraft_waypoint(-1);
         }
     }
 
@@ -654,7 +662,18 @@ class ThreeView {
     }
 
     get_waypoint_target_pos(_id) {
+        // console.log(this.uav_waypoint_targets, _id, this.uav_waypoint_targets[_id].position);
+
         return this.uav_waypoint_targets[_id].position;
+    }
+
+    create_wp_object(_id) {
+        console.log("Create waypoint target");
+        var geometry = new THREE.BoxBufferGeometry( 0.01, 0.01, 0.01 );
+        var object;
+        this.uav_waypoint_targets[_id] = object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+        this.scene.add(object);
+        return object;
     }
 
     create_aircraft_waypoint(_id) {
@@ -662,17 +681,21 @@ class ThreeView {
         var object;
         if (! (_id in this.uav_waypoint_targets)) {
             // console.log(_uav_obj);
-            console.log("Create waypoint target");
-            var geometry = new THREE.BoxBufferGeometry( 0.01, 0.01, 0.01 );
-            this.uav_waypoint_targets[_id] = object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
-            this.scene.add(object);        
+            object = this.create_wp_object(_id);
         } else {
             object = this.uav_waypoint_targets[_id];
         }
 
-        object.position.x = this.uavs[_id].position.x;
-        object.position.y = this.uavs[_id].position.y;
-        object.position.z = this.uavs[_id].position.z;
+        if (_id == -1) {
+            object.position.x = this.uavs[0].position.x;
+            object.position.y = this.uavs[0].position.y;
+            object.position.z = this.uavs[0].position.z;    
+        } else {
+            object.position.x = this.uavs[_id].position.x;
+            object.position.y = this.uavs[_id].position.y;
+            object.position.z = this.uavs[_id].position.z;    
+        }
+    
 
         // console.log(object.position);
         this.transform_control.attach(object);
