@@ -206,9 +206,6 @@
     </transition>
 
     <div style="position: fixed; left:1em; bottom:1em" id="stats"></div>
-      <div v-if="select_id >=0 " style="position: fixed; right: 5%; top: 35%; width: 10%; z-index:1000; opacity: 0.8;">
-        <img :src="marker_path" width="100%" />
-      </div>
       <div id="cmdAera">
         <div>
           <button type="button" v-on:click="command('takeoff')" class="btn btn-lg btn-primary" id="takeoff">
@@ -229,12 +226,9 @@
             <button type="button" v-on:click="command('circle')" class="btn btn-primary btn-lg" >
             <img src="material-design-icons/av/drawable-xxxhdpi/ic_loop_white_48dp.png" class="small_icon" />
             Circle</button>
-            <button type="button" v-on:click="command('traj1')" class="btn btn-primary btn-lg" >
-            <img src="material-design-icons/image/drawable-xxxhdpi/ic_exposure_plus_1_white_48dp.png" class="small_icon" />
-            s</button>
             <button type="button" v-on:click="command('traj2')" class="btn btn-primary btn-lg">
-            <img src="material-design-icons/image/drawable-xxxhdpi/ic_exposure_plus_2_white_48dp.png" class="small_icon" />
-            s(yaw)</button>
+            <img src="material-design-icons/action/drawable-xxxhdpi/ic_hourglass_empty_white_48dp.png" class="small_icon" />
+            Traj</button>
             <!-- <button type="button" v-on:click="range_select" class="btn btn-primary btn-lg"
             id="range_select">
             <img src="material-design-icons/content/drawable-xxxhdpi/ic_select_all_white_48dp.png" class="small_icon" />

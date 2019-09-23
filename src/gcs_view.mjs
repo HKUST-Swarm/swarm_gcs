@@ -626,7 +626,6 @@ Vue.component('uav-component', {
     props: ["_id", "status"],    
     template:  `     
     <div v-on:click="select_uav(status.ui, status._id)" class="card uav_component" style="width: 100%; height=5em;">
-    <img v-bind:src="'./imgs/4x4_1000-'+status._id + '.svg'" style="height:3em; width:3em; right:0em; position:absolute;" />
 
     <h5>
     <img src="material-design-icons/maps/drawable-xxxhdpi/ic_flight_white_48dp.png" class="small_icon" />{{status._id}}
