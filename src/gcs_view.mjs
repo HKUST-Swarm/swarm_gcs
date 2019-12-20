@@ -49,6 +49,7 @@ class SwarmGCSUI {
 
         this.global_local_mode = false;
         this.primary_id = 0;
+        var loop_mode = this.loop_mode = true;
         
         var _dis_mode = "GLOBAL";
         if (!this.global_local_mode) {
@@ -74,6 +75,7 @@ class SwarmGCSUI {
                 select_id: -1,
                 marker_path:"",
                 display_mode:_dis_mode,
+                loop_mode: loop_mode? "ON": "OFF",
                 primary_id:this.primary_id,
                 server_ip: this.server_ip,
                 server_ip_list: this.server_ip_list,
@@ -116,6 +118,16 @@ class SwarmGCSUI {
                 },
                 stop_formation: function() {
                     obj.stop_formation();
+                },
+
+                set_loop_mode_on: function() {
+                    obj.loop_mode = true;
+                    obj.view.loop_mode = "ON";
+                },
+
+                set_loop_mode_off: function() {
+                    obj.loop_mode = false;
+                    obj.view.loop_mode = "OFF";
                 }
             }
         });
@@ -392,8 +404,9 @@ class SwarmGCSUI {
            pos:pos, quat:quat
        };
 
-
-       if (!this.global_local_mode && _id != this.primary_id) {
+       //For enable loop closure, we shouldn't check id is primary id
+       
+       if (!this.global_local_mode && (_id != this.primary_id || this.loop_mode )) {
         // Transfer coorindate with based coorinate
             var ret = this.transfer_vo_with_based(pos, quat, _id, this.primary_id);
             if (ret !== null) {

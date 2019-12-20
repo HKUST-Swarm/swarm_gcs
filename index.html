@@ -126,15 +126,27 @@
             <a class="nav-link" href="#" v-bind:style="{ color: total_remote_color }">NODES: {{available_nodes}}/{{remote_nodes}}</a>
           </li>
          
-
+          <!--As we don't use vicon basically, disable this-->
+          <!--
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
-              DISPLAY_MODE:{{display_mode}}
+              DISPLAY:{{display_mode}}
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" href="#" v-on:click="set_display_mode_global">GLOBAL</a>
               <a class="dropdown-item" href="#" v-on:click="set_display_mode_local">LOCAL</a>
+            </div>
+          </li> -->
+          
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              LOOP:{{loop_mode}}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="#" v-on:click="set_loop_mode_on">LOOP ON</a>
+              <a class="dropdown-item" href="#" v-on:click="set_loop_mode_off">LOOP OFF</a>
             </div>
           </li>
 
