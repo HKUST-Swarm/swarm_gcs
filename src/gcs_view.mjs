@@ -396,9 +396,9 @@ class SwarmGCSUI {
     }
 
     update_drone_selfpose(_id, pos, quat, vx=null, vy=null, vz=null) {
-       if (!this.global_local_mode && _id == this.primary_id) {
-            this.update_three_id_pose(_id, pos, quat, vx, vy, vz);
-       }
+    //    if (!this.global_local_mode && _id == this.primary_id) {
+    //         this.update_three_id_pose(_id, pos, quat, vx, vy, vz);
+    //    }
 
        this.uav_local_poses[_id] = {
            pos:pos, quat:quat

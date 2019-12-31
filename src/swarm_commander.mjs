@@ -183,6 +183,8 @@ class SwarmCommander extends BaseCommander{
     }
 
     on_node_based_coorindate(_id, lps_time, msg) {
+        // console.log(msg);
+        // console.log("Based ", _id,"->" ,msg.target_id);
         this.ui.update_drone_based_coorinate(msg.target_id, msg.rel_x/1000.0, msg.rel_y/1000.0, 
             msg.rel_z/1000.0, msg.rel_yaw_offset/1000.0, _id, msg.cov_x/1000.0, msg.cov_y/1000.0, msg.cov_z/1000.0, msg.cov_yaw/1000.0);
     }
