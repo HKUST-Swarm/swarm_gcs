@@ -211,16 +211,21 @@ class SwarmCommander extends BaseCommander{
 
         this.ui.set_drone_status(_id, status)
 
-        // var pos = new THREE.Vector3(status.x, status.y, status.z);
-        // var quat = new THREE.Quaternion();
-        // quat.setFromEuler(new THREE.Euler(0, 0, status.yaw));
-        // this.ui.update_drone_selfpose(_id, pos, quat, 0, 0, 0);
+        var pos = new THREE.Vector3(status.x, status.y, status.z);
+        var quat = new THREE.Quaternion();
+        quat.setFromEuler(new THREE.Euler(0, 0, status.yaw));
+        this.ui.update_drone_selfpose(_id, pos, quat, 0, 0, 0);
+        this.uav_pos[_id] = pos;
+
+        // console.log("Update --", _id, pos, quat);
 
         // this.ui.set_bat_level(_id, status.bat_vol);
         // this.ui.set_drone_lps_time(_id, lps_time);
         // this.ui.set_drone_control_auth(_id, status.ctrl_auth);
         // this.ui.set_drone_control_mode(_id, status.ctrl_mode);
-        // this.ui.set_drone_selfpose(status.x, status.y, status.z);
+
+
+        // this.ui.set_drone_selfpose(status.x, status.y, status.z, 0, 0, 0);
     }
 
     on_drone_realtime_info_recv(_id, lps_time, info) {
@@ -249,10 +254,14 @@ class SwarmCommander extends BaseCommander{
         this.send_msg_to_swarm(scmd);
     }
 
-    send_flyto_cmd(_id, pos) {
+    send_flyto_cmd(_id, pos, direct) {
         //When use VO coordinates
         // console.log("Fly to ", pos);
-        let flyto_cmd = 0;
+        var flyto_cmd = 0;
+
+        if (! direct) {
+            flyto_cmd = 10;
+        }
         let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, flyto_cmd, 
             Math.floor(pos.x*10000), 
             Math.floor(pos.y*10000), 
@@ -277,7 +286,7 @@ class SwarmCommander extends BaseCommander{
 
     send_msg_to_swarm(_msg) {
         let _data = _msg.pack(this.mav);
-        var msg = new ROSLIB.Message({data : _data});
+        var msg = new ROSLIB.Message({data : _data, send_method: 2});
         this.send_uwb_msg.publish(msg);
     }
 

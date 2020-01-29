@@ -192,7 +192,7 @@ class SwarmGCSUI {
         this.threeview.clear_drone_trajs();
     }
 
-    send_flyto_cmd(_id) {
+    send_flyto_cmd(_id, direct) {
         let pos = { 
             x: 0,
             y: 0,
@@ -216,7 +216,7 @@ class SwarmGCSUI {
                 pos.y = dy + this.uav_local_poses[_id].y;
                 pos.z = dz + this.uav_local_poses[_id].z;
 
-                this.cmder.send_flyto_cmd(_id, pos);
+                this.cmder.send_flyto_cmd(_id, pos, direct);
             }
         } else {
             if( _id == this.primary_id) {
@@ -224,13 +224,13 @@ class SwarmGCSUI {
                 pos.x = t_pos.x;
                 pos.y = t_pos.y;
                 pos.z = t_pos.z;
-                this.cmder.send_flyto_cmd(_id, pos);
+                this.cmder.send_flyto_cmd(_id, pos, direct);
             } else if (_id == -1) {
                 pos.x = t_pos.x;
                 pos.y = t_pos.y;
                 pos.z = t_pos.z;
                 console.log("Send all formation command", pos);
-                this.cmder.formation_flyto(pos);
+                this.cmder.formation_flyto(pos, direct);
             } else {
                 let _local_pos_in_base_now = this.uav_local_poses_in_drone_coor[this.primary_id][_id];
                 let dx = t_pos.x - _local_pos_in_base_now.x;
@@ -241,7 +241,7 @@ class SwarmGCSUI {
                  pos.y = dy + this.uav_local_poses[_id].y;
                  pos.z = dz + this.uav_local_poses[_id].z;
  
-                 this.cmder.send_flyto_cmd(_id, pos);
+                 this.cmder.send_flyto_cmd(_id, pos, direct);
             }
         }
 
@@ -268,7 +268,10 @@ class SwarmGCSUI {
                 this.cmder.start_circle_fly(this.select_id, null, 1.5, 20, "follow");
                 break;
             case "flyto":
-                this.send_flyto_cmd(this.select_id);
+                this.send_flyto_cmd(this.select_id, 1);
+                break;
+            case "flyto_traj":
+                this.send_flyto_cmd(this.select_id, 0);
                 break;
             case "traj1":
                 this.cmder.send_traj_cmd(this.select_id, 1);
@@ -379,9 +382,11 @@ class SwarmGCSUI {
 
     update_three_id_pose(_id, pos, quat, vx=null, vy=null, vz=null, covx=0, covy=0, covz=0, covyaw=0, update_yaw_cov = false) {
         if (!this.threeview.has_uav(_id)) {
+            console.log("Inserting UAV", _id);
             this.threeview.insert_uav(_id);
         }
-        if (this.threeview.has_uav(_id)) {        
+        if (this.threeview.has_uav(_id)) { 
+            // console.log("Updating uav..", pos);       
             this.threeview.update_uav_pose(_id, pos, quat, vx, vy, vz, covx, covy, covz, covyaw, update_yaw_cov);
         }
     }
@@ -396,10 +401,7 @@ class SwarmGCSUI {
     }
 
     update_drone_selfpose(_id, pos, quat, vx=null, vy=null, vz=null) {
-    //    if (!this.global_local_mode && _id == this.primary_id) {
-    //         this.update_three_id_pose(_id, pos, quat, vx, vy, vz);
-    //    }
-
+        // console.log("Update Drone selfpose ", _id, pos, quat);
        this.uav_local_poses[_id] = {
            pos:pos, quat:quat
        };
@@ -412,6 +414,8 @@ class SwarmGCSUI {
             if (ret !== null) {
                 this.update_three_id_pose(_id, ret.pos, ret.quat, ret.vx, ret.vy, ret.vz,
                     ret.covx, ret.covy, ret.covz, ret.covyaw);
+            } else {
+                console.error("No return");
             }
             this.threeview.set_uav_fused_mode(_id);
        }
@@ -420,7 +424,21 @@ class SwarmGCSUI {
 
     transfer_vo_with_based(pos, quat, self_id, base_id) {
         if (! (base_id in this.other_vo_origin) || !(self_id in this.other_vo_origin[base_id])) {
-            return null;
+            if (self_id == base_id) {
+                return {
+                    pos:pos,
+                    quat:quat,
+                    vx:null,
+                    vy:null,
+                    vz:null,
+                    covx:0,
+                    covx:0,
+                    covx:0,
+                    covyaw:0
+                }
+            } else {
+                return null;
+            }
         }
 
         // p.position = a.attitude * b.position + a.position;
