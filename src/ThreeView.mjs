@@ -137,6 +137,8 @@ class ThreeView {
         this.init_rangeselect();
 
         this.count = 0;
+
+        this.last_render_ts = new Date().getTime() / 1000;
     }
 
     toggle_rangeselect(enable) {
@@ -458,6 +460,7 @@ class ThreeView {
 
     update_uav_pose(_id, pos, quat, vx=null, vy=null, vz=null, covx=0, covy=0, covz=0, covyaw=0, update_yaw_var = false) {
         // console.log(_id)
+        // console.log(this.uavs[_id].position);
         this.uavs[_id].position.x = pos.x;
         this.uavs[_id].position.y = pos.y;
         this.uavs[_id].position.z = pos.z;
