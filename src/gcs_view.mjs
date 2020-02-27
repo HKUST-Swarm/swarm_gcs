@@ -369,8 +369,13 @@ class SwarmGCSUI {
         if (!(this.view.primary_id in this.view.uavs)) {
             this.set_primary_id(_id)
         }
+
         if (status.bat_vol < 14.7) {
             this.warn_battery_level(_id, status.bat_vol);
+        }
+
+        if (status.bat_remain < 120) {
+            this.warn_battery_remain(_id, status.bat_vol);
         }
 
         if (!status.vo_valid) {
@@ -573,6 +578,17 @@ class SwarmGCSUI {
         }
         this.last_speak_time = tnow();
     }
+
+    warn_battery_remain(id, bat) {
+        if (tnow() - this.last_speak_time > 1) {
+            // var msg = new SpeechSynthesisUtterance("Warning! Node " + id + " battery is only " + bat.toFixed(1));
+            var msg = new SpeechSynthesisUtterance("警告！节点" + id + " 续航只有 " + bat.toFixed(0) + "秒");
+            msg.lang = 'zh-CN';
+    
+            window.speechSynthesis.speak(msg);
+        }
+        this.last_speak_time = tnow();
+    }
   
     warn_vo_(id) {
         if (tnow() - this.last_speak_time > 1) {
@@ -682,6 +698,7 @@ Vue.component('uav-component', {
       INPUT_MODE <span style="color:white">{{status.ctrl_input_mode}}</span>
       CTRL_MODE <span style="color:white">{{status.ctrl_mode}}</span>
       FLIGHT_STATUS <span style="color:white">{{status.flight_status}}</span>
+      AVAIL_ENDURACE: {{ (status.bat_remain/60).toFixed(0)}}min {{ (status.bat_remain%60).toFixed(0)}}s
       BATVOL: {{status.bat_vol}}
     </div>
     </li>
