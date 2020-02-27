@@ -45,8 +45,8 @@ let traj_colors = {
     drone_4:"#e40066"
 }
 
-// let use_outline_passes = true;
-let use_outline_passes = false;
+let use_outline_passes = true;
+// let use_outline_passes = false;
 
 class ThreeView {
     constructor(opt) {
