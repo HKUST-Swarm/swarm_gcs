@@ -1496,21 +1496,21 @@ mavlink.messages.swarm_remote_command.prototype.pack = function(mav) {
 
                 lps_time                  : LPS_TIME (int32_t)
                 target_id                 : Target ID of drone (int8_t)
-                x                         : Relative X Position*1000 (int16_t)
-                y                         : Relative Y Position*1000 (int16_t)
-                z                         : Relative Z Position*1000 (int16_t)
-                yaw                       : Yaw angle rad*1000 (int16_t)
+                x                         : Relative X Position*10000 (int16_t)
+                y                         : Relative Y Position*10000 (int16_t)
+                z                         : Relative Z Position*10000 (int16_t)
+                inv_dep                   : inverse depth*10000;0 then unavailable (uint16_t)
 
 */
-mavlink.messages.node_detected = function(lps_time, target_id, x, y, z, yaw) {
+mavlink.messages.node_detected = function(lps_time, target_id, x, y, z, inv_dep) {
 
-    this.format = '<ihhhhb';
+    this.format = '<ihhhHb';
     this.id = mavlink.MAVLINK_MSG_ID_NODE_DETECTED;
     this.order_map = [0, 5, 1, 2, 3, 4];
-    this.crc_extra = 94;
+    this.crc_extra = 238;
     this.name = 'NODE_DETECTED';
 
-    this.fieldnames = ['lps_time', 'target_id', 'x', 'y', 'z', 'yaw'];
+    this.fieldnames = ['lps_time', 'target_id', 'x', 'y', 'z', 'inv_dep'];
 
 
     this.set(arguments);
@@ -1520,7 +1520,7 @@ mavlink.messages.node_detected = function(lps_time, target_id, x, y, z, yaw) {
 mavlink.messages.node_detected.prototype = new mavlink.message;
 
 mavlink.messages.node_detected.prototype.pack = function(mav) {
-    return mavlink.message.prototype.pack.call(this, mav, this.crc_extra, jspack.Pack(this.format, [ this.lps_time, this.x, this.y, this.z, this.yaw, this.target_id]));
+    return mavlink.message.prototype.pack.call(this, mav, this.crc_extra, jspack.Pack(this.format, [ this.lps_time, this.x, this.y, this.z, this.inv_dep, this.target_id]));
 }
 
 /* 
@@ -1536,21 +1536,22 @@ mavlink.messages.node_detected.prototype.pack = function(mav) {
                 sdk_valid                 : SDK VALID (uint8_t)
                 vo_valid                  : VOO VALID (uint8_t)
                 bat_vol                   : BATTERY_VOL (float)
+                bat_remain                : BATTERY_REMAIN (float)
                 x                         : X Position (float)
                 y                         : Y Position (float)
                 z                         : Z Position (float)
                 yaw                       : Yaw (float)
 
 */
-mavlink.messages.drone_status = function(lps_time, flight_status, control_auth, commander_mode, input_mode, rc_valid, onboard_cmd_valid, sdk_valid, vo_valid, bat_vol, x, y, z, yaw) {
+mavlink.messages.drone_status = function(lps_time, flight_status, control_auth, commander_mode, input_mode, rc_valid, onboard_cmd_valid, sdk_valid, vo_valid, bat_vol, bat_remain, x, y, z, yaw) {
 
-    this.format = '<ifffffBBBBBBBB';
+    this.format = '<iffffffBBBBBBBB';
     this.id = mavlink.MAVLINK_MSG_ID_DRONE_STATUS;
-    this.order_map = [0, 6, 7, 8, 9, 10, 11, 12, 13, 1, 2, 3, 4, 5];
-    this.crc_extra = 124;
+    this.order_map = [0, 7, 8, 9, 10, 11, 12, 13, 14, 1, 2, 3, 4, 5, 6];
+    this.crc_extra = 244;
     this.name = 'DRONE_STATUS';
 
-    this.fieldnames = ['lps_time', 'flight_status', 'control_auth', 'commander_mode', 'input_mode', 'rc_valid', 'onboard_cmd_valid', 'sdk_valid', 'vo_valid', 'bat_vol', 'x', 'y', 'z', 'yaw'];
+    this.fieldnames = ['lps_time', 'flight_status', 'control_auth', 'commander_mode', 'input_mode', 'rc_valid', 'onboard_cmd_valid', 'sdk_valid', 'vo_valid', 'bat_vol', 'bat_remain', 'x', 'y', 'z', 'yaw'];
 
 
     this.set(arguments);
@@ -1560,7 +1561,7 @@ mavlink.messages.drone_status = function(lps_time, flight_status, control_auth, 
 mavlink.messages.drone_status.prototype = new mavlink.message;
 
 mavlink.messages.drone_status.prototype.pack = function(mav) {
-    return mavlink.message.prototype.pack.call(this, mav, this.crc_extra, jspack.Pack(this.format, [ this.lps_time, this.bat_vol, this.x, this.y, this.z, this.yaw, this.flight_status, this.control_auth, this.commander_mode, this.input_mode, this.rc_valid, this.onboard_cmd_valid, this.sdk_valid, this.vo_valid]));
+    return mavlink.message.prototype.pack.call(this, mav, this.crc_extra, jspack.Pack(this.format, [ this.lps_time, this.bat_vol, this.bat_remain, this.x, this.y, this.z, this.yaw, this.flight_status, this.control_auth, this.commander_mode, this.input_mode, this.rc_valid, this.onboard_cmd_valid, this.sdk_valid, this.vo_valid]));
 }
 
 /* 
@@ -6524,8 +6525,8 @@ mavlink.map = {
         200: { format: '<ifffhhhh10HB', type: mavlink.messages.node_realtime_info, order_map: [0, 9, 1, 2, 3, 4, 5, 6, 7, 8], crc_extra: 61 },
         201: { format: '<ihhhhhhhhB', type: mavlink.messages.node_relative_fused, order_map: [0, 9, 1, 2, 3, 4, 5, 6, 7, 8], crc_extra: 236 },
         202: { format: '<iiiiiiiiiiibB', type: mavlink.messages.swarm_remote_command, order_map: [0, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], crc_extra: 125 },
-        203: { format: '<ihhhhb', type: mavlink.messages.node_detected, order_map: [0, 5, 1, 2, 3, 4], crc_extra: 94 },
-        204: { format: '<ifffffBBBBBBBB', type: mavlink.messages.drone_status, order_map: [0, 6, 7, 8, 9, 10, 11, 12, 13, 1, 2, 3, 4, 5], crc_extra: 124 },
+        203: { format: '<ihhhHb', type: mavlink.messages.node_detected, order_map: [0, 5, 1, 2, 3, 4], crc_extra: 238 },
+        204: { format: '<iffffffBBBBBBBB', type: mavlink.messages.drone_status, order_map: [0, 7, 8, 9, 10, 11, 12, 13, 14, 1, 2, 3, 4, 5, 6], crc_extra: 244 },
         205: { format: '<ihhhhhhhhhhb', type: mavlink.messages.drone_odom_gt, order_map: [0, 11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], crc_extra: 225 },
         206: { format: '<ihhhhb', type: mavlink.messages.drone_pose_gt, order_map: [0, 5, 1, 2, 3, 4], crc_extra: 241 },
         207: { format: '<ihhhhhhhhB', type: mavlink.messages.node_local_fused, order_map: [0, 9, 1, 2, 3, 4, 5, 6, 7, 8], crc_extra: 225 },
@@ -8994,7 +8995,8 @@ function toByteArray (b64) {
     ? validLen - 4
     : validLen
 
-  for (var i = 0; i < len; i += 4) {
+  var i
+  for (i = 0; i < len; i += 4) {
     tmp =
       (revLookup[b64.charCodeAt(i)] << 18) |
       (revLookup[b64.charCodeAt(i + 1)] << 12) |
@@ -9093,6 +9095,10 @@ function fromByteArray (uint8) {
 
 var base64 = require('base64-js')
 var ieee754 = require('ieee754')
+var customInspectSymbol =
+  (typeof Symbol === 'function' && typeof Symbol.for === 'function')
+    ? Symbol.for('nodejs.util.inspect.custom')
+    : null
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -9129,7 +9135,9 @@ function typedArraySupport () {
   // Can typed array instances can be augmented?
   try {
     var arr = new Uint8Array(1)
-    arr.__proto__ = { __proto__: Uint8Array.prototype, foo: function () { return 42 } }
+    var proto = { foo: function () { return 42 } }
+    Object.setPrototypeOf(proto, Uint8Array.prototype)
+    Object.setPrototypeOf(arr, proto)
     return arr.foo() === 42
   } catch (e) {
     return false
@@ -9158,7 +9166,7 @@ function createBuffer (length) {
   }
   // Return an augmented `Uint8Array` instance
   var buf = new Uint8Array(length)
-  buf.__proto__ = Buffer.prototype
+  Object.setPrototypeOf(buf, Buffer.prototype)
   return buf
 }
 
@@ -9208,7 +9216,7 @@ function from (value, encodingOrOffset, length) {
   }
 
   if (value == null) {
-    throw TypeError(
+    throw new TypeError(
       'The first argument must be one of type string, Buffer, ArrayBuffer, Array, ' +
       'or Array-like Object. Received type ' + (typeof value)
     )
@@ -9260,8 +9268,8 @@ Buffer.from = function (value, encodingOrOffset, length) {
 
 // Note: Change prototype *after* Buffer.from is defined to workaround Chrome bug:
 // https://github.com/feross/buffer/pull/148
-Buffer.prototype.__proto__ = Uint8Array.prototype
-Buffer.__proto__ = Uint8Array
+Object.setPrototypeOf(Buffer.prototype, Uint8Array.prototype)
+Object.setPrototypeOf(Buffer, Uint8Array)
 
 function assertSize (size) {
   if (typeof size !== 'number') {
@@ -9365,7 +9373,8 @@ function fromArrayBuffer (array, byteOffset, length) {
   }
 
   // Return an augmented `Uint8Array` instance
-  buf.__proto__ = Buffer.prototype
+  Object.setPrototypeOf(buf, Buffer.prototype)
+
   return buf
 }
 
@@ -9687,6 +9696,9 @@ Buffer.prototype.inspect = function inspect () {
   if (this.length > max) str += ' ... '
   return '<Buffer ' + str + '>'
 }
+if (customInspectSymbol) {
+  Buffer.prototype[customInspectSymbol] = Buffer.prototype.inspect
+}
 
 Buffer.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
   if (isInstance(target, Uint8Array)) {
@@ -9812,7 +9824,7 @@ function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
         return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset)
       }
     }
-    return arrayIndexOf(buffer, [ val ], byteOffset, encoding, dir)
+    return arrayIndexOf(buffer, [val], byteOffset, encoding, dir)
   }
 
   throw new TypeError('val must be string, number or Buffer')
@@ -10141,7 +10153,7 @@ function hexSlice (buf, start, end) {
 
   var out = ''
   for (var i = start; i < end; ++i) {
-    out += toHex(buf[i])
+    out += hexSliceLookupTable[buf[i]]
   }
   return out
 }
@@ -10178,7 +10190,8 @@ Buffer.prototype.slice = function slice (start, end) {
 
   var newBuf = this.subarray(start, end)
   // Return an augmented `Uint8Array` instance
-  newBuf.__proto__ = Buffer.prototype
+  Object.setPrototypeOf(newBuf, Buffer.prototype)
+
   return newBuf
 }
 
@@ -10667,6 +10680,8 @@ Buffer.prototype.fill = function fill (val, start, end, encoding) {
     }
   } else if (typeof val === 'number') {
     val = val & 255
+  } else if (typeof val === 'boolean') {
+    val = Number(val)
   }
 
   // Invalid ranges are not set to a default, so can range check early.
@@ -10722,11 +10737,6 @@ function base64clean (str) {
     str = str + '='
   }
   return str
-}
-
-function toHex (n) {
-  if (n < 16) return '0' + n.toString(16)
-  return n.toString(16)
 }
 
 function utf8ToBytes (string, units) {
@@ -10858,6 +10868,20 @@ function numberIsNaN (obj) {
   // For IE11 support
   return obj !== obj // eslint-disable-line no-self-compare
 }
+
+// Create lookup table for `toString('hex')`
+// See: https://github.com/feross/buffer/issues/219
+var hexSliceLookupTable = (function () {
+  var alphabet = '0123456789abcdef'
+  var table = new Array(256)
+  for (var i = 0; i < 16; ++i) {
+    var i16 = i * 16
+    for (var j = 0; j < 16; ++j) {
+      table[i16 + j] = alphabet[i] + alphabet[j]
+    }
+  }
+  return table
+})()
 
 }).call(this,require("buffer").Buffer)
 },{"base64-js":4,"buffer":5,"ieee754":7}],6:[function(require,module,exports){

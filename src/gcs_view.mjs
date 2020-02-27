@@ -362,6 +362,7 @@ class SwarmGCSUI {
             flight_status:all_flight_status[status.flight_status],
             vo_valid:status.vo_valid,
             lps_time:status.lps_time,
+            bat_remain: status.bat_remain,
             _id:_id,
             ui:obj
         });
@@ -698,7 +699,7 @@ Vue.component('uav-component', {
       INPUT_MODE <span style="color:white">{{status.ctrl_input_mode}}</span>
       CTRL_MODE <span style="color:white">{{status.ctrl_mode}}</span>
       FLIGHT_STATUS <span style="color:white">{{status.flight_status}}</span>
-      AVAIL_ENDURACE: {{ (status.bat_remain/60).toFixed(0)}}min {{ (status.bat_remain%60).toFixed(0)}}s
+      AVAIL_ENDURACE: {{ Math.floor(status.bat_remain/60)}}min {{ (status.bat_remain%60).toFixed(0)}}s
       BATVOL: {{status.bat_vol}}
     </div>
     </li>

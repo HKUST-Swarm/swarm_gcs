@@ -132,6 +132,7 @@ class SwarmCommander extends BaseCommander{
     }
 
     on_incoming_data(incoming_msg) {
+        // console.log(incoming_msg);
         if (!vaild_ids.has(incoming_msg.remote_id)) {
             return;
         }
@@ -142,6 +143,7 @@ class SwarmCommander extends BaseCommander{
         // console.log(buf);
         let msgs = this.mav.parseBuffer(buf);
         // console.log(r);
+        console.log(msgs);
         for (var k in msgs) {
           let msg = msgs[k];
             switch (msg.name) {
@@ -164,8 +166,9 @@ class SwarmCommander extends BaseCommander{
                 case "NODE_BASED_FUSED": {
                     // console.log(msg);
                     this.on_node_based_coorindate(incoming_msg.remote_id, incoming_msg.lps_time, msg);
+                    break;
                 }
-                // console.log(msg);
+                console.log(msg);
 
             }
         }
