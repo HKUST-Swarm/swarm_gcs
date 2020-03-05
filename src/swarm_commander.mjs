@@ -142,8 +142,7 @@ class SwarmCommander extends BaseCommander{
         let buf = _base64ToArrayBuffer(incoming_msg.data);
         // console.log(buf);
         let msgs = this.mav.parseBuffer(buf);
-        // console.log(r);
-        console.log(msgs);
+        // console.log(msgs);
         for (var k in msgs) {
           let msg = msgs[k];
             switch (msg.name) {
@@ -217,7 +216,7 @@ class SwarmCommander extends BaseCommander{
         var pos = new THREE.Vector3(status.x, status.y, status.z);
         var quat = new THREE.Quaternion();
         quat.setFromEuler(new THREE.Euler(0, 0, status.yaw));
-        this.ui.update_drone_selfpose(_id, pos, quat, 0, 0, 0);
+        // this.ui.update_drone_selfpose(_id, pos, quat, 0, 0, 0);
         this.uav_pos[_id] = pos;
 
         // console.log("Update --", _id, pos, quat);
@@ -276,7 +275,7 @@ class SwarmCommander extends BaseCommander{
         this.stop_transformation_thread();
         console.log("Will send emergency command");
         let landing_cmd = 6;
-        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, -1, landing_cmd, 1, 10000, 0, 0, 0, 0, 0, 0, 0, 0);
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, -1, landing_cmd, -1, 10000, 0, 0, 0, 0, 0, 0, 0, 0);
         this.send_msg_to_swarm(scmd);
     }
 

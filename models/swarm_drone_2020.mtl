@@ -1,0 +1,20 @@
+# Exported from 3D Builder
+
+newmtl Mat_0
+Kd 1.000000 1.000000 1.000000
+map_Kd texture3.jpeg
+
+newmtl ABS_0
+Kd 1.000000 1.000000 1.000000
+
+newmtl ABS_1
+Kd 0.101961 0.101961 0.101961
+
+newmtl 6061_Alloy_0
+Kd 0.866667 0.909804 1.000000
+
+newmtl Stainless_Steel_(ferritic)_0
+Kd 1.000000 0.949020 0.909804
+
+newmtl 6063-T83_0
+Kd 0.223529 0.223529 0.223529

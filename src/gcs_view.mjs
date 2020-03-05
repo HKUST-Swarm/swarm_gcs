@@ -363,6 +363,7 @@ class SwarmGCSUI {
             vo_valid:status.vo_valid,
             lps_time:status.lps_time,
             bat_remain: status.bat_remain,
+            bat_good: status.bat_remain > 300,
             _id:_id,
             ui:obj
         });
@@ -371,12 +372,12 @@ class SwarmGCSUI {
             this.set_primary_id(_id)
         }
 
-        if (status.bat_vol < 14.7) {
-            this.warn_battery_level(_id, status.bat_vol);
-        }
+        // if (status.bat_vol < 14.7) {
+            // this.warn_battery_level(_id, status.bat_vol);
+        // }
 
-        if (status.bat_remain < 120) {
-            this.warn_battery_remain(_id, status.bat_vol);
+        if (status.bat_remain < 300) {
+            this.warn_battery_remain(_id, status.bat_remain);
         }
 
         if (!status.vo_valid) {
@@ -421,7 +422,7 @@ class SwarmGCSUI {
                 this.update_three_id_pose(_id, ret.pos, ret.quat, ret.vx, ret.vy, ret.vz,
                     ret.covx, ret.covy, ret.covz, ret.covyaw);
             } else {
-                console.error("No return");
+                // console.error("No return");
             }
             this.threeview.set_uav_fused_mode(_id);
        }
@@ -699,8 +700,10 @@ Vue.component('uav-component', {
       INPUT_MODE <span style="color:white">{{status.ctrl_input_mode}}</span>
       CTRL_MODE <span style="color:white">{{status.ctrl_mode}}</span>
       FLIGHT_STATUS <span style="color:white">{{status.flight_status}}</span>
-      AVAIL_ENDURACE: {{ Math.floor(status.bat_remain/60)}}min {{ (status.bat_remain%60).toFixed(0)}}s
-      BATVOL: {{status.bat_vol}}
+      ENDURACE: <span style="color:blue" v-if="status.bat_good">{{ Math.floor(status.bat_remain/60)}}min {{ (status.bat_remain%60).toFixed(0)}}s </span>
+      <span style="color:red" v-else>{{ Math.floor(status.bat_remain/60)}}min {{ (status.bat_remain%60).toFixed(0)}}s </span>
+      BATVOL:  <span style="color:blue" v-if="status.bat_good">{{status.bat_vol}} </span>
+      <span style="color:red" v-else>{{status.bat_vol}} </span>
     </div>
     </li>
     </ul>
