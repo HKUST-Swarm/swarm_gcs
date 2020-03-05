@@ -77,6 +77,7 @@ class ThreeView {
         this.camera.up.x = 0;
         this.camera.up.y = 0;
         this.camera.up.z = 1;
+        this.camera.near = 0.01;
         // renderer.setClearColor("white", 1);
         this.scene.background = new THREE.Color( 0xcff3fa );
         // this.enable_shadow = true;
@@ -340,47 +341,40 @@ class ThreeView {
         let obj = this;
 
 
-        // var loader = new ThreeMFLoader();
+        var loader = new ThreeMFLoader();
         
-        // loader.load( '../models/swarm-drone-0-0-4-ms.3mf', function ( object ) {
+        // loader.load( '../models/swarm_drone_2020.3mf', function ( object ) {
         //     object.traverse( function ( child ) {
         //         child.castShadow = true;
         //     } );
         //     obj.scene.add( object );
         // } );
+
         // return;
         console.log("loading aircraft");
         let objLoader2 = new OBJLoader2();
         let callbackOnLoad = function (object3d) {
             object3d.castShadow = true;
             object3d.scale.set(0.001, 0.001, 0.001);
-            // obj.scene.add(object3d);
-
+            // object3d.
             object3d.traverse(function (child) {
                 child.castShadow = obj.enable_shadow;
-                // child.material.emissive.setHex( 0xff0000 );
             });
 
             obj.aircraft_model = object3d;
-            // console.log(object3d);
             var mesh = object3d.children[0];
-            // console.log(mesh.material);
-            // for (var _i in mesh.material) {
-                // mesh.material[_i].emissive.setHex( 0xDA5543 );
-                // mesh.material[_i].emissiveIntensity = 0.2;
-            // }
-
-            // console.log( 'Loading complete: ' + modelName );
-            // scope._reportProgress( { detail: { text: '' } } );
+            // obj.scene.add(object3d);
         };
         let onLoadMtl = function (mtlParseResult) {
             objLoader2.setModelName("swarm_drone");
             objLoader2.setLogging(true, true);
             objLoader2.addMaterials(MtlObjBridge.addMaterialsFromMtlLoader(mtlParseResult));
-            objLoader2.load('../models/swarm-drone-0-0-4.obj', callbackOnLoad, null, null, null);
+            objLoader2.load('../models/swarm_drone.obj', callbackOnLoad, null, null, null);
+            // objLoader2.load('../models/swarm-drone-0-0-4.obj', callbackOnLoad, null, null, null);
         };
         let mtlLoader = new MTLLoader();
-        mtlLoader.load('../models/swarm-drone-0-0-4.mtl', onLoadMtl);
+        mtlLoader.load('../models/swarm_drone.mtl', onLoadMtl);
+        // mtlLoader.load('../models/swarm-drone-0-0-4.mtl', onLoadMtl);
     }
 
     create_new_uav(_id) {
