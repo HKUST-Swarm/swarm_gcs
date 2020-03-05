@@ -61,18 +61,32 @@ class SoloCommander extends BaseCommander {
             self.on_localmap_recv(msg);
         });
 
+        this.bspine_viz_listener.subscribe(function (msg) {
+            self.ui.update_drone_traj_bspline("debug", msg)
+        });
+
         this.sub_vo = new ROSLIB.Topic({
             ros:this.ros,
             messageType:"nav_msgs/Odometry",
             name:"/airsim_node/Drone_1/odom_local_ned"
         });
 
+        this.sub_vo2 = new ROSLIB.Topic({
+            ros:this.ros,
+            messageType:"nav_msgs/Odometry",
+            name:"/vins_estimator/odometry"
+        });
+
         this.sub_vo.subscribe(function (msg) {
             self.on_vo_msg(msg);
         });
 
+        this.sub_vo2.subscribe(function (msg) {
+            self.on_vo_msg(msg);
+        });
+        
         this.send_move_goal = new ROSLIB.Topic({
-            ros : ros,
+            ros : this.ros,
             name : '/move_base_simple/goal',
             messageType : 'geometry_msgs/PoseStamped'
         });

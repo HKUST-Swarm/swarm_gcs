@@ -168,10 +168,7 @@
     </transition>
 
     <div style="position: fixed; left:1em; bottom:1em" id="stats"></div>
-      <div v-if="select_id >=0 " style="position: fixed; right: 5%; top: 35%; width: 10%; z-index:1000; opacity: 0.8;">
-        <img :src="marker_path" width="100%" />
-      </div>
-      <div id="cmdAera">
+        <div id="cmdAera">
         <h4>Command Aera: <span id="select_id" style="color:red"> 
           <img src="material-design-icons/maps/drawable-xxxhdpi/ic_flight_white_48dp.png" style="height: 1.4em; width: 1.4em;" />
           {{selected_uav}} </span></h4>
