@@ -38,37 +38,43 @@ class SoloCommander extends BaseCommander {
     
     setup_ros_sub_pub() {
         let self = this;
-        this.sub_pcl2 = new ROSLIB.Topic({
-            ros:this.ros,
-            messageType:"sensor_msgs/PointCloud2",
-            name:"/surfel_fusion/pointcloud"
-        });
-  
-        this.sub_pcl2.subscribe(function (msg) {
-            // console.log(pcl.points);
-            self.on_pcl2_recv(msg);
-        });
+
+        // this.sub_pcl2.subscribe(function (msg) {
+        //     self.on_pcl2_recv(msg);
+        // });
   
   
         this.sub_pcl = new ROSLIB.Topic({
             ros:this.ros,
             messageType:"sensor_msgs/PointCloud2",
-            name:"/sdf_map/occ_pc_pcl2"
+            name:"/sdf_map/occupancy_inflate"
         });
   
+        this.bspine_viz_listener = new ROSLIB.Topic({
+            ros: this.ros,
+            name: "/planning/bspline",
+            messageType: "bspline/Bspline",
+            queue_length:10
+        });
+        
         this.sub_pcl.subscribe(function (msg) {
-            // console.log(pcl.points);
             self.on_localmap_recv(msg);
         });
 
         this.sub_vo = new ROSLIB.Topic({
             ros:this.ros,
             messageType:"nav_msgs/Odometry",
-            name:"/vins_estimator/imu_propagate_throttle"
+            name:"/airsim_node/Drone_1/odom_local_ned"
         });
 
         this.sub_vo.subscribe(function (msg) {
             self.on_vo_msg(msg);
+        });
+
+        this.send_move_goal = new ROSLIB.Topic({
+            ros : ros,
+            name : '/move_base_simple/goal',
+            messageType : 'geometry_msgs/PoseStamped'
         });
     }
 
@@ -137,6 +143,22 @@ class SoloCommander extends BaseCommander {
     send_flyto_cmd(_id, pos) {
         //When use VO coordinates
         console.log("Fly to ", pos);
+        var msg = new ROSLIB.Message({
+            pose: {
+                position:{
+                    x: pos.x,
+                    y: pos.y,
+                    z: pos.z
+                },
+                orientation: {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                    w: 1.0
+                } 
+            }
+        });
+        this.send_move_goal.publish(msg);
     }
   
     send_emergency_cmd() {

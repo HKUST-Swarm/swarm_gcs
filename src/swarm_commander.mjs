@@ -83,6 +83,17 @@ class SwarmCommander extends BaseCommander{
             self.ui.update_drone_traj(msg.ns, msg.points)
         });
 
+        this.bspine_viz_listener = new ROSLIB.Topic({
+            ros: ros,
+            name: "/planning/bspline",
+            messageType: "bspline/Bspline",
+            queue_length:10
+        });
+        
+        this.bspine_viz_listener.subscribe(function (msg) {
+            self.ui.update_drone_traj_bspline("debug", msg)
+        });
+
         this.incoming_data_listener = new ROSLIB.Topic({
             ros: ros,
             name: "/uwb_node/incoming_broadcast_data",
@@ -116,7 +127,7 @@ class SwarmCommander extends BaseCommander{
             name : '/translation',
             serviceType : 'swarm_transformation/translation'
         });
-        
+
     }
 
  

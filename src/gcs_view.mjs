@@ -188,6 +188,10 @@ class SwarmGCSUI {
         this.threeview.update_drone_traj(ns, traj);
     }
 
+    update_drone_traj_bspline(ns, traj) {
+        this.threeview.update_drone_traj_bspline(ns, traj);
+    }
+    
     clear_drone_trajs() {
         this.threeview.clear_drone_trajs();
     }

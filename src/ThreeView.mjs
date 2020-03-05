@@ -16,6 +16,7 @@ import { ShaderPass} from '../libs/jsm/postprocessing/ShaderPass.js';
 import { FXAAShader } from '../libs/jsm/shaders/FXAAShader.js';
 import { SelectionBox } from './UAVSelectionBox.js';
 import { SelectionHelper } from './SelectionHelper.js';
+import {bsplineinterpolate} from "../libs/b-spline.js"
 
 function tnow() {
     return new Date().getTime() / 1000;
@@ -38,6 +39,7 @@ let color_set_hot = {
 //     drone_4:"#ff96a2"
 // }
 let traj_colors = {
+    debug: "#4277ff",
     drone_0:"#ff6750",
     drone_1:"#eac435",
     drone_2:"#345995",
@@ -176,6 +178,45 @@ class ThreeView {
 
         this.scene.add(splineObject);
         this.trajs[ns] = splineObject;
+    }
+
+    //int32 order
+    // int64 traj_id
+    // time start_time
+
+    // float64[] knots
+    // geometry_msgs/Point[] pos_pts
+
+    // float64[] yaw_pts
+    // float64 yaw_dt
+
+    update_drone_traj_bspline(ns, bspline) {
+        // console.log(bspline);
+
+        var bs_pts = 50.0;
+        var knts = [];
+        var pts = [];
+        var traj = [];
+        for (var knt of bspline.knots) {
+            knts.push(knt);
+        }
+
+        for (var p of bspline.pos_pts) {
+            pts.push([p.x, p.y, p.z]);
+        }
+
+        // console.log('Knots', knts);
+        // console.log("Points", pts);
+        for (var t = 0; t < 1; t+=1/bs_pts) {
+            var pos = bsplineinterpolate(t, 3, pts, knts);
+            traj.push({
+                'x':pos[0], 
+                'y':pos[1], 
+                'z':pos[2] 
+            });
+        }
+
+        this.update_drone_traj(ns, traj);
     }
     
     init_rangeselect() {
