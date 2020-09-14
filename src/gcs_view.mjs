@@ -18,7 +18,9 @@ function toFixedString(n, dec=2) {
 
 let uav_label_colors = {
     unselected: "#0000ff",
-    selected: "#ff0000"
+    selected: "#ff0000",
+    detection_labeled: "#ffff00",
+    detection_unlabeled: "#ff3333"
 }
 
 class SwarmGCSUI {
@@ -43,7 +45,8 @@ class SwarmGCSUI {
 
         this.server_ip = location.hostname;
         this.server_ip_index = 0;
-        this.server_ip_list = [location.hostname, "10.10.1.4"];
+        //this.server_ip_list = [location.hostname, "10.10.1.4", "10.10.1.1"];
+        this.server_ip_list = [location.hostname, "10.10.1.4", "10.10.1.1"];
         this.display_pcl = true;
         
 
@@ -147,6 +150,22 @@ class SwarmGCSUI {
         if (!(_id in this.view.uav_label_colors)) {
             this.view.uav_label_colors[_id] = uav_label_colors.unselected;
         }
+    }
+    
+    update_detection_label_pos(_id, tgt_id, pos) {
+        // console.log(_id, pos);
+        var label = _id.toString() + "->" + tgt_id.toString();
+        this.view.uav_screen_pos[label] = pos;
+        if (!(label in this.view.uav_label_colors)) {
+            this.view.uav_label_colors[label] = uav_label_colors.detection_unlabeled;
+        }
+    }
+
+    remove_detection_label(_id, tgt_id) {
+        var label = _id.toString() + "->" + tgt_id.toString();
+        console.log("Remove Detection Label", label);
+        delete this.view.uav_label_colors[label];
+        delete this.view.uav_screen_pos[label];
     }
 
     set_active_formation(_index, status) {
@@ -431,6 +450,11 @@ class SwarmGCSUI {
             this.threeview.set_uav_fused_mode(_id);
        }
 
+    }
+
+    update_drone_detection(_id, target_id, rel_pos, inv_dep) {
+
+        this.threeview.update_detection(_id, target_id, rel_pos, inv_dep);
     }
 
     transfer_vo_with_based(pos, quat, self_id, base_id) {

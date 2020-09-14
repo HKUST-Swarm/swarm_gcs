@@ -120,6 +120,8 @@ class ThreeView {
 
         this.pcl = null;
 
+        this.detections = {};
+
         window.addEventListener( 'mousedown', function(e) {
             obj.onTouchMove(e, "down");
         } );
@@ -142,6 +144,13 @@ class ThreeView {
         this.count = 0;
 
         this.last_render_ts = new Date().getTime() / 1000;
+
+        var loader = new THREE.FontLoader();
+
+        loader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) {
+            console.log(obj.font)
+            obj.font = font;
+        });
     }
 
     toggle_rangeselect(enable) {
@@ -555,6 +564,51 @@ class ThreeView {
 
     }
 
+    update_detection(_id, target_id, rel_pos, inv_dep) {
+        var _det_id = _id *10000 + target_id;
+        console.log("Detection ", _id, "->", target_id, " [", rel_pos, "]", "D", 1/inv_dep);      
+
+        var arrowHelper;
+
+        var direction = rel_pos;
+        var euler = new THREE.Euler(0, 0, 0);
+        euler.setFromQuaternion(this.uavs[_id].quaternion);
+        euler = new THREE.Euler(0, 0, euler.z);
+        direction.applyEuler(euler);
+        direction.normalize();
+        
+        var v = new THREE.Vector3(
+            this.uavs[_id].position.x,
+            this.uavs[_id].position.y,
+            this.uavs[_id].position.z);
+
+        if (_det_id in this.detections) {
+            arrowHelper = this.detections[_det_id].arrow;
+            arrowHelper.position = this.uavs[_id].position;
+            arrowHelper.setLength( 1/inv_dep);
+            arrowHelper.setDirection(direction);
+        } else {
+            var length = 1/inv_dep;
+            var hex = 0xff8000;
+
+            arrowHelper = new THREE.ArrowHelper( direction, v, length, hex );
+            this.scene.add( arrowHelper );
+
+            this.detections[_det_id] = {
+                arrow : arrowHelper,
+                source_id: _id,
+                target_id: target_id };
+
+            // console.log(arrowHelper);
+        }
+
+        var d = new Date();
+        this.detections[_det_id].time = d.getSeconds();
+        direction.multiplyScalar(1.0/inv_dep);
+        v.add(direction);
+        this.detections[_det_id].tgt_pos = v;
+    }
+
     set_uav_fused_mode(_id) {
         if (! (_id in this.fused_pose_uavs)) {
             if (_id in this.uavs) {
@@ -715,7 +769,7 @@ class ThreeView {
     }
 
     create_aircraft_waypoint(_id) {
-        console.log("Creating wp");
+        console.log("Creating wp", _id);
         var object;
         if (! (_id in this.uav_waypoint_targets)) {
             // console.log(_uav_obj);
@@ -759,6 +813,34 @@ class ThreeView {
             pos2d.y  = pos2d.y - 15;
             this.ui.update_uav_label_pos(_id, pos2d);
         }
+
+
+        var d = new Date();
+        var n = d.getSeconds();
+        
+        var delete_list = [];
+        for (var _det in this.detections) {
+            var t = this.detections[_det].time;
+            if (n - t > 2.0) {
+                this.ui.remove_detection_label(
+                    this.detections[_det].source_id,
+                    this.detections[_det].target_id);
+                this.scene.remove(this.detections[_det].arrow);
+                delete this.detections[_det];
+
+            } else {
+                var pos = this.detections[_det].tgt_pos.clone();
+                // console.log(pos);
+                pos.z = pos.z + 0.3;
+                var pos2d = toScreenPosition(pos, this.camera, this.renderer);
+                pos2d.x  = pos2d.x - 15;
+                pos2d.y  = pos2d.y - 15;
+                this.ui.update_detection_label_pos(
+                    this.detections[_det].source_id,
+                    this.detections[_det].target_id, pos2d);
+            }
+        }
+
     }
 
     animate() {
