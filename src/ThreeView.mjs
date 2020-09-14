@@ -809,7 +809,7 @@ class ThreeView {
             var pos = object.position.clone();
             pos.z = pos.z + 0.3;
             var pos2d = toScreenPosition(pos, this.camera, this.renderer);
-            pos2d.x  = pos2d.x - 15;
+            pos2d.x  = pos2d.x - 50;
             pos2d.y  = pos2d.y - 15;
             this.ui.update_uav_label_pos(_id, pos2d);
         }
@@ -830,11 +830,9 @@ class ThreeView {
 
             } else {
                 var pos = this.detections[_det].tgt_pos.clone();
-                // console.log(pos);
-                pos.z = pos.z + 0.3;
                 var pos2d = toScreenPosition(pos, this.camera, this.renderer);
-                pos2d.x  = pos2d.x - 15;
-                pos2d.y  = pos2d.y - 15;
+                pos2d.x  = pos2d.x - 80;
+                pos2d.y  = pos2d.y;
                 this.ui.update_detection_label_pos(
                     this.detections[_det].source_id,
                     this.detections[_det].target_id, pos2d);
