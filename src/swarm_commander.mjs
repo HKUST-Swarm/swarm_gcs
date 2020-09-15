@@ -178,12 +178,23 @@ class SwarmCommander extends BaseCommander{
                     this.on_node_based_coorindate(incoming_msg.remote_id, incoming_msg.lps_time, msg);
                     break;
                 }
-                console.log(msg);
 
+                case "NODE_DETECTED": {
+                    this.on_node_detected(incoming_msg.remote_id, incoming_msg.lps_time, msg);
+                    break;
+                }
             }
         }
         let dt = tnow() - ts;
         // console.log("Process time ", dt*1000);
+    }
+
+
+    on_node_detected(_id, lps_time, msg) {
+        var pos = new THREE.Vector3(msg.x/1000.0, msg.y/1000.0, msg.z/1000.0);
+        var inv_dep = msg.inv_dep / 10000.0;
+
+        this.ui.update_drone_detection(_id, msg.target_id, pos, inv_dep);
     }
 
     on_node_local_fused(_id, lps_time, msg) {

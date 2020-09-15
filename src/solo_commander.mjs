@@ -44,23 +44,23 @@ class SoloCommander extends BaseCommander {
         // });
   
   
-        this.sub_pcl = new ROSLIB.Topic({
-            ros:this.ros,
-            messageType:"sensor_msgs/PointCloud2",
-            name:"/sdf_map/occupancy_inflate"
-        });
-  
+        // this.sub_pcl = new ROSLIB.Topic({
+        //     ros:this.ros,
+        //     messageType:"sensor_msgs/PointCloud2",
+        //     name:"/sdf_map/occupancy_inflate"
+        // });
+        
+        // this.sub_pcl.subscribe(function (msg) {
+            // self.on_localmap_recv(msg);
+        // });
+
         this.bspine_viz_listener = new ROSLIB.Topic({
             ros: this.ros,
             name: "/planning/bspline",
             messageType: "bspline/Bspline",
             queue_length:10
         });
-        
-        this.sub_pcl.subscribe(function (msg) {
-            self.on_localmap_recv(msg);
-        });
-
+  
         this.bspine_viz_listener.subscribe(function (msg) {
             self.ui.update_drone_traj_bspline("debug", msg)
         });
