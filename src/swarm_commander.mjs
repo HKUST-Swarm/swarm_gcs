@@ -314,6 +314,20 @@ class SwarmCommander extends BaseCommander{
         this.send_uwb_msg.publish(msg);
     }
 
+    send_formation_hold_cmd(master_id, mode) {
+        if (mode == 0) {
+            let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, -1, 12, 
+                master_id, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            console.log("Hold the formation");
+            this.send_msg_to_swarm(scmd);
+        } else if (mode == 1) {
+            let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, -1, 13, 
+                master_id, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            console.log("Lock the formation");
+            this.send_msg_to_swarm(scmd);
+        }
+    }
+
     start_circle_fly(_id, origin, r=1, T=10, yaw_mode="fixed") {
         if (_id < 0) {
             return;
@@ -337,6 +351,10 @@ class SwarmCommander extends BaseCommander{
     }
 
     stop_mission_id(_id) {
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, -1, 11, 
+            master_id, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        console.log("Hold the formation");
+        this.send_msg_to_swarm(scmd);
         if (_id == -1) {
             this.missions = {};
         }

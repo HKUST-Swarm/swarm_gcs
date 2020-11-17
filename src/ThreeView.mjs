@@ -719,7 +719,7 @@ class ThreeView {
         // var cb = new THREE.Mesh( cbgeometry , new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
 				
         cb.receiveShadow = this.enable_shadow;
-        cb.position.z = -0.3;
+        cb.position.z = 0;
         this.scene.add(cb);
     }
 
@@ -779,9 +779,9 @@ class ThreeView {
         }
 
         if (_id == -1) {
-            object.position.x = this.uavs[0].position.x;
-            object.position.y = this.uavs[0].position.y;
-            object.position.z = this.uavs[0].position.z;    
+            object.position.x = this.uavs[this.primary_id].position.x;
+            object.position.y = this.uavs[this.primary_id].position.y;
+            object.position.z = this.uavs[this.primary_id].position.z;    
         } else {
             object.position.x = this.uavs[_id].position.x;
             object.position.y = this.uavs[_id].position.y;

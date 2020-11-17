@@ -119,6 +119,15 @@ class SwarmGCSUI {
                 formation: function(_next) {
                     obj.formation(_next);
                 },
+
+                formation_hold: function(mode) {
+                    obj.formation_hold(mode)
+                },
+
+                formation_swap: function(mode) {
+                    obj.formation_swap()
+                },
+
                 stop_formation: function() {
                     obj.stop_formation();
                 },
@@ -144,6 +153,15 @@ class SwarmGCSUI {
         this.other_vo_origin = {};
     }
 
+    formation_hold(mode) {
+        var _master_id = this.select_id;
+        if (_master_id < 0) {
+            _master_id = this.primary_id;
+        }
+
+        this.cmder.send_formation_hold_cmd(_master_id, mode);
+    }
+    
     update_uav_label_pos(_id, pos) {
         // console.log(_id, pos);
         this.view.uav_screen_pos[_id] = pos;

@@ -10,7 +10,6 @@
   <link rel="apple-touch-icon" type="image/png" href="./icon_ios.png" />
 
   <link rel="icon" type="image/png" href="./icon.png" />
-
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
@@ -242,16 +241,32 @@
             <button type="button" v-on:click="command('circle')" class="btn btn-primary btn-lg" >
             <img src="material-design-icons/av/drawable-xxxhdpi/ic_loop_white_48dp.png" class="small_icon" />
             Circle</button>
-            <button type="button" v-on:click="command('traj2')" class="btn btn-primary btn-lg">
+            <!-- <button type="button" v-on:click="command('traj2')" class="btn btn-primary btn-lg">
             <img src="material-design-icons/action/drawable-xxxhdpi/ic_hourglass_empty_white_48dp.png" class="small_icon" />
-            Traj</button>
+            Traj</button> -->
             <!-- <button type="button" v-on:click="range_select" class="btn btn-primary btn-lg"
             id="range_select">
-            <img src="material-design-icons/content/drawable-xxxhdpi/ic_select_all_white_48dp.png" class="small_icon" />
+             <img src="material-design-icons/content/drawable-xxxhdpi/ic_select_all_white_48dp.png" class="small_icon" />
             Select</button> -->
+
+  
           <hr />
           <h4>FORMATIONs</h4> 
-          <button type="button" v-on:click="formation(0)" v-bind:class="[formation_class[0]]">
+          <button type="button" v-on:click="formation_hold(0)" class="btn btn-primary btn-lg">
+            <img src="material-design-icons/navigation/drawable-xxxhdpi/ic_apps_white_48dp.png" class="small_icon" />
+            Hold</button>
+          <button type="button" v-on:click="formation_hold(1)" class="btn btn-primary btn-lg">
+              <img src="material-design-icons/navigation/drawable-xxxhdpi/ic_apps_white_48dp.png" class="small_icon" />
+              Lock</button>
+          <button type="button" v-on:click="formation_swap()" class="btn btn-primary btn-lg">
+                <img src="material-design-icons/av/drawable-xxxhdpi/ic_repeat_white_48dp.png" class="small_icon" />
+                Swap</button>
+          <button type="button" class="btn btn-secondary btn-danger" v-on:click="stop_formation()">
+              <img src="material-design-icons/navigation/drawable-xxxhdpi/ic_cancel_white_48dp.png" class="small_icon" />
+            STOP</button>
+          <br/>
+          
+         <button type="button" v-on:click="formation(0)" v-bind:class="[formation_class[0]]">
               <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />            
             0</button>
           <button type="button" v-on:click="formation(1)" v-bind:class="[formation_class[1]]">
@@ -260,15 +275,13 @@
           <button type="button" v-on:click="formation(2)" v-bind:class="[formation_class[2]]">
               <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />                        
             2</button>
-          <button type="button" v-on:click="formation(3)" v-bind:class="[formation_class[3]]">
+            <button type="button" v-on:click="formation(3)" v-bind:class="[formation_class[3]]">
               <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />                       
             3</button>
           <button type="button" v-on:click="formation(4)" v-bind:class="[formation_class[4]]">
               <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />            
-            4</button>
-          <button type="button" class="btn btn-secondary" v-on:click="stop_formation()">
-              <img src="material-design-icons/navigation/drawable-xxxhdpi/ic_cancel_white_48dp.png" class="small_icon" />
-            STOP</button>
+              4</button>
+
         </div>
         <!-- <button type="button" class="btn btn-secondary btn-lg" >Mission C</button> -->
         <!-- <button type="button" class="btn btn-secondary btn-lg" >Mission D</button> -->
