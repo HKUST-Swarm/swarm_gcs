@@ -31,6 +31,8 @@ var OrbitControls = function ( object, domElement ) {
 	// Set to false to disable this control
 	this.enabled = true;
 
+	this.enableRotate = false;
+
 	// "target" sets the location of focus, where the object orbits around
 	this.target = new Vector3();
 
@@ -70,7 +72,8 @@ var OrbitControls = function ( object, domElement ) {
 	this.enablePan = true;
 	this.panSpeed = 1.0;
 	this.screenSpacePanning = false; // if true, pan in screen-space
-	this.keyPanSpeed = 7.0;	// pixels moved per arrow key push
+	this.keyPanSpeed = 8.0;	// pixels moved per arrow key push
+	this.keyRotateSpeed = 0.1;	// pixels moved per arrow key push
 
 	// Set to true to automatically rotate around the target
 	// If auto-rotate is enabled, you must call controls.update() in your animation loop
@@ -81,7 +84,7 @@ var OrbitControls = function ( object, domElement ) {
 	this.enableKeys = true;
 
 	// The four arrow keys
-	this.keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40 };
+	this.keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40, CTRL: 18, ALT:19, W:87, S:83, A:65, D: 68};
 
 	// Mouse buttons
 	this.mouseButtons = { LEFT: MOUSE.LEFT, MIDDLE: MOUSE.MIDDLE, RIGHT: MOUSE.RIGHT };
@@ -553,26 +556,46 @@ var OrbitControls = function ( object, domElement ) {
 		switch ( event.keyCode ) {
 
 			case scope.keys.UP:
-				pan( 0, scope.keyPanSpeed );
+				rotateUp(scope.keyRotateSpeed );
 				needsUpdate = true;
 				break;
 
 			case scope.keys.BOTTOM:
-				pan( 0, - scope.keyPanSpeed );
+				rotateUp(- scope.keyRotateSpeed );
 				needsUpdate = true;
 				break;
 
 			case scope.keys.LEFT:
-				pan( scope.keyPanSpeed, 0 );
+				rotateLeft( scope.keyRotateSpeed);
 				needsUpdate = true;
 				break;
 
 			case scope.keys.RIGHT:
-				pan( - scope.keyPanSpeed, 0 );
+				rotateLeft( - scope.keyRotateSpeed);
+				needsUpdate = true;
+				break;
+			
+			case scope.keys.W:
+				pan( 0, scope.keyPanSpeed );
 				needsUpdate = true;
 				break;
 
+			case scope.keys.S:
+				pan( 0, - scope.keyPanSpeed );
+				needsUpdate = true;
+				break;
+
+			case scope.keys.A:
+				pan( scope.keyPanSpeed, 0 );
+				needsUpdate = true;
+				break;
+
+			case scope.keys.D:
+				pan( - scope.keyPanSpeed, 0 );
+				needsUpdate = true;
+				break;
 		}
+
 
 		if ( needsUpdate ) {
 
@@ -707,36 +730,43 @@ var OrbitControls = function ( object, domElement ) {
 
 				break;
 
+			// case scope.mouseButtons.MIDDLE:
+			// 	/*
+			// 	if ( scope.enableZoom === false ) return;
+
+
+			// 	state = STATE.DOLLY;
+			// 	*/
+			// 	if ( scope.enableRotate === false ) return;
+
+			// 		handleMouseDownRotate( event );
+
+			// 		state = STATE.ROTATE;
+			// 	break;
+
 			case scope.mouseButtons.MIDDLE:
-				/*
-				if ( scope.enableZoom === false ) return;
-
-
-				state = STATE.DOLLY;
-				*/
-				if ( scope.enableRotate === false ) return;
-
-					handleMouseDownRotate( event );
-
-					state = STATE.ROTATE;
-				break;
-
-			case scope.mouseButtons.RIGHT:
 
 				// if ( scope.enablePan === false ) return;
 
 				// handleMouseDownPan( event );
 
 				// state = STATE.PAN;
+				// console.log(event);
+				
+				if (event.ctrlKey) {
+					if ( scope.enableRotate === false ) return;
+					if ( scope.enableRotate === false ) return;
 
-				if ( scope.enablePan === false ) return;
+					handleMouseDownRotate( event );
+					state = STATE.ROTATE;
+					break;
+				} else {
+					if ( scope.enablePan === false ) return;
+					handleMouseDownPan( event );
+					state = STATE.PAN;
+					break;
+				}
 
-				handleMouseDownPan( event );
-
-				state = STATE.PAN;
-
-
-				break;
 
 		}
 

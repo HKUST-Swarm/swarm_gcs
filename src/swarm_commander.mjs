@@ -352,7 +352,7 @@ class SwarmCommander extends BaseCommander{
 
     stop_mission_id(_id) {
         let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, -1, 11, 
-            master_id, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            -1, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         console.log("Hold the formation");
         this.send_msg_to_swarm(scmd);
         if (_id == -1) {
