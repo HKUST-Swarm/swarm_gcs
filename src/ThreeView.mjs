@@ -80,7 +80,8 @@ class ThreeView {
         this.camera.up.z = 1;
         this.camera.near = 0.01;
 
-        this.chessboard_z = -0.3;
+
+        this.chessboard_z = -0.05;
         this.hover_outline = false;
         // renderer.setClearColor("white", 1);
         this.scene.background = new THREE.Color(0xcff3fa);
@@ -89,7 +90,6 @@ class ThreeView {
 
         this.raycaster = new THREE.Raycaster();
 
-        this.init_postprocessing();
 
         let orbit = this.orbit = new OrbitControls(camera, renderer.domElement);
         orbit.update();
@@ -125,6 +125,8 @@ class ThreeView {
         this.pcl = null;
 
         this.detections = {};
+
+        this.init_postprocessing();
 
         window.addEventListener('mousedown', function (e) {
             obj.onTouchMove(e, "down");
@@ -288,6 +290,8 @@ class ThreeView {
         this.outlinePassSelected.edgeStrength = 5;
         this.outlinePassSelected.edgeThickness = 5.0;
         this.outlinePassSelected.visibleEdgeColor.set(color_set_hot.red);
+
+        this.outlinePassSelected.selectedObjects = this.highlightedObjects;
 
         this.outlinePassFused = new OutlinePass(new THREE.Vector2(this.width, this.height), this.scene, this.camera);
         this.outlinePassFused.edgeStrength = 1;
@@ -727,7 +731,62 @@ class ThreeView {
             this.add_grid();
         }
 
+        const geometry = new THREE.RingGeometry( 0.16, 0.2, 32 );
+        var gizmoLineMaterial = new THREE.MeshBasicMaterial( {
+            depthTest: false,
+            depthWrite: false,
+            transparent: true,
+            linewidth: 1,
+            fog: false,
+            color:"#FFB6C1"
+        } );
+        gizmoLineMaterial.opacity = 0.8;
+        var _object = new THREE.Mesh(geometry, gizmoLineMaterial);
+        this.scene.add(_object);
+        this.ground_target = _object;
+        console.log("Creating ground object");
+
+
+        var dirx = new THREE.Vector3(1.0, 0, 0);
+        var diry = new THREE.Vector3(0.0, 1.0, 0);
+        var dirz = new THREE.Vector3(0.0, 0, 1.0);
+
+        var origin = new THREE.Vector3(0, 0, 0);
+        var length = 0.3;
+        var hex_x = 0xff0000;
+        var hex_y = 0x00ff00;
+        var hex_z = 0x0000ff;
+
+        var arrowHelperX = new THREE.ArrowHelper(dirx, origin, length, hex_x);
+        this.scene.add(arrowHelperX);
+
+        var arrowHelperY = new THREE.ArrowHelper(diry, origin, length, hex_y);
+        this.scene.add(arrowHelperY);
+
+        var arrowHelperZ = new THREE.ArrowHelper(dirz, origin, length, hex_z);
+        this.scene.add(arrowHelperZ);
+
+        this.arrowHelperX = arrowHelperX;
+        this.arrowHelperY = arrowHelperY;
+        this.arrowHelperZ = arrowHelperZ;
+
+
+
+        const points = [];
+        const material = new THREE.LineBasicMaterial( { color:  "#FFFFE0" } );
+        points.push( new THREE.Vector3( - 10, 0, 0 ) );
+        points.push( new THREE.Vector3( 10, 0, 0 ) );
+
+        var line_geometry = new THREE.BufferGeometry().setFromPoints( points );
+        line_geometry.dynamic = true;
+        this.tgt_line = new THREE.Line( line_geometry, material );
+
+        this.scene.add( this.tgt_line );
+
+        this.highlightedObjects = [arrowHelperX, arrowHelperY, arrowHelperZ, this.ground_target, this.tgt_line];
+
     }
+
     add_grid() {
         var size = 100;
         var divisions = 100;
@@ -774,7 +833,7 @@ class ThreeView {
 
     on_select_uavs(drone_ids) {
         drone_ids = Array.from(drone_ids);
-        var selectedObjects = [];
+        var selectedObjects = this.highlightedObjects;
         for (var i in drone_ids) {
             // console.log("Select " + this.uavs[drone_ids[i]]);
             if (drone_ids[i] >= 0) {
@@ -810,8 +869,7 @@ class ThreeView {
     }
 
     create_wp_object(_id) {
-        console.log("Create waypoint target");
-        var geometry = new THREE.BoxBufferGeometry(0.01, 0.01, 0.01);
+        var geometry = new THREE.BoxBufferGeometry(0.001, 0.001, 0.001);
         var object;
         this.uav_waypoint_targets[_id] = object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff }));
         this.scene.add(object);
@@ -829,24 +887,60 @@ class ThreeView {
         }
 
         if (pos == null) {
-            if (_id == -1) {
-                object.position.x = this.uavs[this.ui.primary_id].position.x;
-                object.position.y = this.uavs[this.ui.primary_id].position.y;
-                object.position.z = this.uavs[this.ui.primary_id].position.z;
-            } else {
-                object.position.x = this.uavs[_id].position.x;
-                object.position.y = this.uavs[_id].position.y;
-                object.position.z = this.uavs[_id].position.z;
+            var pos = {
+                x:0,
+                y:0,
+                z:0
             }
-        } else {
-            object.position.x = pos.x;
-            object.position.y = pos.y;
-            object.position.z = pos.z;
+
+            if (_id == -1) {
+                pos.x = this.uavs[this.ui.primary_id].position.x;
+                pos.y = this.uavs[this.ui.primary_id].position.y;
+                pos.z = this.uavs[this.ui.primary_id].position.z;
+            } else {
+                pos.x = this.uavs[_id].position.x;
+                pos.y = this.uavs[_id].position.y;
+                pos.z = this.uavs[_id].position.z;
+            }
         }
 
-        // console.log(object.position);
-        this.transform_control.attach(object);
+        object.position.x = pos.x;
+        object.position.y = pos.y;
+        object.position.z = pos.z;
 
+        // this.transform_control.attach(object);
+        this.set_waypoint_helper_position(pos);
+    }
+
+
+    set_waypoint_helper_position(pos) {
+        this.ground_target.position.x = pos.x;
+        this.ground_target.position.y = pos.y;
+        this.ground_target.position.z = this.chessboard_z + 0.02;
+
+        this.arrowHelperX.position.x = pos.x;
+        this.arrowHelperX.position.y = pos.y;
+        this.arrowHelperX.position.z = pos.z;
+
+
+        this.arrowHelperY.position.x = pos.x;
+        this.arrowHelperY.position.y = pos.y;
+        this.arrowHelperY.position.z = pos.z;
+
+        this.arrowHelperZ.position.x = pos.x;
+        this.arrowHelperZ.position.y = pos.y;
+        this.arrowHelperZ.position.z = pos.z;
+
+        var line_pts = this.tgt_line.geometry.attributes.position.array;
+        line_pts[0] = pos.x;
+        line_pts[1] = pos.y;
+        line_pts[2] = pos.z;
+
+        line_pts[3] = pos.x;
+        line_pts[4] = pos.y;
+        line_pts[5] = this.chessboard_z;
+        
+        this.tgt_line.geometry.attributes.position.needsUpdate = true;
     }
 
     clear_uavs() {

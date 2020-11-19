@@ -247,7 +247,6 @@ class SwarmGCSUI {
     }
 
     send_flyto_cmd(_id, direct) {
-        console.log("Sending flyto comd");
         let pos = { 
             x: 0,
             y: 0,
