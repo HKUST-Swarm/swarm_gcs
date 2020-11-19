@@ -311,6 +311,7 @@ class SwarmCommander extends BaseCommander{
     send_msg_to_swarm(_msg) {
         let _data = _msg.pack(this.mav);
         var msg = new ROSLIB.Message({data : _data, send_method: 2});
+        console.log("Publish", msg);
         this.send_uwb_msg.publish(msg);
     }
 

@@ -53,6 +53,8 @@ class SwarmGCSUI {
         this.global_local_mode = false;
         this.primary_id = 0;
         var loop_mode = this.loop_mode = true;
+
+        this.flyto_mode = false;
         
         var _dis_mode = "GLOBAL";
         if (!this.global_local_mode) {
@@ -83,7 +85,8 @@ class SwarmGCSUI {
                 server_ip: this.server_ip,
                 server_ip_list: this.server_ip_list,
                 is_wrap_swarm: false,
-                formation_class : ["btn btn-secondary", "btn btn-secondary", "btn btn-secondary", "btn btn-secondary", "btn btn-secondary"]
+                formation_class : ["btn btn-secondary", "btn btn-secondary", "btn btn-secondary", "btn btn-secondary", "btn btn-secondary"],
+                flyto_class: "btn btn-secondary btn-lg"
             },
             methods: {
                 select_all: function() {
@@ -137,6 +140,16 @@ class SwarmGCSUI {
                     obj.view.loop_mode = "ON";
                 },
 
+                trigger_flyto: function() {
+                    console.log(obj.view.flyto_class);
+                    obj.flyto_mode = !obj.flyto_mode;
+                    if (obj.flyto_mode) {
+                        obj.view.flyto_class = "btn btn-success btn-lg";
+                    } else {
+                        obj.view.flyto_class =  "btn btn-secondary btn-lg";
+                    }
+                    console.log("FLY to mode", obj.flyto_mode);
+                },
                 set_loop_mode_off: function() {
                     obj.loop_mode = false;
                     obj.view.loop_mode = "OFF";
@@ -234,6 +247,7 @@ class SwarmGCSUI {
     }
 
     send_flyto_cmd(_id, direct) {
+        console.log("Sending flyto comd");
         let pos = { 
             x: 0,
             y: 0,
@@ -265,6 +279,7 @@ class SwarmGCSUI {
                 pos.x = t_pos.x;
                 pos.y = t_pos.y;
                 pos.z = t_pos.z;
+                console.log("Sending...");
                 this.cmder.send_flyto_cmd(_id, pos, direct);
             } else if (_id == -1) {
                 pos.x = t_pos.x;
@@ -311,7 +326,7 @@ class SwarmGCSUI {
             case "flyto":
                 this.send_flyto_cmd(this.select_id, 1);
                 break;
-            case "flyto_traj":
+            case "fly_traj":
                 this.send_flyto_cmd(this.select_id, 0);
                 break;
             case "traj1":
@@ -671,9 +686,15 @@ class SwarmGCSUI {
                 case "flyto":
                     cmd = "飞向";
                     break;
+                case "flyto":
+                    cmd = "飞向";
+                    break;
+                case "flyto_traj":
+                    cmd = "飞向";
+                    break;
                 case "circle":
-                        cmd = "绕圈";
-                        break;
+                    cmd = "绕圈";
+                    break;
                 default:
                     cmd = _cmd;
             }

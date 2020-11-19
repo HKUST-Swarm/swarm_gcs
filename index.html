@@ -230,10 +230,10 @@
             <img src="material-design-icons/alert/drawable-xxxhdpi/ic_warning_white_48dp.png" class="small_icon" />
             Emergency
           </button>
-          <button type="button" v-on:click="command('flyto')" class="btn btn-primary btn-lg"
+          <!-- <button type="button" v-on:click="command('flyto')" class="btn btn-primary btn-lg"
             id="flyto">
             <img src="material-design-icons/content/drawable-xxxhdpi/ic_forward_white_48dp.png" class="small_icon" />
-            Direct Flyto</button>
+            Direct Flyto</button> -->
             <button type="button" v-on:click="command('flyto_traj')" class="btn btn-primary btn-lg"
             id="flyto">
             <img src="material-design-icons/content/drawable-xxxhdpi/ic_forward_white_48dp.png" class="small_icon" />
@@ -241,6 +241,12 @@
             <button type="button" v-on:click="command('circle')" class="btn btn-primary btn-lg" >
             <img src="material-design-icons/av/drawable-xxxhdpi/ic_loop_white_48dp.png" class="small_icon" />
             Circle</button>
+
+            <button type="button" v-on:click="trigger_flyto()"
+              v-bind:class="[flyto_class]" >
+              <img src="material-design-icons/content/drawable-xxxhdpi/ic_forward_white_48dp.png" class="small_icon" />
+              FLYTO</button>
+  
             <!-- <button type="button" v-on:click="command('traj2')" class="btn btn-primary btn-lg">
             <img src="material-design-icons/action/drawable-xxxhdpi/ic_hourglass_empty_white_48dp.png" class="small_icon" />
             Traj</button> -->

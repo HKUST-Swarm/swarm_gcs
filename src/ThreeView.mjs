@@ -441,6 +441,10 @@ class ThreeView {
         console.log("x: " + pos.x + ", y: " + pos.y + ", z:", pos.z);
 
         this.create_aircraft_waypoint(this.ui.select_id, pos);
+
+        if (this.ui.flyto_mode) {
+            this.ui.send_command("flyto");
+        }
     }
 
     onTouchMove( event, m_type) {
