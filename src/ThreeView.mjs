@@ -11,25 +11,25 @@ import { MtlObjBridge } from "../libs/jsm/loaders/obj2/bridge/MtlObjBridge.js";
 import Stats from '../libs/stats.module.js';
 import { EffectComposer } from '../libs/jsm/postprocessing/EffectComposer.js';
 import { OutlinePass } from '../libs/jsm/postprocessing/OutlinePass.js';
-import { RenderPass} from '../libs/jsm/postprocessing/RenderPass.js';
-import { ShaderPass} from '../libs/jsm/postprocessing/ShaderPass.js';
+import { RenderPass } from '../libs/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from '../libs/jsm/postprocessing/ShaderPass.js';
 import { FXAAShader } from '../libs/jsm/shaders/FXAAShader.js';
 import { SelectionBox } from './UAVSelectionBox.js';
 import { SelectionHelper } from './SelectionHelper.js';
-import {bsplineinterpolate} from "../libs/b-spline.js"
-import {Projector } from "../libs/jsm/renderers/Projector.js"
+import { bsplineinterpolate } from "../libs/b-spline.js"
+import { Projector } from "../libs/jsm/renderers/Projector.js"
 
 function tnow() {
     return new Date().getTime() / 1000;
 }
 
-let color_set_hot = { 
-    red:"#DA5543",
+let color_set_hot = {
+    red: "#DA5543",
     // yellow:"#F7F9D3",
-    yellow:"#FFD300",
-    orange:"#DE6645",
-    white:"#F0FFFC",
-    blue:"#BAACE7"
+    yellow: "#FFD300",
+    orange: "#DE6645",
+    white: "#F0FFFC",
+    blue: "#BAACE7"
 }
 
 // let traj_colors = {
@@ -41,11 +41,11 @@ let color_set_hot = {
 // }
 let traj_colors = {
     debug: "#4277ff",
-    drone_0:"#ff6750",
-    drone_1:"#eac435",
-    drone_2:"#345995",
-    drone_3:"#05f3a3",
-    drone_4:"#e40066"
+    drone_0: "#ff6750",
+    drone_1: "#eac435",
+    drone_2: "#345995",
+    drone_3: "#05f3a3",
+    drone_4: "#e40066"
 }
 
 let use_outline_passes = true;
@@ -58,7 +58,7 @@ class ThreeView {
         this.opt = opt;
         var renderer = this.renderer = new THREE.WebGLRenderer();
 
-        this.width =document.getElementById("urdf").offsetWidth;
+        this.width = document.getElementById("urdf").offsetWidth;
         this.height = document.getElementById("urdf").offsetHeight;
         // this.position = $("#urdf").position();
 
@@ -83,10 +83,10 @@ class ThreeView {
         this.chessboard_z = -0.3;
         this.hover_outline = false;
         // renderer.setClearColor("white", 1);
-        this.scene.background = new THREE.Color( 0xcff3fa );
+        this.scene.background = new THREE.Color(0xcff3fa);
         // this.enable_shadow = true;
         this.enable_shadow = false;
-        
+
         this.raycaster = new THREE.Raycaster();
 
         this.init_postprocessing();
@@ -95,7 +95,7 @@ class ThreeView {
         orbit.update();
         orbit.maxDistance = 20;
         orbit.minDistance = 0.3;
-        
+
         this.transform_control = new TransformControls(camera, renderer.domElement);
         this.transform_control.addEventListener('dragging-changed', function (event) {
             orbit.enabled = !event.value;
@@ -126,22 +126,22 @@ class ThreeView {
 
         this.detections = {};
 
-        window.addEventListener( 'mousedown', function(e) {
+        window.addEventListener('mousedown', function (e) {
             obj.onTouchMove(e, "down");
-        } );
+        });
 
-        window.addEventListener('touchstart', function(e) {
+        window.addEventListener('touchstart', function (e) {
             console.log(e);
             obj.onTouchMove(e, "down");
         });
 
-        window.addEventListener( 'mousemove', function(e) {
+        window.addEventListener('mousemove', function (e) {
             obj.onTouchMove(e, "mousehover");
-        } );
+        });
 
-        window.addEventListener( 'resize', function (e) {
+        window.addEventListener('resize', function (e) {
             obj.onWindowResize();
-        }, false );
+        }, false);
 
         this.init_rangeselect();
 
@@ -151,7 +151,7 @@ class ThreeView {
 
         var loader = new THREE.FontLoader();
 
-        loader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) {
+        loader.load('fonts/helvetiker_regular.typeface.json', function (font) {
             console.log(obj.font)
             obj.font = font;
         });
@@ -168,7 +168,7 @@ class ThreeView {
     clear_drone_trajs() {
         for (var ns in this.trajs) {
             this.scene.remove(this.trajs[ns]);
-        } 
+        }
     }
 
     update_drone_traj(ns, traj) {
@@ -177,18 +177,18 @@ class ThreeView {
             this.scene.remove(this.trajs[ns]);
         }
         var arr = [];
-        
+
         for (var i in traj) {
-            arr.push(new THREE.Vector3(traj[i].x, traj[i].y, traj[i].z ));
+            arr.push(new THREE.Vector3(traj[i].x, traj[i].y, traj[i].z));
         }
 
-        var geometry = new THREE.BufferGeometry().setFromPoints( arr );
-        
-        var material = new THREE.LineBasicMaterial( { color : traj_colors[ns], linewidth: 20 } );
-        
+        var geometry = new THREE.BufferGeometry().setFromPoints(arr);
+
+        var material = new THREE.LineBasicMaterial({ color: traj_colors[ns], linewidth: 20 });
+
         // Create the final object to add to the scene
-        var splineObject = new THREE.Line( geometry, material );     
-  
+        var splineObject = new THREE.Line(geometry, material);
+
 
         this.scene.add(splineObject);
         this.trajs[ns] = splineObject;
@@ -221,57 +221,57 @@ class ThreeView {
 
         // console.log('Knots', knts);
         // console.log("Points", pts);
-        for (var t = 0; t < 1; t+=1/bs_pts) {
+        for (var t = 0; t < 1; t += 1 / bs_pts) {
             var pos = bsplineinterpolate(t, 3, pts, knts);
             traj.push({
-                'x':pos[0], 
-                'y':pos[1], 
-                'z':pos[2] 
+                'x': pos[0],
+                'y': pos[1],
+                'z': pos[2]
             });
         }
 
         this.update_drone_traj(ns, traj);
     }
-    
+
     init_rangeselect() {
 
-        this.selectionBox = new SelectionBox( this.camera, this.scene, 100, this.uavs );
+        this.selectionBox = new SelectionBox(this.camera, this.scene, 100, this.uavs);
 
         let selectionBox = this.selectionBox;
-        var renderer = this.renderer 
-        let helper = this.helper = new SelectionHelper( selectionBox, renderer, 'selectBox' );
+        var renderer = this.renderer
+        let helper = this.helper = new SelectionHelper(selectionBox, renderer, 'selectBox');
         let obj = this;
 
         this.in_range_select = false;
 
-        document.addEventListener( 'mousedown', function ( event ) {
+        document.addEventListener('mousedown', function (event) {
             // console.log("Start range select");
 
             if (event.button == 0 && obj.enable_rangeselect) {
                 obj.in_range_select = true;
                 selectionBox.startPoint.set(
-                    ( event.clientX / window.innerWidth ) * 2 - 1,
-                    - ( event.clientY / window.innerHeight ) * 2 + 1,
-                    0.5 );
+                    (event.clientX / window.innerWidth) * 2 - 1,
+                    - (event.clientY / window.innerHeight) * 2 + 1,
+                    0.5);
             }
-        } );
-        document.addEventListener( 'mousemove', function ( event ) {
-        } );
+        });
+        document.addEventListener('mousemove', function (event) {
+        });
 
-        document.addEventListener( 'mouseup', function ( event ) {
+        document.addEventListener('mouseup', function (event) {
             if (event.button == 0 && obj.enable_rangeselect && obj.in_range_select) {
                 // console.log("Start computing range select");
                 selectionBox.endPoint.set(
-                    ( event.clientX / window.innerWidth ) * 2 - 1,
-                    - ( event.clientY / window.innerHeight ) * 2 + 1,
-                    0.5 );
+                    (event.clientX / window.innerWidth) * 2 - 1,
+                    - (event.clientY / window.innerHeight) * 2 + 1,
+                    0.5);
                 var ts = tnow();
                 var allSelected = selectionBox.selectUAVs();
                 // console.log("Time use", tnow() - ts, allSelected);
                 obj.selectObjects(allSelected, "select");
             }
 
-        } );
+        });
     }
 
     init_postprocessing() {
@@ -293,26 +293,26 @@ class ThreeView {
         this.outlinePassFused.edgeStrength = 1;
         this.outlinePassSelected.edgeThickness = 1.0;
         this.outlinePassFused.visibleEdgeColor.set(color_set_hot.yellow);
-        
+
         this.composer = new EffectComposer(renderer);
-        var renderPass = new RenderPass( this.scene, this.camera );
-        this.composer.addPass( renderPass );
+        var renderPass = new RenderPass(this.scene, this.camera);
+        this.composer.addPass(renderPass);
 
         if (use_outline_passes) {
             // this.composer.addPass( this.outlinePassFused );
             if (this.hover_outline) {
-                this.composer.addPass( this.outlinePassMouseHover );
+                this.composer.addPass(this.outlinePassMouseHover);
             }
-            this.composer.addPass( this.outlinePassSelected );
+            this.composer.addPass(this.outlinePassSelected);
         }
 
-        let fxaaPass = new ShaderPass( FXAAShader );
+        let fxaaPass = new ShaderPass(FXAAShader);
 
 
-		var pixelRatio = renderer.getPixelRatio();
-		fxaaPass.material.uniforms[ 'resolution' ].value.x = 1 / ( this.width * pixelRatio );
-		fxaaPass.material.uniforms[ 'resolution' ].value.y = 1 / ( this.height * pixelRatio );
-        this.composer.addPass( fxaaPass );
+        var pixelRatio = renderer.getPixelRatio();
+        fxaaPass.material.uniforms['resolution'].value.x = 1 / (this.width * pixelRatio);
+        fxaaPass.material.uniforms['resolution'].value.y = 1 / (this.height * pixelRatio);
+        this.composer.addPass(fxaaPass);
 
 
 
@@ -320,7 +320,7 @@ class ThreeView {
         renderer.gammaFactor = 2.2;
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        
+
         this.animate();
     }
 
@@ -331,21 +331,21 @@ class ThreeView {
     onWindowResize() {
         // this.width = $("#urdf").width();
         // this.height = $("#urdf").height();
-        
-        this.width =document.getElementById("urdf").offsetWidth;
+
+        this.width = document.getElementById("urdf").offsetWidth;
         this.height = document.getElementById("urdf").offsetHeight;
-        
+
         this.camera.aspect = this.width / this.height;
         this.camera.updateProjectionMatrix();
-        this.renderer.setSize( this.width, this.height );
-        this.selectionBox = new SelectionBox( this.camera, this.scene, 100, this.uavs );
+        this.renderer.setSize(this.width, this.height);
+        this.selectionBox = new SelectionBox(this.camera, this.scene, 100, this.uavs);
         this.init_postprocessing();
         // this.position = $("#urdf").position();
     }
 
     update_pcl(pcl) {
         if (this.pcl != null) {
-            this.scene.remove(this.pcl);            
+            this.scene.remove(this.pcl);
         }
         this.pcl = pcl.boxes_object();
         this.scene.add(this.pcl);
@@ -356,7 +356,7 @@ class ThreeView {
 
 
         var loader = new ThreeMFLoader();
-        
+
         // loader.load( '../models/swarm_drone_2020.3mf', function ( object ) {
         //     object.traverse( function ( child ) {
         //         child.castShadow = true;
@@ -393,7 +393,7 @@ class ThreeView {
 
     create_new_uav(_id) {
         var aircraft = this.aircraft_model.clone();
-        aircraft.children[0].name = "UAV"+_id;
+        aircraft.children[0].name = "UAV" + _id;
 
         this.scene.add(aircraft);
         this.name_uav_id[aircraft.children[0].name] = _id;
@@ -406,7 +406,7 @@ class ThreeView {
             return;
         }
         if (!(_id in this.uavs)) {
-            console.log("Creating new aircraft instance "+ _id);
+            console.log("Creating new aircraft instance " + _id);
             this.uavs[_id] = this.create_new_uav(_id);
             this.uav_cov_spheres[_id] = this.create_cov_sphere();
         }
@@ -417,7 +417,7 @@ class ThreeView {
     }
 
 
-    on_mouse_target_position(event) {
+    on_mouse_target_position(event, fire = false) {
         var z = -1;
         var _id = -1;
         if (this.ui.select_id >= 0) {
@@ -434,24 +434,27 @@ class ThreeView {
         var mv = new THREE.Vector3(
             (event.clientX / window.innerWidth) * 2 - 1,
             -(event.clientY / window.innerHeight) * 2 + 1,
-            0.5 );
+            0.5);
         var raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(mv, this.camera);
-        var pos = raycaster.ray.intersectPlane(planeZ);
-        console.log("x: " + pos.x + ", y: " + pos.y + ", z:", pos.z);
+        var _tmp;
+        var pos = raycaster.ray.intersectPlane(planeZ, _tmp);
+        // console.log("x: " + pos.x + ", y: " + pos.y + ", z:", pos.z);
 
         this.create_aircraft_waypoint(this.ui.select_id, pos);
 
-        if (this.ui.flyto_mode) {
-            this.ui.send_command("flyto");
+        if (fire) {
+            if (this.ui.flyto_mode) {
+                this.ui.send_command("flyto");
+            }
         }
     }
 
-    onTouchMove( event, m_type) {
+    onTouchMove(event, m_type) {
         var x, y;
-        if ( event.changedTouches ) {
-            x = event.changedTouches[ 0 ].pageX;
-            y = event.changedTouches[ 0 ].pageY;
+        if (event.changedTouches) {
+            x = event.changedTouches[0].pageX;
+            y = event.changedTouches[0].pageY;
         } else {
             x = event.clientX;
             y = event.clientY;
@@ -460,34 +463,38 @@ class ThreeView {
         // x = x - this.position.left;
         // y = y - this.position.top;
         var mouse = new THREE.Vector2();
-        mouse.x = ( x / this.width ) * 2 - 1;
-        mouse.y = - ( y / this.height ) * 2 + 1;
+        mouse.x = (x / this.width) * 2 - 1;
+        mouse.y = - (y / this.height) * 2 + 1;
 
         if (m_type == "down" && event.button == 0) {
             this.checkIntersection(mouse, "select");
-        } else  if (m_type == "down" && event.button == 2) {
+        } else if (m_type == "down" && event.button == 2) {
             console.log("Right Click. Sending fly to command");
-            this.on_mouse_target_position(event);
+            this.on_mouse_target_position(event, true);
         } else {
             // console.log("Check mouse hover");
             if (this.hover_outline) {
-                this.checkIntersection(mouse, "mousehover");            
+                this.checkIntersection(mouse, "mousehover");
+            }
+
+            if (this.ui.flyto_mode) {
+                this.on_mouse_target_position(event, false);
             }
         }
 
     }
 
-    selectObjects(objects, e="") {
+    selectObjects(objects, e = "") {
         var selected = []
         var selected_ids = []
-        
+
         for (var i in objects) {
             let selectedObject = objects[i];
             if (selectedObject.name in this.name_uav_id) {
                 console.log("Select " + selectedObject.name);
                 selected.push(selectedObject);
                 selected_ids.push(this.name_uav_id[selectedObject.name]);
-                
+
             }
             if (e == "mousehover" && this.hover_outline) {
                 this.outlinePassMouseHover.selectedObjects = selected;
@@ -497,15 +504,15 @@ class ThreeView {
         if (selected.length > 0) {
             if (e == "select") {
                 this.ui.on_select_uavs(new Set(selected_ids));
-            }    
+            }
         }
     }
 
 
     checkIntersection(mouse, e) {
         let t1 = tnow();
-        this.raycaster.setFromCamera( mouse, this.camera );
-        var intersects = this.raycaster.intersectObjects( [ this.scene ], true );
+        this.raycaster.setFromCamera(mouse, this.camera);
+        var intersects = this.raycaster.intersectObjects([this.scene], true);
         if (intersects.length == 0) {
             return;
         }
@@ -522,12 +529,12 @@ class ThreeView {
     }
 
     create_cov_sphere() {
-        var geometry = new THREE.SphereGeometry( 1.0, 10, 10 );
-        var material = new THREE.MeshPhongMaterial( {color: color_set_hot.blue} );
-        material.opacity=.5;
+        var geometry = new THREE.SphereGeometry(1.0, 10, 10);
+        var material = new THREE.MeshPhongMaterial({ color: color_set_hot.blue });
+        material.opacity = .5;
         material.side = THREE.DoubleSide;
-        material.transparent=true;
-        var sphere = new THREE.Mesh( geometry, material );
+        material.transparent = true;
+        var sphere = new THREE.Mesh(geometry, material);
         this.scene.add(sphere);
         return sphere;
     }
@@ -535,15 +542,15 @@ class ThreeView {
     create_cov_circle(yaw_var) {
         //We use 
         // console.log("cov circle from "+ (-yaw_var) +"to"+ yaw_var )
-        var geometry = new THREE.CircleGeometry( 0.4, 10, -yaw_var, 2*yaw_var);
-        var material = new THREE.MeshPhongMaterial( { color: 0xff0000 } );
-        material.opacity=.3;
-        var circle = new THREE.Mesh( geometry, material );
-        this.scene.add( circle );
+        var geometry = new THREE.CircleGeometry(0.4, 10, -yaw_var, 2 * yaw_var);
+        var material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+        material.opacity = .3;
+        var circle = new THREE.Mesh(geometry, material);
+        this.scene.add(circle);
         return circle;
     }
 
-    update_uav_pose(_id, pos, quat, vx=null, vy=null, vz=null, covx=0, covy=0, covz=0, covyaw=0, update_yaw_var = false) {
+    update_uav_pose(_id, pos, quat, vx = null, vy = null, vz = null, covx = 0, covy = 0, covz = 0, covyaw = 0, update_yaw_var = false) {
         // console.log(_id)
         // console.log(this.uavs[_id].position);
         this.uavs[_id].position.x = pos.x;
@@ -554,10 +561,10 @@ class ThreeView {
         this.uavs[_id].quaternion.y = quat.y;
         this.uavs[_id].quaternion.z = quat.z;
         // if (yaw !== null) {
-            // this.uavs[_id].quaternion.setFromEuler(new THREE.Euler(0, 0, yaw));
+        // this.uavs[_id].quaternion.setFromEuler(new THREE.Euler(0, 0, yaw));
         // }
         // console.log(this.uav_cov_spheres);
-        
+
         this.uav_cov_spheres[_id].position.x = pos[0];
         this.uav_cov_spheres[_id].position.y = pos[1];
         this.uav_cov_spheres[_id].position.z = pos[2];
@@ -588,7 +595,7 @@ class ThreeView {
             if (var_yaw > 0.15) {
                 if (var_yaw > Math.Pi) {
                     var_yaw = Math.Pi;
-                } 
+                }
                 // console.log("Adding yaw var "+ var_yaw);
                 var cir = this.create_cov_circle(var_yaw);
                 cir.quaternion = this.uavs[_id].quaternion;
@@ -600,14 +607,14 @@ class ThreeView {
         }
         // console.log(this.uav_cov_spheres[_id].scale)
         // if (vx !== null) {
-            // this.uavs[_id].linear_velocity.set( vx, vy, vz );
+        // this.uavs[_id].linear_velocity.set( vx, vy, vz );
         // }
 
     }
 
     update_detection(_id, target_id, rel_pos, inv_dep) {
-        var _det_id = _id *10000 + target_id;
-        console.log("Detection ", _id, "->", target_id, " [", rel_pos, "]", "D", 1/inv_dep);      
+        var _det_id = _id * 10000 + target_id;
+        console.log("Detection ", _id, "->", target_id, " [", rel_pos, "]", "D", 1 / inv_dep);
 
         var arrowHelper;
 
@@ -617,7 +624,7 @@ class ThreeView {
         euler = new THREE.Euler(0, 0, euler.z);
         direction.applyEuler(euler);
         direction.normalize();
-        
+
         var v = new THREE.Vector3(
             this.uavs[_id].position.x,
             this.uavs[_id].position.y,
@@ -626,37 +633,38 @@ class ThreeView {
         if (_det_id in this.detections) {
             arrowHelper = this.detections[_det_id].arrow;
             arrowHelper.position = this.uavs[_id].position;
-            arrowHelper.setLength( 1/inv_dep);
+            arrowHelper.setLength(1 / inv_dep);
             arrowHelper.setDirection(direction);
         } else {
-            var length = 1/inv_dep;
+            var length = 1 / inv_dep;
             var hex = 0xff8000;
 
-            arrowHelper = new THREE.ArrowHelper( direction, v, length, hex );
-            this.scene.add( arrowHelper );
+            arrowHelper = new THREE.ArrowHelper(direction, v, length, hex);
+            this.scene.add(arrowHelper);
 
             this.detections[_det_id] = {
-                arrow : arrowHelper,
+                arrow: arrowHelper,
                 source_id: _id,
-                target_id: target_id };
+                target_id: target_id
+            };
 
             // console.log(arrowHelper);
         }
 
         var d = new Date();
         this.detections[_det_id].time = d.getSeconds();
-        direction.multiplyScalar(1.0/inv_dep);
+        direction.multiplyScalar(1.0 / inv_dep);
         v.add(direction);
         this.detections[_det_id].tgt_pos = v;
     }
 
     set_uav_fused_mode(_id) {
-        if (! (_id in this.fused_pose_uavs)) {
+        if (!(_id in this.fused_pose_uavs)) {
             if (_id in this.uavs) {
                 this.fused_pose_uavs[_id] = this.uavs[_id].children[0];
                 this.outlinePassFused.selectedObjects.push(this.uavs[_id].children[0]);
             }
-        } 
+        }
     }
 
     clear_uav_fused() {
@@ -713,8 +721,8 @@ class ThreeView {
 
         if (this.opt.chessboard) {
             this.add_chessboard()
-        } 
-        
+        }
+
         if (this.opt.grid) {
             this.add_grid();
         }
@@ -752,13 +760,13 @@ class ThreeView {
             cbgeometry.faces[j + 1].materialIndex = ((i + Math.floor(i / 10)) % 2); // Add this line in, the material index should stay the same, we're just doing the other half of the same face
         }
 
-        cbmaterials.opacity=.8;
+        cbmaterials.opacity = .8;
         // cbmaterials.side = THREE.DoubleSide;
 
         // Mesh
         var cb = new THREE.Mesh(cbgeometry, new THREE.MeshFaceMaterial(cbmaterials));
         // var cb = new THREE.Mesh( cbgeometry , new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
-				
+
         cb.receiveShadow = this.enable_shadow;
         cb.position.z = this.chessboard_z;
         this.scene.add(cb);
@@ -775,12 +783,12 @@ class ThreeView {
         }
         // console.log(selectedObjects);
         this.outlinePassSelected.selectedObjects = selectedObjects;
-        
+
         if (drone_ids.length == 1) {
             if (drone_ids[0] >= 0) {
                 this.create_aircraft_waypoint(drone_ids[0]);
             }
-        } else if (drone_ids.length > 1)  {
+        } else if (drone_ids.length > 1) {
             //> 1 then control all
             this.create_aircraft_waypoint(-1);
         }
@@ -788,10 +796,10 @@ class ThreeView {
 
 
     create_marker_() {
-        var geometry = new THREE.ExtrudeBufferGeometry( smileyShape, extrudeSettings );
-        var mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: "blue", side: THREE.DoubleSide } ) );
+        var geometry = new THREE.ExtrudeBufferGeometry(smileyShape, extrudeSettings);
+        var mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({ color: "blue", side: THREE.DoubleSide }));
         mesh.scale.set(0.001, 0.001, 0.001);
-        mesh.quaternion.setFromEuler(new THREE.Euler(-Math.PI/2, 0, 0));
+        mesh.quaternion.setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
         return mesh;
     }
 
@@ -803,32 +811,32 @@ class ThreeView {
 
     create_wp_object(_id) {
         console.log("Create waypoint target");
-        var geometry = new THREE.BoxBufferGeometry( 0.01, 0.01, 0.01 );
+        var geometry = new THREE.BoxBufferGeometry(0.01, 0.01, 0.01);
         var object;
-        this.uav_waypoint_targets[_id] = object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+        this.uav_waypoint_targets[_id] = object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff }));
         this.scene.add(object);
         return object;
     }
 
     create_aircraft_waypoint(_id, pos = null) {
-        console.log("Creating wp", _id);
+        // console.log("Creating wp", _id);
         var object;
-        if (! (_id in this.uav_waypoint_targets)) {
+        if (!(_id in this.uav_waypoint_targets)) {
             // console.log(_uav_obj);
             object = this.create_wp_object(_id);
         } else {
             object = this.uav_waypoint_targets[_id];
         }
-        
+
         if (pos == null) {
             if (_id == -1) {
                 object.position.x = this.uavs[this.ui.primary_id].position.x;
                 object.position.y = this.uavs[this.ui.primary_id].position.y;
-                object.position.z = this.uavs[this.ui.primary_id].position.z;    
+                object.position.z = this.uavs[this.ui.primary_id].position.z;
             } else {
                 object.position.x = this.uavs[_id].position.x;
                 object.position.y = this.uavs[_id].position.y;
-                object.position.z = this.uavs[_id].position.z;    
+                object.position.z = this.uavs[_id].position.z;
             }
         } else {
             object.position.x = pos.x;
@@ -840,7 +848,7 @@ class ThreeView {
         this.transform_control.attach(object);
 
     }
-    
+
     clear_uavs() {
         console.log("clear uav");
         for (var _id in this.uavs) {
@@ -856,15 +864,15 @@ class ThreeView {
             var pos = object.position.clone();
             pos.z = pos.z + 0.3;
             var pos2d = toScreenPosition(pos, this.camera, this.renderer);
-            pos2d.x  = pos2d.x - 50;
-            pos2d.y  = pos2d.y - 15;
+            pos2d.x = pos2d.x - 50;
+            pos2d.y = pos2d.y - 15;
             this.ui.update_uav_label_pos(_id, pos2d);
         }
 
 
         var d = new Date();
         var n = d.getSeconds();
-        
+
         var delete_list = [];
         for (var _det in this.detections) {
             var t = this.detections[_det].time;
@@ -878,8 +886,8 @@ class ThreeView {
             } else {
                 var pos = this.detections[_det].tgt_pos.clone();
                 var pos2d = toScreenPosition(pos, this.camera, this.renderer);
-                pos2d.x  = pos2d.x - 80;
-                pos2d.y  = pos2d.y;
+                pos2d.x = pos2d.x - 80;
+                pos2d.y = pos2d.y;
                 this.ui.update_detection_label_pos(
                     this.detections[_det].source_id,
                     this.detections[_det].target_id, pos2d);
@@ -893,9 +901,9 @@ class ThreeView {
         let obj = this;
         requestAnimationFrame(function () {
             // console.log("test");
-            setTimeout( function() {
+            setTimeout(function () {
                 obj.animate()
-            }, 30 );
+            }, 30);
         });
 
         this.composer.render();
@@ -910,21 +918,21 @@ class ThreeView {
 function toScreenPosition(position, camera, renderer) {
     var vector = new THREE.Vector3();
 
-    var widthHalf = 0.5*renderer.context.canvas.width;
-    var heightHalf = 0.5*renderer.context.canvas.height;
+    var widthHalf = 0.5 * renderer.context.canvas.width;
+    var heightHalf = 0.5 * renderer.context.canvas.height;
 
     var matrixWorld = new THREE.Matrix4();
-    matrixWorld.compose( position, new THREE.Quaternion(), new THREE.Vector3() );
+    matrixWorld.compose(position, new THREE.Quaternion(), new THREE.Vector3());
 
     vector.setFromMatrixPosition(matrixWorld);
     vector.project(camera);
 
-    vector.x = ( vector.x * widthHalf ) + widthHalf;
-    vector.y = - ( vector.y * heightHalf ) + heightHalf;
+    vector.x = (vector.x * widthHalf) + widthHalf;
+    vector.y = - (vector.y * heightHalf) + heightHalf;
 
-    return { 
-        x: (vector.x/window.devicePixelRatio).toFixed(0),
-        y: (vector.y/window.devicePixelRatio).toFixed(0)
+    return {
+        x: (vector.x / window.devicePixelRatio).toFixed(0),
+        y: (vector.y / window.devicePixelRatio).toFixed(0)
     };
 
 };
