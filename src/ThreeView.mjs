@@ -80,7 +80,6 @@ class ThreeView {
         this.camera.up.z = 1;
         this.camera.near = 0.01;
 
-
         this.chessboard_z = -0.05;
         this.hover_outline = false;
         // renderer.setClearColor("white", 1);
@@ -125,11 +124,19 @@ class ThreeView {
         this.pcl = null;
 
         this.detections = {};
+        
+        this.on_right_down = false;
+        this.right_start_y = 0;
+        this.last_evt = null;
 
         this.init_postprocessing();
 
         window.addEventListener('mousedown', function (e) {
             obj.onTouchMove(e, "down");
+        });
+
+        window.addEventListener('mouseup', function (e) {
+            obj.onTouchMove(e, "up");
         });
 
         window.addEventListener('touchstart', function (e) {
@@ -421,7 +428,7 @@ class ThreeView {
     }
 
 
-    on_mouse_target_position(event, fire = false) {
+    on_mouse_target_position(event, fire = false, z_off = 0) {
         var z = -1;
         var _id = -1;
         if (this.ui.select_id >= 0) {
@@ -444,12 +451,13 @@ class ThreeView {
         var _tmp;
         var pos = raycaster.ray.intersectPlane(planeZ, _tmp);
         // console.log("x: " + pos.x + ", y: " + pos.y + ", z:", pos.z);
-
-        this.create_aircraft_waypoint(this.ui.select_id, pos);
-
-        if (fire) {
-            if (this.ui.flyto_mode) {
-                this.ui.send_command("flyto");
+        if (pos.z != null) {
+            pos.z += z_off;
+            this.create_aircraft_waypoint(this.ui.select_id, pos);
+            if (fire) {
+                if (this.ui.flyto_mode) {
+                    this.ui.send_command("flyto");
+                }
             }
         }
     }
@@ -470,11 +478,25 @@ class ThreeView {
         mouse.x = (x / this.width) * 2 - 1;
         mouse.y = - (y / this.height) * 2 + 1;
 
+        if (m_type == "down" && event.button == 2) {
+            this.on_right_down = true;
+            this.right_start_y = mouse.y;
+            this.last_evt = event;
+            // console.log("Right Down");
+        }
+
+        var z_off = 0;
+        if (this.on_right_down) {
+            z_off = mouse.y - this.right_start_y;
+        }
+
         if (m_type == "down" && event.button == 0) {
             this.checkIntersection(mouse, "select");
-        } else if (m_type == "down" && event.button == 2) {
+        } else 
+        if (m_type == "up" && event.button == 2) {
+            this.on_right_down = false;
             console.log("Right Click. Sending fly to command");
-            this.on_mouse_target_position(event, true);
+            this.on_mouse_target_position(event, true, z_off);
         } else {
             // console.log("Check mouse hover");
             if (this.hover_outline) {
@@ -482,8 +504,13 @@ class ThreeView {
             }
 
             if (this.ui.flyto_mode) {
-                this.on_mouse_target_position(event, false);
+                if (this.on_right_down) {
+                    this.on_mouse_target_position(this.last_evt, false, z_off);
+                } else {
+                    this.on_mouse_target_position(event, false, z_off);
+                }
             }
+
         }
 
     }
