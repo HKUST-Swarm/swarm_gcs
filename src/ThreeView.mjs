@@ -48,6 +48,16 @@ let traj_colors = {
     drone_4: "#e40066"
 }
 
+
+let uav_colors = [
+    "#ff6750",
+    "#eac435",
+    "#345995",
+    "#05f3a3",
+    "#e40066",
+    "#4277ff",
+]
+
 let use_outline_passes = true;
 // let use_outline_passes = false;
 
@@ -84,8 +94,8 @@ class ThreeView {
         this.hover_outline = false;
         // renderer.setClearColor("white", 1);
         this.scene.background = new THREE.Color(0xcff3fa);
-        // this.enable_shadow = true;
-        this.enable_shadow = false;
+        this.enable_shadow = true;
+        // this.enable_shadow = false;
 
         this.raycaster = new THREE.Raycaster();
 
@@ -106,6 +116,9 @@ class ThreeView {
         this.init_scene();
 
         this.uavs = {}
+        this.uavs_ground = {}
+        this.uavs_line = {}
+
         this.uav_cov_spheres = {}
         this.uav_cov_circles = {}
         this.name_uav_id = {}
@@ -411,6 +424,37 @@ class ThreeView {
         return aircraft;
     }
 
+
+    create_uav_ground(_id) {
+        const geometry = new THREE.RingGeometry( 0.16, 0.2, 32 );
+        var gizmoLineMaterial = new THREE.MeshBasicMaterial( {
+            depthTest: false,
+            depthWrite: false,
+            transparent: true,
+            linewidth: 1,
+            fog: false,
+            color:uav_colors[_id]
+        } );
+        gizmoLineMaterial.opacity = 0.8;
+        var _object = new THREE.Mesh(geometry, gizmoLineMaterial);
+        this.scene.add(_object);
+        return _object;
+    }
+
+
+    create_uav_line(_id) {
+        const points = [];
+        const material = new THREE.LineBasicMaterial( { color:  uav_colors[_id]} );
+        points.push( new THREE.Vector3( - 0.1, 0, 0 ) );
+        points.push( new THREE.Vector3( 0.1, 0, 0 ) );
+
+        var line_geometry = new THREE.BufferGeometry().setFromPoints( points );
+        line_geometry.dynamic = true;
+        var _line = new THREE.Line( line_geometry, material );
+        this.scene.add( _line );
+        return _line;
+    }
+
     insert_uav(_id) {
         if (this.aircraft_model == null) {
             console.log("AircraftModel not load, waiting");
@@ -420,6 +464,8 @@ class ThreeView {
             console.log("Creating new aircraft instance " + _id);
             this.uavs[_id] = this.create_new_uav(_id);
             this.uav_cov_spheres[_id] = this.create_cov_sphere();
+            this.uavs_ground[_id] = this.create_uav_ground(_id);
+            this.uavs_line[_id] = this.create_uav_line(_id);
         }
     }
 
@@ -496,7 +542,7 @@ class ThreeView {
         if (m_type == "up" && event.button == 2) {
             this.on_right_down = false;
             console.log("Right Click. Sending fly to command");
-            this.on_mouse_target_position(event, true, z_off);
+            this.on_mouse_target_position(this.last_evt, true, z_off);
         } else {
             // console.log("Check mouse hover");
             if (this.hover_outline) {
@@ -560,7 +606,7 @@ class ThreeView {
     }
 
     create_cov_sphere() {
-        var geometry = new THREE.SphereGeometry(1.0, 10, 10);
+        var geometry = new THREE.SphereGeometry(0.01, 0.01, 0.01);
         var material = new THREE.MeshPhongMaterial({ color: color_set_hot.blue });
         material.opacity = .5;
         material.side = THREE.DoubleSide;
@@ -591,6 +637,22 @@ class ThreeView {
         this.uavs[_id].quaternion.x = quat.x;
         this.uavs[_id].quaternion.y = quat.y;
         this.uavs[_id].quaternion.z = quat.z;
+
+        this.uavs_ground[_id].position.x = pos.x;
+        this.uavs_ground[_id].position.y = pos.y;
+        this.uavs_ground[_id].position.z = this.chessboard_z + 0.02;
+
+
+        var line_pts = this.uavs_line[_id].geometry.attributes.position.array;
+        line_pts[0] = pos.x;
+        line_pts[1] = pos.y;
+        line_pts[2] = pos.z;
+
+        line_pts[3] = pos.x;
+        line_pts[4] = pos.y;
+        line_pts[5] = this.chessboard_z;
+        
+        this.uavs_line[_id].geometry.attributes.position.needsUpdate = true;
         // if (yaw !== null) {
         // this.uavs[_id].quaternion.setFromEuler(new THREE.Euler(0, 0, yaw));
         // }
@@ -801,8 +863,8 @@ class ThreeView {
 
         const points = [];
         const material = new THREE.LineBasicMaterial( { color:  "#FFFFE0" } );
-        points.push( new THREE.Vector3( - 10, 0, 0 ) );
-        points.push( new THREE.Vector3( 10, 0, 0 ) );
+        points.push( new THREE.Vector3( - 0.01, 0, 0 ) );
+        points.push( new THREE.Vector3( 0.01, 0, 0 ) );
 
         var line_geometry = new THREE.BufferGeometry().setFromPoints( points );
         line_geometry.dynamic = true;
@@ -865,6 +927,8 @@ class ThreeView {
             // console.log("Select " + this.uavs[drone_ids[i]]);
             if (drone_ids[i] >= 0) {
                 selectedObjects.push(this.uavs[drone_ids[i]]);
+                selectedObjects.push(this.uavs_ground[drone_ids[i]]);
+                selectedObjects.push(this.uavs_line[drone_ids[i]]);
             }
         }
         // console.log(selectedObjects);
