@@ -44,7 +44,7 @@ class SwarmGCSUI {
         this.count = 0;
 
         this.server_ip = location.hostname;
-        this.server_ip_index = 0;
+        this.server_ip_index = -1;
         this.server_ip_list = ["127.0.0.1", location.hostname, "10.10.1.4", "10.10.1.1"];
         this.display_pcl = true;
         
@@ -229,8 +229,8 @@ class SwarmGCSUI {
     select_next_server_ip() {
         console.log(this.server_ip_list.length);
         this.server_ip_index = (this.server_ip_index + 1) % this.server_ip_list.length;
-        console.log("Select next ip" + this.server_ip_index);
         let _ip = this.server_ip_list[this.server_ip_index];
+        console.log("Select next ip" + _ip);
         this.server_ip = _ip;
         this.view.server_ip = _ip;
         this.cmder.set_server_ip(_ip)
