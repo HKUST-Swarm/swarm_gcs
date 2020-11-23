@@ -575,8 +575,12 @@ class SwarmGCSUI {
     }
 
     on_select_uavs (_ids) {
+        console.log(_ids, this.view.uavs, _ids.size, Object.keys(this.view.uavs).length);
+
         if (_ids.length == 1) {
             this.on_select_uav(_ids[0]);
+        } else if (_ids.size == Object.keys(this.view.uavs).length) {
+            this.on_select_uav(-1);
         } else {
             console.log("Set selected --", _ids);
             for (var _id in this.view.uav_label_colors) {
@@ -589,7 +593,6 @@ class SwarmGCSUI {
             
             this.threeview.on_select_uavs(_ids);
         }
-
     }
 
     on_select_uav (_id) {
@@ -624,6 +627,7 @@ class SwarmGCSUI {
 
         if (_id >= 0) {
             for (var i in this.view.uav_label_colors) {
+                console.log("Set", i, " label unselect");
                 this.view.uav_label_colors[i] = uav_label_colors.unselected;
             }
 
