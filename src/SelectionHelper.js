@@ -23,7 +23,7 @@ var SelectionHelper = ( function () {
 
 		this.isDown = false;
 
-		this.renderer.domElement.addEventListener( 'mousedown', function ( event ) {
+		document.addEventListener( 'mousedown', function ( event ) {
 			if (event.button == 0 && this.enable_rangeselect) {
 				this.isDown = true;
 				this.onSelectStart( event );
@@ -31,7 +31,7 @@ var SelectionHelper = ( function () {
 
 		}.bind( this ), false );
 
-		this.renderer.domElement.addEventListener( 'mousemove', function ( event ) {
+		document.addEventListener( 'mousemove', function ( event ) {
 
 			if ( this.isDown && this.enable_rangeselect) {
 
@@ -41,7 +41,7 @@ var SelectionHelper = ( function () {
 
 		}.bind( this ), false );
 
-		this.renderer.domElement.addEventListener( 'mouseup', function ( event ) {
+		document.addEventListener( 'mouseup', function ( event ) {
 			if (event.button == 0 && this.enable_rangeselect) {
 				this.isDown = false;
 				this.onSelectOver( event );

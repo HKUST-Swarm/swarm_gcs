@@ -32,22 +32,23 @@ let color_set_hot = {
     blue: "#BAACE7"
 }
 
-// let traj_colors = {
-//     drone_0:"#4277ff",
-//     drone_1:"#84aff9",
-//     drone_2:"#d6e2aa",
-//     drone_3:"#ffe877",
-//     drone_4:"#ff96a2"
-// }
-let traj_colors = {
-    debug: "#4277ff",
-    drone_0: "#ff6750",
-    drone_1: "#eac435",
-    drone_2: "#345995",
-    drone_3: "#05f3a3",
-    drone_4: "#e40066",
-    drone_5: "#4277ff"
+function rand(min, max) {
+    return min + Math.random() * (max - min);
 }
+
+function get_random_color() {
+    return "#" + Math.floor(Math.random()*16777215).toString(16);
+}
+
+// let traj_colors = {
+//     debug: "#4277ff",
+//     drone_0: "#ff6750",
+//     drone_1: "#eac435",
+//     drone_2: "#345995",
+//     drone_3: "#05f3a3",
+//     drone_4: "#e40066",
+//     drone_5: "#4277ff",
+// }
 
 
 let uav_colors = [
@@ -58,6 +59,14 @@ let uav_colors = [
     "#e40066",
     "#4277ff",
 ]
+
+for (var i = 0; i < 100; i ++) {
+    uav_colors.push(get_random_color());
+}
+
+console.log(uav_colors);
+
+console.log(get_random_color());
 
 let use_outline_passes = true;
 // let use_outline_passes = false;
@@ -207,7 +216,7 @@ class ThreeView {
 
         var geometry = new THREE.BufferGeometry().setFromPoints(arr);
 
-        var material = new THREE.LineBasicMaterial({ color: traj_colors[ns], linewidth: 20 });
+        var material = new THREE.LineBasicMaterial({ color: uav_colors[ns], linewidth: 10 });
 
         // Create the final object to add to the scene
         var splineObject = new THREE.Line(geometry, material);
@@ -432,7 +441,6 @@ class ThreeView {
             depthTest: false,
             depthWrite: false,
             transparent: true,
-            linewidth: 1,
             fog: false,
             color:uav_colors[_id]
         } );
@@ -574,13 +582,13 @@ class ThreeView {
                 selected_ids.push(this.name_uav_id[selectedObject.name]);
             }
 
-            if (selected_ids.length == 1) {
-                this.ui.on_select_uav(selected_ids[0]);
-            }
-
             if (e == "mousehover" && this.hover_outline) {
                 this.outlinePassMouseHover.selectedObjects = selected;
             }
+        }
+        
+        if (selected_ids.length == 1) {
+            this.ui.on_select_uav(selected_ids[0]);
         }
 
         if (selected.length > 0) {
@@ -590,6 +598,29 @@ class ThreeView {
         }
     }
 
+    on_select_uavs(drone_ids) {
+        drone_ids = Array.from(drone_ids);
+        var selectedObjects = this.highlightedObjects.slice();
+        for (var i in drone_ids) {
+            // console.log("Select " + this.uavs[drone_ids[i]]);
+            if (drone_ids[i] >= 0) {
+                selectedObjects.push(this.uavs[drone_ids[i]]);
+                selectedObjects.push(this.uavs_ground[drone_ids[i]]);
+                selectedObjects.push(this.uavs_line[drone_ids[i]]);
+            }
+        }
+        // console.log(selectedObjects);
+        this.outlinePassSelected.selectedObjects = selectedObjects;
+
+        if (drone_ids.length == 1) {
+            if (drone_ids[0] >= 0) {
+                this.create_aircraft_waypoint(drone_ids[0]);
+            }
+        } else if (drone_ids.length > 1) {
+            //> 1 then control all
+            this.create_aircraft_waypoint(-1);
+        }
+    }
 
     checkIntersection(mouse, e) {
         let t1 = tnow();
@@ -836,6 +867,7 @@ class ThreeView {
         } );
         gizmoLineMaterial.opacity = 0.8;
         var _object = new THREE.Mesh(geometry, gizmoLineMaterial);
+        _object.position.x = 10000000;
         this.scene.add(_object);
         this.ground_target = _object;
         console.log("Creating ground object");
@@ -925,29 +957,7 @@ class ThreeView {
         this.scene.add(cb);
     }
 
-    on_select_uavs(drone_ids) {
-        drone_ids = Array.from(drone_ids);
-        var selectedObjects = this.highlightedObjects;
-        for (var i in drone_ids) {
-            // console.log("Select " + this.uavs[drone_ids[i]]);
-            if (drone_ids[i] >= 0) {
-                selectedObjects.push(this.uavs[drone_ids[i]]);
-                selectedObjects.push(this.uavs_ground[drone_ids[i]]);
-                selectedObjects.push(this.uavs_line[drone_ids[i]]);
-            }
-        }
-        // console.log(selectedObjects);
-        this.outlinePassSelected.selectedObjects = selectedObjects;
 
-        if (drone_ids.length == 1) {
-            if (drone_ids[0] >= 0) {
-                this.create_aircraft_waypoint(drone_ids[0]);
-            }
-        } else if (drone_ids.length > 1) {
-            //> 1 then control all
-            this.create_aircraft_waypoint(-1);
-        }
-    }
 
 
     create_marker_() {

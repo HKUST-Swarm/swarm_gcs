@@ -93,7 +93,7 @@ class SwarmCommander extends BaseCommander{
         this.bspine_viz_listener.subscribe(function (msg) {
             // console.log("bspline drone_id", msg.drone_id);
             if (msg.drone_id >= 0) {
-                self.ui.update_drone_traj_bspline("drone_" + msg.drone_id.toString(), msg)
+                self.ui.update_drone_traj_bspline(msg.drone_id, msg)
             }
         });
         

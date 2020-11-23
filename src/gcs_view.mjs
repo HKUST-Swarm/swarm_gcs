@@ -578,13 +578,12 @@ class SwarmGCSUI {
         if (_ids.length == 1) {
             this.on_select_uav(_ids[0]);
         } else {
-        
+            console.log("Set selected --", _ids);
             for (var _id in this.view.uav_label_colors) {
                 this.view.uav_label_colors[_id] = uav_label_colors.unselected;
             }
 
-            for (var i in _ids) {
-                let _id = _ids[i];
+            for (var _id of _ids) {
                 this.view.uav_label_colors[_id] = uav_label_colors.selected;
             }
             
@@ -594,6 +593,7 @@ class SwarmGCSUI {
     }
 
     on_select_uav (_id) {
+        console.log("S", _id);
         this.select_id = _id;
         if (_id < 0) {
             this.view.selected_uav = "ALL";
@@ -623,14 +623,15 @@ class SwarmGCSUI {
         this.last_speak_time = tnow();
 
         if (_id >= 0) {
-            for (_id in this.view.uav_label_colors) {
-                this.view.uav_label_colors[_id] = uav_label_colors.unselected;
+            for (var i in this.view.uav_label_colors) {
+                this.view.uav_label_colors[i] = uav_label_colors.unselected;
             }
+
             this.view.uav_label_colors[_id] = uav_label_colors.selected;
             this.threeview.on_select_uavs([_id]);
         } else {
-            for (_id in this.view.uav_label_colors) {
-                this.view.uav_label_colors[_id] = uav_label_colors.selected;
+            for (var i in this.view.uav_label_colors) {
+                this.view.uav_label_colors[i] = uav_label_colors.selected;
             }
             this.threeview.on_select_uavs([-1]);
         }

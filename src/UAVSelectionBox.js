@@ -24,7 +24,7 @@ var SelectionBox = ( function () {
 		this.deep = deep || Number.MAX_VALUE;
 		this.uavs = uavs;
 
-		console.log("init select box with", this.uavs);
+		// console.log("init select box with", this.uavs);
 
 	}
 
