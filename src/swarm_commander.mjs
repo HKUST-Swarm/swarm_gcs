@@ -85,15 +85,18 @@ class SwarmCommander extends BaseCommander{
 
         this.bspine_viz_listener = new ROSLIB.Topic({
             ros: ros,
-            name: "/planning/bspline",
+            name: "/planning/bspline_swarm",
             messageType: "bspline/Bspline",
             queue_length:10
         });
-        
-        this.bspine_viz_listener.subscribe(function (msg) {
-            self.ui.update_drone_traj_bspline("debug", msg)
-        });
 
+        this.bspine_viz_listener.subscribe(function (msg) {
+            console.log("bspline drone_id", msg.drone_id);
+            if (msg.drone_id >= 0) {
+                self.ui.update_drone_traj_bspline("drone_" + msg.drone_id.toString(), msg)
+            }
+        });
+        
         this.incoming_data_listener = new ROSLIB.Topic({
             ros: ros,
             name: "/uwb_node/incoming_broadcast_data",
@@ -115,6 +118,13 @@ class SwarmCommander extends BaseCommander{
             name : '/uwb_node/send_broadcast_data',
             messageType : 'inf_uwb_ros/data_buffer'
         });
+
+
+        this.move_simple_goal = new ROSLIB.Topic({
+            ros : ros,
+            name : '/move_base_simple/goal',
+            messageType : 'geometry_msgs/PoseStamped'
+        }); 
 
         this.change_formation_client = new ROSLIB.Service({
             ros : ros,
@@ -278,9 +288,49 @@ class SwarmCommander extends BaseCommander{
         this.send_msg_to_swarm(scmd);
     }
 
+    send_flyto_debug(){
+        console.log("Send flyto debug");
+        var msg = new ROSLIB.Message({
+            pose: {
+                position: {
+                    x: 0,
+                    y: 0,
+                    z: 0,
+                },
+                orientation: {
+                    w: 1,
+                    x: 0, 
+                    y: 0, 
+                    z: 0
+                }
+            }
+        });
+
+        this.move_simple_goal.publish(msg);
+    }
+
     send_flyto_cmd(_id, pos, direct) {
         //When use VO coordinates
-        // console.log("Fly to ", pos);
+        console.log("Fly to ", pos);
+
+        var msg = new ROSLIB.Message({
+            pose: {
+                position: {
+                    x: pos.x,
+                    y: pos.y,
+                    z: pos.z,
+                },
+                orientation: {
+                    w: 1,
+                    x: 0, 
+                    y: 0, 
+                    z: 0
+                }
+            }
+        });
+
+        this.move_simple_goal.publish(msg);
+
         var flyto_cmd = 0;
 
         if (! direct) {

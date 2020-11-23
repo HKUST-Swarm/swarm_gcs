@@ -31,9 +31,13 @@ class BaseCommander {
 
   setup_ros_conn () {
       let _ui = this.ui;
+      var _ip = this.server_ip;
+      if (_ip == "") {
+          _ip = "127.0.0.1";
+      }
       let ros = this.ros = new ROSLIB.Ros({
           // url: "ws://127.0.0.1:9090"
-          url: "ws://"+ this.server_ip + ":9090"
+          url: "ws://"+ _ip + ":9090"
       });
       let self = this;
       ros.on("connection", function () {

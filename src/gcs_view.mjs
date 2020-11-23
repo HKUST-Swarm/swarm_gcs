@@ -166,6 +166,10 @@ class SwarmGCSUI {
         this.other_vo_origin = {};
     }
 
+    formation_swap() {
+        this.cmder.send_flyto_debug();
+    }
+
     formation_hold(mode) {
         var _master_id = this.select_id;
         if (_master_id < 0) {
@@ -253,6 +257,10 @@ class SwarmGCSUI {
             z: 0
         }
 
+        if (_id < 0) {
+            return;
+        }
+
         let t_pos = this.threeview.get_waypoint_target_pos(_id);
 
         if (this.global_local_mode) {
@@ -308,7 +316,6 @@ class SwarmGCSUI {
                 return;
             }
         }
-        console.log(_cmd);
         switch (_cmd) {
             case "takeoff":
                 this.cmder.send_takeoff_cmd(this.select_id);
@@ -325,7 +332,7 @@ class SwarmGCSUI {
             case "flyto":
                 this.send_flyto_cmd(this.select_id, 1);
                 break;
-            case "fly_traj":
+            case "flyto_traj":
                 this.send_flyto_cmd(this.select_id, 0);
                 break;
             case "traj1":

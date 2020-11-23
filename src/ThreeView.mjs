@@ -45,7 +45,8 @@ let traj_colors = {
     drone_1: "#eac435",
     drone_2: "#345995",
     drone_3: "#05f3a3",
-    drone_4: "#e40066"
+    drone_4: "#e40066",
+    drone_5: "#4277ff"
 }
 
 
@@ -194,7 +195,7 @@ class ThreeView {
     }
 
     update_drone_traj(ns, traj) {
-        console.log("Loading traj....");
+        console.log("Loading traj....", ns, traj);
         if (ns in this.trajs) {
             this.scene.remove(this.trajs[ns]);
         }
@@ -407,11 +408,11 @@ class ThreeView {
             objLoader2.setModelName("swarm_drone");
             objLoader2.setLogging(true, true);
             objLoader2.addMaterials(MtlObjBridge.addMaterialsFromMtlLoader(mtlParseResult));
-            objLoader2.load('../models/swarm_drone.obj', callbackOnLoad, null, null, null);
+            objLoader2.load('./models/swarm_drone.obj3d', callbackOnLoad, null, null, null);
             // objLoader2.load('../models/swarm-drone-0-0-4.obj', callbackOnLoad, null, null, null);
         };
         let mtlLoader = new MTLLoader();
-        mtlLoader.load('../models/swarm_drone.mtl', onLoadMtl);
+        mtlLoader.load('./models/swarm_drone.mtl', onLoadMtl);
         // mtlLoader.load('../models/swarm-drone-0-0-4.mtl', onLoadMtl);
     }
 
@@ -955,7 +956,6 @@ class ThreeView {
 
     get_waypoint_target_pos(_id) {
         // console.log(this.uav_waypoint_targets, _id, this.uav_waypoint_targets[_id].position);
-
         return this.uav_waypoint_targets[_id].position;
     }
 

@@ -1,5 +1,6 @@
 const { app, BrowserWindow } = require('electron')
-
+const path = require('path')
+const url = require('url')
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
@@ -16,7 +17,11 @@ function createWindow () {
   })
 
   // and load the index.html of the app.
-  win.loadURL('http://127.0.0.1/')
+  win.loadURL(url.format({
+    pathname: path.join(__dirname, 'index.html'),
+    protocol: 'file:',
+    slashes: true
+}))
   // Open the DevTools.
 //   win.webContents.openDevTools()
   win.setAutoHideMenuBar(true);
