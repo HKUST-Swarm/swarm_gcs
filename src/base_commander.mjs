@@ -55,9 +55,9 @@ class BaseCommander {
             self.connected = false;
             self.vicon_subs = {};
             ros.close();
-            // setTimeout(() => {
-            //     self.setup_ros_conn();
-            // }, (1000));
+            setTimeout(() => {
+                _ui.select_next_server_ip();
+            }, (500));
         });
         
         ros.on('close', function() {
@@ -70,15 +70,16 @@ class BaseCommander {
 
             setTimeout(() => {
                 self.setup_ros_conn();
-            }, (1000));
+            }, (500));
         });
     }
     catch (error) {
-        console.error(error);
-        // expected output: ReferenceError: nonExistentFunction is not defined
-        // Note - error messages will vary depending on browser
+        console.error(error, "Try to reconnect!!!");
+        _ui.set_ros_conn("ERROR");
+        self.connected = false;
+        self.vicon_subs = {};
+        _ui.select_next_server_ip();
       }
-      
   }
 
   
