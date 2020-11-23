@@ -91,7 +91,7 @@ class SwarmCommander extends BaseCommander{
         });
 
         this.bspine_viz_listener.subscribe(function (msg) {
-            console.log("bspline drone_id", msg.drone_id);
+            // console.log("bspline drone_id", msg.drone_id);
             if (msg.drone_id >= 0) {
                 self.ui.update_drone_traj_bspline("drone_" + msg.drone_id.toString(), msg)
             }
@@ -313,23 +313,23 @@ class SwarmCommander extends BaseCommander{
         //When use VO coordinates
         console.log("Fly to ", pos);
 
-        var msg = new ROSLIB.Message({
-            pose: {
-                position: {
-                    x: pos.x,
-                    y: pos.y,
-                    z: pos.z,
-                },
-                orientation: {
-                    w: 1,
-                    x: 0, 
-                    y: 0, 
-                    z: 0
-                }
-            }
-        });
+        // var msg = new ROSLIB.Message({
+        //     pose: {
+        //         position: {
+        //             x: pos.x,
+        //             y: pos.y,
+        //             z: pos.z,
+        //         },
+        //         orientation: {
+        //             w: 1,
+        //             x: 0, 
+        //             y: 0, 
+        //             z: 0
+        //         }
+        //     }
+        // });
 
-        this.move_simple_goal.publish(msg);
+        // this.move_simple_goal.publish(msg);
 
         var flyto_cmd = 0;
 
@@ -361,7 +361,6 @@ class SwarmCommander extends BaseCommander{
     send_msg_to_swarm(_msg) {
         let _data = _msg.pack(this.mav);
         var msg = new ROSLIB.Message({data : _data, send_method: 2});
-        console.log("Publish", msg);
         this.send_uwb_msg.publish(msg);
     }
 

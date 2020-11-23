@@ -195,7 +195,7 @@ class ThreeView {
     }
 
     update_drone_traj(ns, traj) {
-        console.log("Loading traj....", ns, traj);
+        // console.log("Loading traj....", ns, traj);
         if (ns in this.trajs) {
             this.scene.remove(this.trajs[ns]);
         }
@@ -497,11 +497,11 @@ class ThreeView {
         raycaster.setFromCamera(mv, this.camera);
         var _tmp;
         var pos = raycaster.ray.intersectPlane(planeZ, _tmp);
-        // console.log("x: " + pos.x + ", y: " + pos.y + ", z:", pos.z);
         if (pos.z != null) {
             pos.z += z_off;
             this.create_aircraft_waypoint(this.ui.select_id, pos);
             if (fire) {
+                // console.log("x: " + pos.x + ", y: " + pos.y + ", z:", pos.z);
                 if (this.ui.flyto_mode) {
                     this.ui.send_command("flyto");
                 }
@@ -542,7 +542,7 @@ class ThreeView {
         } else 
         if (m_type == "up" && event.button == 2) {
             this.on_right_down = false;
-            console.log("Right Click. Sending fly to command");
+            // console.log("Right Click. Sending fly to command");
             this.on_mouse_target_position(this.last_evt, true, z_off);
         } else {
             // console.log("Check mouse hover");
@@ -572,8 +572,12 @@ class ThreeView {
                 console.log("Select " + selectedObject.name);
                 selected.push(selectedObject);
                 selected_ids.push(this.name_uav_id[selectedObject.name]);
-
             }
+
+            if (selected_ids.length == 1) {
+                this.ui.on_select_uav(selected_ids[0]);
+            }
+
             if (e == "mousehover" && this.hover_outline) {
                 this.outlinePassMouseHover.selectedObjects = selected;
             }

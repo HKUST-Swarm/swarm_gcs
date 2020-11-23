@@ -266,13 +266,9 @@ class SwarmGCSUI {
         if (this.global_local_mode) {
             if (_id in this.uav_local_poses && _id in this.uav_global_poses) {
                 //Here assue start vo has same yaw with vicon
-                let dx = t_pos.x - this.uav_global_poses[_id].x;
-                let dy = t_pos.y - this.uav_global_poses[_id].y;
-                let dz = t_pos.z - this.uav_global_poses[_id].z;
-
-                let dyaw = this.uav_global_poses[_id].yaw - this.uav_local_poses[_id].yaw;
-
-                //TODO: rotate with yaw
+                let dx = t_pos.x - this.uav_global_poses[_id].pos.x;
+                let dy = t_pos.y - this.uav_global_poses[_id].pos.y;
+                let dz = t_pos.z - this.uav_global_poses[_id].pos.z;
 
                 pos.x = dx + this.uav_local_poses[_id].x;
                 pos.y = dy + this.uav_local_poses[_id].y;
@@ -295,16 +291,18 @@ class SwarmGCSUI {
                 console.log("Send all formation command", pos);
                 this.cmder.formation_flyto(pos, direct);
             } else {
-                let _local_pos_in_base_now = this.uav_local_poses_in_drone_coor[this.primary_id][_id];
-                let dx = t_pos.x - _local_pos_in_base_now.x;
-                let dy = t_pos.y - _local_pos_in_base_now.y;
-                let dz = t_pos.z - _local_pos_in_base_now.z;
+                var ret = this.transfer_vo_with_based(this.uav_local_poses[_id].pos, this.uav_local_poses[_id].quat, _id, this.primary_id);
+                var _pos = ret.pos;
+                // console.log("T", t_pos, "P TRANS", _pos);
+                let dx = t_pos.x - _pos.x;
+                let dy = t_pos.y - _pos.y;
+                let dz = t_pos.z - _pos.z;
                 
-                 pos.x = dx + this.uav_local_poses[_id].x;
-                 pos.y = dy + this.uav_local_poses[_id].y;
-                 pos.z = dz + this.uav_local_poses[_id].z;
- 
-                 this.cmder.send_flyto_cmd(_id, pos, direct);
+                pos.x = dx + this.uav_local_poses[_id].pos.x;
+                pos.y = dy + this.uav_local_poses[_id].pos.y;
+                pos.z = dz + this.uav_local_poses[_id].pos.z;
+                // console.log("Send fly to", pos);
+                this.cmder.send_flyto_cmd(_id, pos, direct);
             }
         }
 
@@ -523,6 +521,7 @@ class SwarmGCSUI {
 
         var euler_a = new THREE.Euler(0, 0, other_vo_origin.yaw, 'XYZ' );
         var b_position = pos.clone();
+        // console.log("B", b_position);
         b_position.applyEuler(euler_a);
         b_position.add(new THREE.Vector3(other_vo_origin.x, other_vo_origin.y, other_vo_origin.z));
         
