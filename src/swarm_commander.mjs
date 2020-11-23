@@ -85,7 +85,14 @@ class SwarmCommander extends BaseCommander{
 
         this.bspine_viz_listener = new ROSLIB.Topic({
             ros: ros,
-            name: "/planning/bspline_swarm",
+            name: "/planning/swarm_traj_recv",
+            messageType: "bspline/Bspline",
+            queue_length:10
+        });
+
+        this.bspine_viz_listener = new ROSLIB.Topic({
+            ros: ros,
+            name: "/planning/swarm_traj",
             messageType: "bspline/Bspline",
             queue_length:10
         });
