@@ -35,42 +35,50 @@ class BaseCommander {
       if (_ip == "") {
           _ip = "127.0.0.1";
       }
-      let ros = this.ros = new ROSLIB.Ros({
-          // url: "ws://127.0.0.1:9090"
-          url: "ws://"+ _ip + ":9090"
-      });
-      let self = this;
-      ros.on("connection", function () {
-          // console.log("Connected to websocket server.");
-          self.connected = true;
-          _ui.set_ros_conn("OK");
+      try {
+        let ros = this.ros = new ROSLIB.Ros({
+            // url: "ws://127.0.0.1:9090"
+            url: "ws://"+ _ip + ":9090"
+        });
+        let self = this;
+        ros.on("connection", function () {
+            // console.log("Connected to websocket server.");
+            self.connected = true;
+            _ui.set_ros_conn("OK");
 
-          self.setup_ros_sub_pub();
-      });
-      
-      ros.on('error', function(error) {
-          console.log('Error connecting to websocket server: ', error);
-          _ui.set_ros_conn("ERROR");
-          self.connected = false;
-          self.vicon_subs = {};
-          ros.close();
-          // setTimeout(() => {
-          //     self.setup_ros_conn();
-          // }, (1000));
-      });
-      
-      ros.on('close', function() {
-          console.log('Connection to websocket server closed.');
-          _ui.set_ros_conn("CLOSED");
-          self.connected = false;
-          _ui.select_next_server_ip();
-          ros.close();
-          self.vicon_subs = {};
+            self.setup_ros_sub_pub();
+        });
+        
+        ros.on('error', function(error) {
+            console.log('Error connecting to websocket server: ', error);
+            _ui.set_ros_conn("ERROR");
+            self.connected = false;
+            self.vicon_subs = {};
+            ros.close();
+            // setTimeout(() => {
+            //     self.setup_ros_conn();
+            // }, (1000));
+        });
+        
+        ros.on('close', function() {
+            console.log('Connection to websocket server closed.');
+            _ui.set_ros_conn("CLOSED");
+            self.connected = false;
+            _ui.select_next_server_ip();
+            ros.close();
+            self.vicon_subs = {};
 
-          setTimeout(() => {
-              self.setup_ros_conn();
-          }, (1000));
-      });
+            setTimeout(() => {
+                self.setup_ros_conn();
+            }, (1000));
+        });
+    }
+    catch (error) {
+        console.error(error);
+        // expected output: ReferenceError: nonExistentFunction is not defined
+        // Note - error messages will vary depending on browser
+      }
+      
   }
 
   
