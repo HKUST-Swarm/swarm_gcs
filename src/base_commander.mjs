@@ -15,7 +15,7 @@ class BaseCommander {
 
   set_server_ip(_ip, reconnect=false) {
       if (reconnect || _ip != this.server_ip) {
-          console.log("Need reconect");
+          console.log("Try to connect", _ip);
           console.log(this.ros);
 
           if(this.connected) {

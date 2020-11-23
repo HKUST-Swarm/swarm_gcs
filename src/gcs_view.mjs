@@ -230,7 +230,7 @@ class SwarmGCSUI {
         console.log(this.server_ip_list.length);
         this.server_ip_index = (this.server_ip_index + 1) % this.server_ip_list.length;
         let _ip = this.server_ip_list[this.server_ip_index];
-        console.log("Select next ip" + _ip);
+        console.log("Select next ip " + _ip);
         this.server_ip = _ip;
         this.view.server_ip = _ip;
         this.cmder.set_server_ip(_ip)
