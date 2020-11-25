@@ -1,6 +1,123 @@
 import * as THREE from '../build/three.module.js';
 import {BaseCommander} from "./base_commander.mjs"
 
+
+//Formations
+
+//Formation 0
+//                2
+//   3          1          5
+//               4
+
+//Formation 1
+//       2                   1
+//                  5
+//      3                    4
+
+
+//Formation 2
+//       2                   1
+//      3                    4
+//                  5
+
+
+//Formation 3
+//                   1
+//                   5
+//       2          3          4
+
+//Formation 4
+//                  1
+//      2         3             4
+//                  5
+
+let formations = {
+    0: {
+        1: {
+            x: 0, y:0, z: 1
+        },
+        2: {
+            x:1, y:0, z: 1
+        },
+        3: {
+            x: 0, y:-1, z: 1
+        },
+        4: {
+            x: -1, y:0, z: 1
+        },
+        5: {
+            x: 0, y:1, z: 1
+        }
+    },
+    1: {
+        1: {
+            x: 1, y:1, z: 1
+        },
+        2: {
+            x:1, y:-1, z: 1
+        },
+        3: {
+            x: -1, y:-1, z: 1
+        },
+        4: {
+            x: -1, y:1, z: 1
+        },
+        5: {
+            x: 0, y:0, z: 1
+        }
+    },
+    2: {
+        1: {
+            x: 1, y:1, z: 1
+        },
+        2: {
+            x:-1, y:-1, z: 1
+        },
+        3: {
+            x: -1, y:0, z: 1
+        },
+        4: {
+            x: -1, y:1, z: 1
+        },
+        5: {
+            x: -1, y:0, z: 1
+        },
+    },    
+    3: {
+        1: {
+            x: 1, y:0, z: 1
+        },
+        2: {
+            x:0, y:-1, z: 1
+        },
+        3: {
+            x: 0, y:0, z: 1
+        },
+        4: {
+            x: 0, y:1, z: 1
+        },
+        5: {
+            x: 0, y:0, z: 1
+        }
+    },
+    4: {
+        1: {
+            x: 1, y:0, z: 1
+        },
+        2: {
+            x:0, y:-1, z: 1
+        },
+        3: {
+            x: 0, y:0, z: 1
+        },
+        4: {
+            x: 0, y:1, z: 1
+        },
+        5: {
+            x: -1, y:0, z: 1
+        }
+    }
+};
 function _base64ToArrayBuffer(base64) {
     var binary_string = window.atob(base64);
     var len = binary_string.length;
@@ -63,7 +180,7 @@ class SwarmCommander extends BaseCommander{
         this.remote_nodes_listener = new ROSLIB.Topic({
             ros: ros,
             name: "/uwb_node/remote_nodes",
-            messageType: "inf_uwb_ros/remote_uwb_info",
+            messageType: "swarmcomm_msgs/remote_uwb_info",
             queue_length:1
           });
           
@@ -107,7 +224,7 @@ class SwarmCommander extends BaseCommander{
         this.incoming_data_listener = new ROSLIB.Topic({
             ros: ros,
             name: "/uwb_node/incoming_broadcast_data",
-            messageType: "inf_uwb_ros/incoming_broadcast_data",
+            messageType: "swarmcomm_msgs/incoming_broadcast_data",
             queue_length:1
         });
 
@@ -123,7 +240,7 @@ class SwarmCommander extends BaseCommander{
         this.send_uwb_msg = new ROSLIB.Topic({
             ros : ros,
             name : '/uwb_node/send_broadcast_data',
-            messageType : 'inf_uwb_ros/data_buffer'
+            messageType : 'swarmcomm_msgs/data_buffer'
         });
 
 
@@ -496,26 +613,30 @@ class SwarmCommander extends BaseCommander{
 
     request_transformation_change(next_trans) {
         console.log("Try to request formation, ", next_trans);
-        if (this.current_formation < 0) {
-            next_trans = next_trans + 100;
+        for (var i = 1; i < 6; i ++) {
+            var _pos = formations[next_trans][i];
+            this.send_flyto_cmd(i, _pos, false);
         }
+        // if (this.current_formation < 0) {
+        //     next_trans = next_trans + 100;
+        // }
 
-        var request = new ROSLIB.ServiceRequest({
-            next_formation: next_trans
-        });
+        // var request = new ROSLIB.ServiceRequest({
+        //     next_formation: next_trans
+        // });
         
-        let obj = this;
-        this.change_formation_client.callService(request, function(result) {
-            console.log(result);
-            obj.ui.set_active_formation(result.current_formation, 0);
+        // let obj = this;
+        // this.change_formation_client.callService(request, function(result) {
+        //     console.log(result);
+        //     obj.ui.set_active_formation(result.current_formation, 0);
 
-            setTimeout(function() {
-                obj.ui.set_active_formation(result.current_formation, 1);
-                obj.current_formation = result.current_formation;
+        //     setTimeout(function() {
+        //         obj.ui.set_active_formation(result.current_formation, 1);
+        //         obj.current_formation = result.current_formation;
 
-                obj.ui.clear_drone_trajs();
-            }, result.period*1000);
-        });
+        //         obj.ui.clear_drone_trajs();
+        //     }, result.period*1000);
+        // });
     }
 
     stop_transformation_thread() {
