@@ -68,10 +68,10 @@ let formations = {
     },
     2: {
         1: {
-            x: 1, y:1, z: 1
+            x: 1, y:-1, z: 1
         },
         2: {
-            x:1, y:-1, z: 1
+            x:1, y:1, z: 1
         },
         3: {
             x: 0, y:0, z: 1
@@ -613,9 +613,17 @@ class SwarmCommander extends BaseCommander{
 
     request_transformation_change(next_trans) {
         console.log("Try to request formation, ", next_trans);
-        for (var i = 1; i < 6; i ++) {
-            var _pos = formations[next_trans][i];
-            this.send_flyto_cmd(i, _pos, false);
+        for (var j = 0; j < 1; j ++) {
+            for (var i = 1; i < 6; i ++) {
+                var _pos = formations[next_trans][i];
+                var pos = new THREE.Vector3(_pos.x, _pos.y, _pos.z);
+                var quat = new THREE.Quaternion(0, 0, 0, 1);
+                var ret = this.ui.transfer_vo_with_based(pos, quat, this.ui.primary_id, i);
+                if (ret != null) {
+                    console.log(i, pos, ret.pos);
+                    this.send_flyto_cmd(i, ret.pos, false);
+                } 
+            }
         }
         // if (this.current_formation < 0) {
         //     next_trans = next_trans + 100;

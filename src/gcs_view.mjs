@@ -45,7 +45,7 @@ class SwarmGCSUI {
 
         this.server_ip = location.hostname;
         this.server_ip_index = -1;
-        this.server_ip_list = ["127.0.0.1", location.hostname, "10.10.1.4", "10.10.1.1"];
+        this.server_ip_list = ["127.0.0.1", location.hostname, "192.168.1.185", "10.10.1.10"];
         this.display_pcl = true;
         
 

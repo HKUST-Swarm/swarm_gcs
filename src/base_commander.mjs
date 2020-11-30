@@ -64,12 +64,10 @@ class BaseCommander {
             console.log('Connection to websocket server closed.');
             _ui.set_ros_conn("CLOSED");
             self.connected = false;
-            _ui.select_next_server_ip();
             ros.close();
             self.vicon_subs = {};
-
             setTimeout(() => {
-                self.setup_ros_conn();
+                _ui.select_next_server_ip();
             }, (500));
         });
     }
@@ -78,7 +76,12 @@ class BaseCommander {
         _ui.set_ros_conn("ERROR");
         self.connected = false;
         self.vicon_subs = {};
-        _ui.select_next_server_ip();
+        ros.close();
+
+        setTimeout(() => {
+            _ui.select_next_server_ip();
+        }, (500));
+
       }
   }
 

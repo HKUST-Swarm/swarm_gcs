@@ -56,8 +56,8 @@ let uav_colors = [
     "#eac435",
     "#345995",
     "#05f3a3",
-    "#e40066",
     "#4277ff",
+    "#e40066",
 ]
 
 for (var i = 0; i < 100; i ++) {
@@ -511,7 +511,7 @@ class ThreeView {
             if (fire) {
                 // console.log("x: " + pos.x + ", y: " + pos.y + ", z:", pos.z);
                 if (this.ui.flyto_mode) {
-                    this.ui.send_command("flyto");
+                    this.ui.send_command("flyto_traj");
                 }
             }
         }
