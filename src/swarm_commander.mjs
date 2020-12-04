@@ -325,7 +325,7 @@ class SwarmCommander extends BaseCommander{
 
 
     on_node_detected(_id, lps_time, msg) {
-        var pos = new THREE.Vector3(msg.x/1000.0, msg.y/1000.0, msg.z/1000.0);
+        var pos = new THREE.Vector3(msg.x, msg.y, msg.z);
         var inv_dep = msg.inv_dep / 10000.0;
 
         this.ui.update_drone_detection(_id, msg.target_id, pos, inv_dep);
