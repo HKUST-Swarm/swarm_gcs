@@ -1498,22 +1498,26 @@ mavlink.messages.swarm_remote_command.prototype.pack = function(mav) {
 
                 lps_time                  : LPS_TIME (int32_t)
                 target_id                 : Target ID of drone (int32_t)
-                x                         : Relative X Position*10000 (int16_t)
-                y                         : Relative Y Position*10000 (int16_t)
-                z                         : Relative Z Position*10000 (int16_t)
+                x                         : Relative X Position*10000 (float)
+                y                         : Relative Y Position*10000 (float)
+                z                         : Relative Z Position*10000 (float)
                 prob                      : Prob*10000 (int16_t)
                 inv_dep                   : inverse depth*10000;0 then unavailable (uint16_t)
+                local_pose_self_x         : X Position of Detetor (float)
+                local_pose_self_y         : Y Position of Detector (float)
+                local_pose_self_z         : Z Position of Detector (float)
+                local_pose_self_yaw        : Yaw of Detector (float)
 
 */
-mavlink.messages.node_detected = function(lps_time, target_id, x, y, z, prob, inv_dep) {
+mavlink.messages.node_detected = function(lps_time, target_id, x, y, z, prob, inv_dep, local_pose_self_x, local_pose_self_y, local_pose_self_z, local_pose_self_yaw) {
 
-    this.format = '<iihhhhH';
+    this.format = '<iifffffffhH';
     this.id = mavlink.MAVLINK_MSG_ID_NODE_DETECTED;
-    this.order_map = [0, 1, 2, 3, 4, 5, 6];
-    this.crc_extra = 75;
+    this.order_map = [0, 1, 2, 3, 4, 9, 10, 5, 6, 7, 8];
+    this.crc_extra = 74;
     this.name = 'NODE_DETECTED';
 
-    this.fieldnames = ['lps_time', 'target_id', 'x', 'y', 'z', 'prob', 'inv_dep'];
+    this.fieldnames = ['lps_time', 'target_id', 'x', 'y', 'z', 'prob', 'inv_dep', 'local_pose_self_x', 'local_pose_self_y', 'local_pose_self_z', 'local_pose_self_yaw'];
 
 
     this.set(arguments);
@@ -1523,7 +1527,7 @@ mavlink.messages.node_detected = function(lps_time, target_id, x, y, z, prob, in
 mavlink.messages.node_detected.prototype = new mavlink.message;
 
 mavlink.messages.node_detected.prototype.pack = function(mav) {
-    return mavlink.message.prototype.pack.call(this, mav, this.crc_extra, jspack.Pack(this.format, [ this.lps_time, this.target_id, this.x, this.y, this.z, this.prob, this.inv_dep]));
+    return mavlink.message.prototype.pack.call(this, mav, this.crc_extra, jspack.Pack(this.format, [ this.lps_time, this.target_id, this.x, this.y, this.z, this.local_pose_self_x, this.local_pose_self_y, this.local_pose_self_z, this.local_pose_self_yaw, this.prob, this.inv_dep]));
 }
 
 /* 
@@ -6528,7 +6532,7 @@ mavlink.map = {
         200: { format: '<ifffhhhhhh10HB', type: mavlink.messages.node_realtime_info, order_map: [0, 11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], crc_extra: 161 },
         201: { format: '<ihhhhhhhhB', type: mavlink.messages.node_relative_fused, order_map: [0, 9, 1, 2, 3, 4, 5, 6, 7, 8], crc_extra: 236 },
         202: { format: '<iiiiiiiiiiibB', type: mavlink.messages.swarm_remote_command, order_map: [0, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], crc_extra: 125 },
-        203: { format: '<iihhhhH', type: mavlink.messages.node_detected, order_map: [0, 1, 2, 3, 4, 5, 6], crc_extra: 75 },
+        203: { format: '<iifffffffhH', type: mavlink.messages.node_detected, order_map: [0, 1, 2, 3, 4, 9, 10, 5, 6, 7, 8], crc_extra: 74 },
         204: { format: '<iffffffBBBBBBBB', type: mavlink.messages.drone_status, order_map: [0, 7, 8, 9, 10, 11, 12, 13, 14, 1, 2, 3, 4, 5, 6], crc_extra: 244 },
         205: { format: '<ihhhhhhhhhhb', type: mavlink.messages.drone_odom_gt, order_map: [0, 11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], crc_extra: 225 },
         206: { format: '<ihhhhb', type: mavlink.messages.drone_pose_gt, order_map: [0, 5, 1, 2, 3, 4], crc_extra: 241 },
