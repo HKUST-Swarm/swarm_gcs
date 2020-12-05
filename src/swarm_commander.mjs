@@ -159,10 +159,10 @@ class SwarmCommander extends BaseCommander{
     }
     
     sub_vicon_id(i) {
-        console.log("subscribing vicon "+ i);
+        console.log("subscribing vicon "+ i,  "/SwarmNode"+i+"/pose");
         var vicon_sub = new ROSLIB.Topic({
             ros: this.ros,
-            name: "/swarm_mocap/SwarmNodePose" + i,
+            name: "/SwarmNode"+i+"/pose",
             messageType: "geometry_msgs/PoseStamped"
         });
         
@@ -232,10 +232,7 @@ class SwarmCommander extends BaseCommander{
             self.on_incoming_data(incoming_msg);
         });
 
-        this.vicon_subs = {
-            // 2: this.sub_vicon_id(2),
-            // 0: this.sub_vicon_id(0)
-        }
+        this.vicon_subs = {        };
        
         this.send_uwb_msg = new ROSLIB.Topic({
             ros : ros,
