@@ -56,7 +56,7 @@ class BaseCommander {
             self.vicon_subs = {};
             ros.close();
             setTimeout(() => {
-                _ui.select_next_server_ip();
+                // _ui.select_next_server_ip();
             }, (500));
         });
         
@@ -67,7 +67,7 @@ class BaseCommander {
             ros.close();
             self.vicon_subs = {};
             setTimeout(() => {
-                _ui.select_next_server_ip();
+                // _ui.select_next_server_ip();
             }, (500));
         });
     }
@@ -79,7 +79,7 @@ class BaseCommander {
         ros.close();
 
         setTimeout(() => {
-            _ui.select_next_server_ip();
+            // _ui.select_next_server_ip();
         }, (500));
 
       }
