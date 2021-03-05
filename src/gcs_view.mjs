@@ -332,11 +332,11 @@ class SwarmGCSUI {
             case "flyto_traj":
                 this.send_flyto_cmd(this.select_id, 0);
                 break;
+            case "traj0":
+                this.cmder.send_traj_cmd(this.select_id, 0);
+                break;
             case "traj1":
                 this.cmder.send_traj_cmd(this.select_id, 1);
-                break;
-            case "traj2":
-                this.cmder.send_traj_cmd(this.select_id, 2);
                 break;
             default:
                 break;

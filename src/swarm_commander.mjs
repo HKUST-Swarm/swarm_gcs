@@ -215,7 +215,7 @@ class SwarmCommander extends BaseCommander{
         });
 
         this.bspine_viz_listener.subscribe(function (msg) {
-            // console.log("bspline drone_id", msg.drone_id);
+            console.log("bspline drone_id", msg.drone_id);
             if (msg.drone_id >= 0) {
                 self.ui.update_drone_traj_bspline(msg.drone_id, msg)
             }
@@ -474,8 +474,11 @@ class SwarmCommander extends BaseCommander{
 
     send_traj_cmd(_id, cmd) {
         console.log("send traj", cmd);
-        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, 100+cmd, 
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        var ox = 0, oy = 0, oz = 1;
+        var T = 30;
+        var enable_yaw = cmd;
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, 16, 
+            1, enable_yaw, T*10000, ox*10000, oy*10000, oz*10000, 0, 0, 0, 0);
         this.send_msg_to_swarm(scmd);
     }
 

@@ -743,7 +743,7 @@ class ThreeView {
 
     update_detection(_id, target_id, rel_pos, inv_dep) {
         var _det_id = _id * 10000 + target_id;
-        console.log("Detection ", _id, "->", target_id, " [", rel_pos, "]", "D", 1 / inv_dep);
+        // console.log("Detection ", _id, "->", target_id, " [", rel_pos, "]", "D", 1 / inv_dep);
 
         var arrowHelper;
 
