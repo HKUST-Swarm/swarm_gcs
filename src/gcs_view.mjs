@@ -242,6 +242,13 @@ class SwarmGCSUI {
     }
 
     update_drone_traj_bspline(ns, traj) {
+        for (var i = 0; i < traj.pos_pts.length; i++) {
+            var pos = traj.pos_pts[i];
+            var ret = this.transfer_vo_with_based(new THREE.Vector3(pos.x, pos.y, pos.z), new THREE.Quaternion(), traj.drone_id, this.primary_id);
+            traj.pos_pts[i].x = ret.pos.x;
+            traj.pos_pts[i].y = ret.pos.y;
+            traj.pos_pts[i].z = ret.pos.z;
+        }
         this.threeview.update_drone_traj_bspline(ns, traj);
     }
     

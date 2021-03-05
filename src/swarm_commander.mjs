@@ -200,27 +200,34 @@ class SwarmCommander extends BaseCommander{
             self.ui.update_drone_traj(msg.ns, msg.points)
         });
 
-        this.bspine_viz_listener = new ROSLIB.Topic({
+        this.bspine_viz_listener_1 = new ROSLIB.Topic({
             ros: ros,
             name: "/planning/swarm_traj_recv",
             messageType: "bspline/Bspline",
             queue_length:10
         });
 
-        this.bspine_viz_listener = new ROSLIB.Topic({
+        this.bspine_viz_listener_2 = new ROSLIB.Topic({
             ros: ros,
             name: "/planning/swarm_traj",
             messageType: "bspline/Bspline",
             queue_length:10
         });
 
-        this.bspine_viz_listener.subscribe(function (msg) {
+        this.bspine_viz_listener_1.subscribe(function (msg) {
             console.log("bspline drone_id", msg.drone_id);
             if (msg.drone_id >= 0) {
                 self.ui.update_drone_traj_bspline(msg.drone_id, msg)
             }
         });
-        
+
+        this.bspine_viz_listener_2.subscribe(function (msg) {
+            console.log("bspline drone_id", msg.drone_id);
+            if (msg.drone_id >= 0) {
+                self.ui.update_drone_traj_bspline(msg.drone_id, msg)
+            }
+        });
+
         this.incoming_data_listener = new ROSLIB.Topic({
             ros: ros,
             name: "/uwb_node/incoming_broadcast_data",
@@ -613,7 +620,7 @@ class SwarmCommander extends BaseCommander{
 
     request_transformation_change(next_trans) {
         console.log("Try to request formation, ", next_trans);
-        for (var j = 0; j < 1; j ++) {
+        for (var j = 0; j < 5; j ++) {
             for (var i = 1; i < 6; i ++) {
                 var _pos = formations[next_trans][i];
                 var pos = new THREE.Vector3(_pos.x, _pos.y, _pos.z);
@@ -624,6 +631,7 @@ class SwarmCommander extends BaseCommander{
                     this.send_flyto_cmd(i, ret.pos, false);
                 } 
             }
+            // await new Promise(r => setTimeout(r, 50));
         }
         // if (this.current_formation < 0) {
         //     next_trans = next_trans + 100;
