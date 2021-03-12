@@ -293,7 +293,7 @@ class SwarmCommander extends BaseCommander{
         let msgs = this.mav.parseBuffer(buf);
         // console.log(msgs);
         for (var k in msgs) {
-          let msg = msgs[k];
+            let msg = msgs[k];
             switch (msg.name) {
                 case "NODE_REALTIME_INFO": {
                     this.on_drone_realtime_info_recv(incoming_msg.remote_id, incoming_msg.lps_time, msg);

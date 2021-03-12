@@ -428,6 +428,7 @@ class SwarmGCSUI {
             flight_status:all_flight_status[status.flight_status],
             vo_valid:status.vo_valid,
             lps_time:status.lps_time,
+            lps_time_dt: this.view.lps_time - status.lps_time,
             bat_remain: status.bat_remain,
             bat_good: status.bat_remain > 300,
             _id:_id,
@@ -761,28 +762,23 @@ Vue.component('uav-component', {
 
     <h5>
     <img src="material-design-icons/maps/drawable-xxxhdpi/ic_flight_white_48dp.png" class="small_icon" />{{status._id}}
+    <span style="font-size:0.6em;text-align: right;" v-if="status.vo_valid">
+    VO:<span style="color:white;" class="number"> {{status.x}},{{status.y}},{{status.z}}  </span>
+    </span>
+    <span style="font-size:0.6em;text-align: right;" v-else> 
+        VO:<span style="color:red;" class="number"> {{status.x}},{{status.y}},{{status.z}}  </span>
+    </span>
+
     </h5>
     <ul class="list-group list-group-flush">
-    <li v-if="status.vo_valid" class="list-group-item"> 
-    <span style="font-size:0.6em">
-    X:<span style="color:white;font-size:1.3em" class="number"> {{status.x}} </span>
-    Y:<span style="color:white;font-size:1.3em" class="number"> {{status.y}} </span>
-    Z:<span style="color:white;font-size:1.3em" class="number"> {{status.z}} </span>
-    </span>
-    </li>
-    <li v-else class="list-group-item"> 
-        <span style="color:red;">INVAILD </span>
-        X:<span style="color:red;" class="number"> {{status.x}} </span>
-        Y:<span style="color:red;" class="number"> {{status.y}} </span>
-        Z:<span style="color:red;" class="number"> {{status.z}} </span>
-    </li>
     <li class="list-group-item"> 
     <div class="uav_details">
       LPS_TIME <span  class="number"> {{status.lps_time}} </span>
-      CTRL_AUTH <span style="color:white">{{status.ctrl_auth}}</span>
+      LPS_DT <span  class="number"> {{status.lps_time_dt}} </span>
+      CTL_AUTH <span style="color:white">{{status.ctrl_auth}}</span>
       INPUT_MODE <span style="color:white">{{status.ctrl_input_mode}}</span>
-      CTRL_MODE <span style="color:white">{{status.ctrl_mode}}</span>
-      FLIGHT_STATUS <span style="color:white">{{status.flight_status}}</span>
+      CTL_MODE <span style="color:white">{{status.ctrl_mode}}</span>
+      FLT_SAT <span style="color:white">{{status.flight_status}}</span>
       ENDURACE: <span style="color:blue" v-if="status.bat_good">{{ Math.floor(status.bat_remain/60)}}min {{ (status.bat_remain%60).toFixed(0)}}s </span>
       <span style="color:red" v-else>{{ Math.floor(status.bat_remain/60)}}min {{ (status.bat_remain%60).toFixed(0)}}s </span>
       BATVOL:  <span style="color:blue" v-if="status.bat_good">{{status.bat_vol}} </span>
