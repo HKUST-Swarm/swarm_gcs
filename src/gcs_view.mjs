@@ -773,16 +773,24 @@ Vue.component('uav-component', {
     <ul class="list-group list-group-flush">
     <li class="list-group-item"> 
     <div class="uav_details">
-      LPS_TIME <span  class="number"> {{status.lps_time}} </span>
-      LPS_DT <span  class="number"> {{status.lps_time_dt}} </span>
+        LPS_TIME <span  class="number"> {{status.lps_time}} </span>
+        LPS_DT <span  class="number"> {{status.lps_time_dt}} </span>
+    </div>
+    </li>
+    <li class="list-group-item"> 
+    <div class="uav_details">
+    ENDURACE: <span style="color:blue" v-if="status.bat_good">{{ Math.floor(status.bat_remain/60)}}min {{ (status.bat_remain%60).toFixed(0)}}s </span>
+    <span style="color:red" v-else>{{ Math.floor(status.bat_remain/60)}}min {{ (status.bat_remain%60).toFixed(0)}}s </span>
+    BATVOL:  <span style="color:blue" v-if="status.bat_good">{{status.bat_vol}} </span>
+    <span style="color:red" v-else>{{status.bat_vol}} </span>
+    </div>
+    </li>
+    <li class="list-group-item"> 
+    <div class="uav_details">
       CTL_AUTH <span style="color:white">{{status.ctrl_auth}}</span>
       INPUT_MODE <span style="color:white">{{status.ctrl_input_mode}}</span>
       CTL_MODE <span style="color:white">{{status.ctrl_mode}}</span>
       FLT_SAT <span style="color:white">{{status.flight_status}}</span>
-      ENDURACE: <span style="color:blue" v-if="status.bat_good">{{ Math.floor(status.bat_remain/60)}}min {{ (status.bat_remain%60).toFixed(0)}}s </span>
-      <span style="color:red" v-else>{{ Math.floor(status.bat_remain/60)}}min {{ (status.bat_remain%60).toFixed(0)}}s </span>
-      BATVOL:  <span style="color:blue" v-if="status.bat_good">{{status.bat_vol}} </span>
-      <span style="color:red" v-else>{{status.bat_vol}} </span>
     </div>
     </li>
     </ul>

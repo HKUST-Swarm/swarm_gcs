@@ -955,10 +955,15 @@ class ThreeView {
         cb.receiveShadow = this.enable_shadow;
         cb.position.z = this.chessboard_z;
         this.scene.add(cb);
-        // var cb2 = cb.clone();
-        // cb2.quaternion.setFromEuler(new THREE.Euler(0, Math.PI, 0));
-        // this.scene.add(cb2);
-        // console.log(cb2);
+
+
+        const size = 1000;
+        const divisions = 100;
+        
+        var gridHelper = new THREE.GridHelper( size, divisions );
+        // gridHelper.quaternion.setFromEuler(new THREE.Euler( Math.Pi/2, 0, 0));
+        gridHelper.geometry.rotateX( Math.PI / 2 );
+        this.scene.add( gridHelper );
     }
 
 
