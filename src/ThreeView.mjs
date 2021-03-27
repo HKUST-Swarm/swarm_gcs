@@ -100,7 +100,7 @@ class ThreeView {
         this.camera.up.z = 1;
         this.camera.near = 0.01;
 
-        this.chessboard_z = -0.0;
+        this.chessboard_z = -0.25;
         this.hover_outline = false;
         // renderer.setClearColor("white", 1);
         this.scene.background = new THREE.Color(0xcff3fa);

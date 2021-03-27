@@ -30,91 +30,92 @@ import {BaseCommander} from "./base_commander.mjs"
 //                  1
 //      2         3             4
 //                  5
-
+let scale = 1.5;
+let height = 1.3;
 let formations = {
     0: {
         1: {
-            x: 0, y:0, z: 1
+            x: 0, y:0, z: height
         },
         2: {
-            x:1, y:0, z: 1
+            x:-scale, y:0, z: height
         },
         3: {
-            x: 0, y:-1, z: 1
+            x: 0, y:scale, z: height
         },
         4: {
-            x: -1, y:0, z: 1
+            x: scale, y:0, z: height
         },
         5: {
-            x: 0, y:1, z: 1
+            x: 0, y:-scale, z: height
         }
     },
     1: {
         1: {
-            x: 1, y:1, z: 1
+            x: scale, y:scale, z: height
         },
         2: {
-            x:1, y:-1, z: 1
+            x:-scale, y:scale, z: height
         },
         3: {
-            x: -1, y:-1, z: 1
+            x: -scale, y:-scale, z: height
         },
         4: {
-            x: -1, y:1, z: 1
+            x: scale, y:-scale, z: height
         },
         5: {
-            x: 0, y:0, z: 1
+            x: 0, y:0, z: height
         }
     },
     2: {
         1: {
-            x: 1, y:-1, z: 1
+            x: scale, y:-scale, z: height
         },
         2: {
-            x:1, y:1, z: 1
+            x:0, y:scale, z: height
         },
         3: {
-            x: 0, y:0, z: 1
+            x: 0, y:0, z: height
         },
         4: {
-            x: 0, y:1, z: 1
+            x: scale, y:scale, z: height
         },
         5: {
-            x: -1, y:0, z: 1
+            x: -scale, y:0, z: height
         },
     },    
     3: {
         1: {
-            x: 1, y:0, z: 1
+            x: scale, y:0, z: height
         },
         2: {
-            x:-1, y:-1, z: 1
+            x:-scale, y:-scale, z: height
         },
         3: {
-            x: -1, y:0, z: 1
+            x: -scale, y:0, z: height
         },
         4: {
-            x: -1, y:1, z: 1
+            x: -scale, y:scale, z: height
         },
         5: {
-            x: 0, y:0, z: 1
+            x: 0, y:0, z: height
         }
     },
     4: {
         1: {
-            x: 1, y:0, z: 1
+            x: scale, y:0, z: height
         },
         2: {
-            x:0, y:-1, z: 1
+            x:0, y:-scale, z: height
         },
         3: {
-            x: 0, y:0, z: 1
+            x: 0, y:0, z: height
         },
         4: {
-            x: 0, y:1, z: 1
+            x: 0, y:scale, z: height
         },
         5: {
-            x: -1, y:0, z: 1
+            x: -scale, y:0, z: height
         }
     }
 };
@@ -136,7 +137,7 @@ let vaild_ids = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 class SwarmCommander extends BaseCommander{
     constructor(ui) {
         super(ui);
-        this.mav = new MAVLink(null, 0, 0);
+        this.mav = new MAVLink10Processor(null, 0, 0);
 
         this.select_id = -1;
         this._lps_time = 0;
@@ -215,7 +216,7 @@ class SwarmCommander extends BaseCommander{
         });
 
         this.bspine_viz_listener_1.subscribe(function (msg) {
-            console.log("bspline drone_id", msg.drone_id);
+            // console.log("bspline drone_id", msg.drone_id);
             if (msg.drone_id >= 0) {
                 self.ui.update_drone_traj_bspline(msg.drone_id, msg)
             }
@@ -475,7 +476,7 @@ class SwarmCommander extends BaseCommander{
         this.stop_transformation_thread();
         console.log("Will send emergency command");
         let landing_cmd = 6;
-        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, -1, landing_cmd, -1, 10000, 0, 0, 0, 0, 0, 0, 0, 0);
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, -1, landing_cmd, -1, 5000, 0, 0, 0, 0, 0, 0, 0, 0);
         this.send_msg_to_swarm(scmd);
     }
 
@@ -627,7 +628,7 @@ class SwarmCommander extends BaseCommander{
                 var quat = new THREE.Quaternion(0, 0, 0, 1);
                 var ret = this.ui.transfer_vo_with_based(pos, quat, this.ui.primary_id, i);
                 if (ret != null) {
-                    console.log(i, pos, ret.pos);
+                    console.log("Drone ", i, "pos_gcs", pos, "pos_vo", ret.pos);
                     this.send_flyto_cmd(i, ret.pos, false);
                 } 
             }

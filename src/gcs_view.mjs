@@ -428,6 +428,7 @@ class SwarmGCSUI {
             flight_status:all_flight_status[status.flight_status],
             vo_valid:status.vo_valid,
             lps_time:status.lps_time,
+            vo_latency:(status.vo_latency*1000).toFixed(0),
             lps_time_dt: this.view.lps_time - status.lps_time,
             bat_remain: status.bat_remain,
             bat_good: status.bat_remain > 300,
@@ -763,10 +764,10 @@ Vue.component('uav-component', {
     <h5>
     <img src="material-design-icons/maps/drawable-xxxhdpi/ic_flight_white_48dp.png" class="small_icon" />{{status._id}}
     <span style="font-size:0.6em;text-align: right;" v-if="status.vo_valid">
-    VO:<span style="color:white;" class="number"> {{status.x}},{{status.y}},{{status.z}}  </span>
+    <span style="color:white;" class="number"> {{status.x}},{{status.y}},{{status.z}}/{{status.vo_latency}}ms </span>
     </span>
     <span style="font-size:0.6em;text-align: right;" v-else> 
-        VO:<span style="color:red;" class="number"> {{status.x}},{{status.y}},{{status.z}}  </span>
+        <span style="color:red;" class="number"> {{status.x}},{{status.y}},{{status.z}}/{{status.vo_latency}}ms  </span>
     </span>
 
     </h5>
