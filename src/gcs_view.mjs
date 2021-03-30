@@ -488,6 +488,21 @@ class SwarmGCSUI {
 
     }
 
+    update_drone_localpose(_id, pos, quat, vx=null, vy=null, vz=null) {
+        // console.log("Update Drone selfpose ", _id, pos, quat);
+       this.uav_local_poses[_id] = {
+           pos:pos, quat:quat
+       };
+
+       //For enable loop closure, we shouldn't check id is primary id
+       
+        this.update_three_id_pose(_id, pos, quat, vx, vy, vz, 0, 0, 0, 0);
+        if (_id != this.primary_id) {
+            this.threeview.set_uav_fused_mode(_id);
+        }
+    }
+
+
     update_drone_detection(_id, target_id, rel_pos, inv_dep) {
 
         this.threeview.update_detection(_id, target_id, rel_pos, inv_dep);

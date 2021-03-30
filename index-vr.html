@@ -1,0 +1,311 @@
+<html>
+
+<head>
+  <title>SWARM GCS</title>
+  <meta charset="utf-8" />
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" >
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" >
+  <meta name="apple-mobile-web-app-title" content="SwarmGCS">
+  <link rel="apple-touch-icon" type="image/png" href="./icon_ios.png" />
+
+  <link rel="icon" type="image/png" href="./icon.png" />
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+  <script src="./libs/mavlink_bundle.js"></script>
+  <script src="./libs/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="./libs/roslib.min.js"></script>
+  <!-- <script src='./libs/jszip.min.js'></script> -->
+  <link rel="stylesheet" type="text/css" href="gcs_common.css">
+  <style>
+    #swarm-sidebar {
+    border-radius: 30px;
+    /* background-color: aqua; */
+    background-color: rgba(124, 145, 150, 0.8);
+    /* filter: blur(10px); */
+    /* overflow-y: scroll; */
+    height: 80%;
+    position: fixed;
+    left: 1em;
+    top: 5em;
+    padding: 5px 15px;
+    z-index: 1001;
+
+  }
+  </style>
+
+
+
+</head>
+
+<script id="vertexShader" type="x-shader/x-vertex">
+  #extension GL_OES_standard_derivatives : enable
+  precision highp float;
+  uniform mat4 modelViewMatrix;
+  uniform mat4 projectionMatrix;
+  attribute vec3 position;
+  attribute vec3 offset;
+  varying vec4 vColor;
+  attribute vec4 ca;
+  attribute vec4 edgeColor;
+
+  attribute vec3 center;
+  varying vec3 vCenter;
+  varying vec4 vedgeColor;
+  attribute vec2 uv;
+  varying vec2 vUv;
+
+
+  void main() {
+    vCenter = center;
+    vedgeColor = edgeColor;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4( offset + position, 1.0 );
+    vColor = ca;
+    vUv = uv;
+
+  }
+</script>
+
+<script id="fshader" type="x-shader/x-fragment">
+  precision highp float;
+  varying vec4 vColor;
+  varying vec3 vCenter;
+  varying vec2 vUv;
+  varying vec4 vedgeColor;
+
+  bool is_border() {
+    float vEdgeWidth = 0.05;
+    return vUv.x > 1.0 - vEdgeWidth || vUv.x < vEdgeWidth|| vUv.y > 1.0 - vEdgeWidth || vUv.y < vEdgeWidth  ;
+  }
+  void main() {
+    if (is_border()) {
+      gl_FragColor = vec4(0.043, 0.235, 0.431, 1.0);
+      gl_FragColor = vec4(0.043, 0.235, 0.431, 1.0);
+
+    } else {
+      gl_FragColor = vColor;
+
+    }
+  }
+</script>
+
+
+<body draggable="false"  ontouchstart=””>
+  <div id="urdf"></div>
+  <div class="container-fluid" style="width: 100%" id="container">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href="#" v-on:click="toggle_fullscreen()">SWARM GCS</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse my-2 my-lg-0" id="navbarSupportedContent">
+        <ul class="nav navbar-nav navbar-center ml-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="#" v-bind:style="{ color: ros_conn_color }">ROS: {{ros_conn}}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" v-bind:style="{ color: self_id_color }">GCS_ID: {{self_id}}</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" v-bind:style="{ color: total_remote_color }">NODES: {{available_nodes}}/{{remote_nodes}}</a>
+          </li>
+         
+          <!--As we don't use vicon basically, disable this-->
+          <!--
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              DISPLAY:{{display_mode}}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="#" v-on:click="set_display_mode_global">GLOBAL</a>
+              <a class="dropdown-item" href="#" v-on:click="set_display_mode_local">LOCAL</a>
+            </div>
+          </li> -->
+          
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              LOOP:{{loop_mode}}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="#" v-on:click="set_loop_mode_on">LOOP ON</a>
+              <a class="dropdown-item" href="#" v-on:click="set_loop_mode_off">LOOP OFF</a>
+            </div>
+          </li>
+
+          <li class="nav-item">
+              <a class="nav-link" href="#">
+              <img src="material-design-icons/maps/drawable-xxxhdpi/ic_flight_white_48dp.png" style="height: 1.4em; width: 1.4em;" />
+                SELECTED:{{selected_uav}}
+              </a>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              PRIMARY:{{primary_id}}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="#" v-for="(_, _id) in uavs" v-on:click="set_primary_id(_id)">{{_id}}</a>
+            </div>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              SERVER:{{server_ip}}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <!-- <a class="dropdown-item" href="#" v-on:click="set_server_ip('127.0.0.1')">LOCALHOST</a> -->
+              <a class="dropdown-item" href="#" v-for="(_ip, _i) in server_ip_list"
+                v-on:click="set_server_ip(_ip)">{{_ip}}</a>
+            </div>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link disabled lps_time" href="#" tabindex="-1" aria-disabled="true"
+              v-bind:style="{ color: lps_time_color }">LPS_TIME {{lps_time}}</a>
+          </li>
+        </ul>
+        <!-- <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          </form> -->
+      </div>
+    </nav>
+
+    <div class="row" style="height: 90%"></div>
+    <transition name="slide-fade">
+      <div v-if="! is_wrap_swarm" class="container-fluid col-2 container-fluid" id="swarm-sidebar">
+        <h2 id="SWARM" v-on:click="select_all">SWARM</h2>
+        <img src="material-design-icons/navigation/drawable-hdpi/ic_expand_less_white_48dp.png" 
+        class="middle_icon" 
+        style="position: absolute; right:1em; top:1em;"
+        v-on:click="wrap_swarm()"
+        />
+        <hr/>
+        <div class="uav-list">
+          <uav-component class="uav_comp" v-for="(_status, status) in uavs" v-bind:_id="_status._id"
+          v-bind:status="_status"></uav-component>
+        </div>
+      </div>
+      <div v-else class="container-fluid col-2 container-fluid" id="swarm-sidebar-wrap">
+          <h2 id="SWARM" v-on:click="select_all">SWARM</h2>
+          <img src="material-design-icons/navigation/drawable-hdpi/ic_expand_more_white_48dp.png" 
+          class="middle_icon" 
+          style="position: absolute; right:1em; top:1em;"
+          v-on:click="unwrap_swarm()"
+          />
+          <hr/>
+      </div>
+    </transition>
+
+    <div style="position: fixed; left:1em; bottom:1em" id="stats"></div>
+      <div id="cmdAera">
+        <div>
+          <button type="button" v-on:click="command('takeoff')" class="btn btn-lg btn-primary" id="takeoff">
+            <img src="material-design-icons/action/drawable-xxxhdpi/ic_flight_takeoff_white_48dp.png" class="small_icon" />
+            Takeoff
+          </button>
+          <button type="button" v-on:click="command('landing')" class="btn btn-primary btn-lg" id="landing">
+              <img src="material-design-icons/action/drawable-xxxhdpi/ic_flight_land_white_48dp.png" class="small_icon" />
+            Landing</button>
+          <button type="button" v-on:click="command('emergency')" class="btn btn-danger btn-lg"id="emlanding">
+            <img src="material-design-icons/alert/drawable-xxxhdpi/ic_warning_white_48dp.png" class="small_icon" />
+            Emergency
+          </button>
+          <!-- <button type="button" v-on:click="command('flyto')" class="btn btn-primary btn-lg"
+            id="flyto">
+            <img src="material-design-icons/content/drawable-xxxhdpi/ic_forward_white_48dp.png" class="small_icon" />
+            Direct Flyto</button> -->
+            <button type="button" v-on:click="command('flyto_traj')" class="btn btn-primary btn-lg"
+            id="flyto">
+            <img src="material-design-icons/content/drawable-xxxhdpi/ic_forward_white_48dp.png" class="small_icon" />
+            Flyto</button>
+            <button type="button" v-on:click="command('circle')" class="btn btn-primary btn-lg" >
+            <img src="material-design-icons/av/drawable-xxxhdpi/ic_loop_white_48dp.png" class="small_icon" />
+            Circle</button>
+
+            <button type="button" v-on:click="trigger_flyto()"
+              v-bind:class="[flyto_class]" >
+              <img src="material-design-icons/content/drawable-xxxhdpi/ic_forward_white_48dp.png" class="small_icon" />
+              FLYTO</button>
+  
+            <!-- <button type="button" v-on:click="command('traj2')" class="btn btn-primary btn-lg">
+            <img src="material-design-icons/action/drawable-xxxhdpi/ic_hourglass_empty_white_48dp.png" class="small_icon" />
+            Traj</button> -->
+            <!-- <button type="button" v-on:click="range_select" class="btn btn-primary btn-lg"
+            id="range_select">
+             <img src="material-design-icons/content/drawable-xxxhdpi/ic_select_all_white_48dp.png" class="small_icon" />
+            Select</button> -->
+
+  
+          <hr />
+          <h4>FORMATIONs</h4> 
+          <button type="button" v-on:click="formation_hold(0)" class="btn btn-primary btn-lg">
+            <img src="material-design-icons/navigation/drawable-xxxhdpi/ic_apps_white_48dp.png" class="small_icon" />
+            Hold</button>
+          <button type="button" v-on:click="formation_hold(1)" class="btn btn-primary btn-lg">
+              <img src="material-design-icons/navigation/drawable-xxxhdpi/ic_apps_white_48dp.png" class="small_icon" />
+              Lock</button>
+          <button type="button" v-on:click="formation_swap()" class="btn btn-primary btn-lg">
+                <img src="material-design-icons/av/drawable-xxxhdpi/ic_repeat_white_48dp.png" class="small_icon" />
+                Swap</button>
+          <button type="button" class="btn btn-secondary btn-danger" v-on:click="stop_formation()">
+              <img src="material-design-icons/navigation/drawable-xxxhdpi/ic_cancel_white_48dp.png" class="small_icon" />
+            STOP</button>
+          <br/>
+          
+         <button type="button" v-on:click="formation(0)" v-bind:class="[formation_class[0]]">
+              <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />            
+            0</button>
+          <button type="button" v-on:click="formation(1)" v-bind:class="[formation_class[1]]">
+              <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />                        
+            1</button>
+          <button type="button" v-on:click="formation(2)" v-bind:class="[formation_class[2]]">
+              <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />                        
+            2</button>
+            <button type="button" v-on:click="formation(3)" v-bind:class="[formation_class[3]]">
+              <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />                       
+            3</button>
+          <button type="button" v-on:click="formation(4)" v-bind:class="[formation_class[4]]">
+              <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />            
+              4</button>
+
+        </div>
+        <!-- <button type="button" class="btn btn-secondary btn-lg" >Mission C</button> -->
+        <!-- <button type="button" class="btn btn-secondary btn-lg" >Mission D</button> -->
+      </div>
+  <div class="drone_id" v-for="(_, _id) in uav_screen_pos"  v-bind:style="{ top: uav_screen_pos[_id].y, left: uav_screen_pos[_id].x, position: 'fixed', color:uav_label_colors[_id]}">{{_id}}</div>
+  </div>
+
+  <script type="module">
+    import { SwarmCommander } from './src/swarm_commander.mjs';
+    import { SwarmGCSUI } from "./src/gcs_view.mjs";
+    var ui = new SwarmGCSUI({}, {
+      chessboard:true,
+      grid: false
+    });
+    // console.log(ui);
+    var sc = new SwarmCommander(ui);
+    window.ui = ui;
+</script>
+</body>
+
+</html>

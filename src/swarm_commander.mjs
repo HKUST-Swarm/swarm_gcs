@@ -202,23 +202,44 @@ class SwarmCommander extends BaseCommander{
 
         this.bspine_viz_listener = new ROSLIB.Topic({
             ros: ros,
-            name: "/planning/swarm_traj_recv",
-            messageType: "bspline/Bspline",
-            queue_length:10
-        });
-
-        this.bspine_viz_listener = new ROSLIB.Topic({
-            ros: ros,
             name: "/planning/swarm_traj",
             messageType: "bspline/Bspline",
             queue_length:10
         });
 
-        this.bspine_viz_listener.subscribe(function (msg) {
+        this.bspine_viz_send_listener = new ROSLIB.Topic({
+            ros: ros,
+            name: "/planning/swarm_traj_send",
+            messageType: "bspline/Bspline",
+            queue_length:10
+        });
+
+        var on_bspine_recv = function (msg) {
             // console.log("bspline drone_id", msg.drone_id);
             if (msg.drone_id >= 0) {
                 self.ui.update_drone_traj_bspline(msg.drone_id, msg)
             }
+        };
+
+        this.bspine_viz_listener.subscribe(on_bspine_recv);
+        this.bspine_viz_send_listener.subscribe(on_bspine_recv);
+        
+        this.swarm_drone_fused = new ROSLIB.Topic({
+            ros: ros,
+            name: "/swarm_drones/swarm_drone_fused",
+            messageType: "swarm_msgs/swarm_fused",
+            queue_length:10
+        });
+
+        this.swarm_drone_fused.subscribe(function (msg) {
+            self.on_swarm_drone_fused(msg);
+        });
+
+        this.swarm_fused_sub = new ROSLIB.Topic({
+            ros: ros,
+            name: "/planning/swarm_traj_recv",
+            messageType: "bspline/Bspline",
+            queue_length:10
         });
         
         this.incoming_data_listener = new ROSLIB.Topic({
@@ -386,6 +407,11 @@ class SwarmCommander extends BaseCommander{
         // this.ui.set_drone_selfpose(status.x, status.y, status.z, 0, 0, 0);
     }
 
+    t_last = {
+        "1":0,
+        "2":0
+    }
+
     on_drone_realtime_info_recv(_id, lps_time, info) {
         // console.log(info);
         var pos = new THREE.Vector3(info.x, info.y, info.z);
@@ -393,7 +419,41 @@ class SwarmCommander extends BaseCommander{
         quat.setFromEuler(new THREE.Euler(info.roll/1000.0, info.pitch/1000.0, info.yaw/1000.0));
         this.ui.update_drone_selfpose(_id, pos, quat, info.vx/100.0, info.vy/100.0, info.vz/100.0);
         this.uav_pos[_id] = pos;
-        // this.ui.update_drone_selfpose(_id, info.x, info.y, info.z, info.yaw/1000.0, info.vx/100.0, info.vy/100.0, info.vz/100.0);
+        // console.log("DT id", _id, (info.lps_time - this.t_last[_id]), "us", info.lps_time);
+        // this.t_last[_id] = info.lps_time;
+    }
+
+    on_swarm_drone_fused(msg) {
+        // console.log(msg);
+        for (var i = 0; i< msg.ids.length; i ++) {
+            var _id = msg.ids[i];
+            var _pos = msg.local_drone_position[i];
+            var _vel = msg.local_drone_velocity[i];
+            var pos = new THREE.Vector3(_pos.x, _pos.y, _pos.z);
+            var yaw = msg.local_drone_yaw[i];
+            var quat = new THREE.Quaternion();
+            quat.setFromEuler(new THREE.Euler(0, 0, yaw));
+            // this.ui.update_drone_selfpose(_id, pos, quat, _vel.x, _vel.y, _vel.z);
+            this.ui.update_drone_localpose(_id, pos, quat, _vel.x, _vel.y, _vel.z);
+            var status = {
+                lps_time: 0,
+                flight_status: 0,
+                control_auth: 0,
+                commander_mode: 0,
+                input_mode: 0,
+                rc_valid: 1,
+                onboard_cmd_valid: 1,
+                sdk_valid: 1,
+                vo_valid: 1,
+                bat_vol: 17.5,
+                bat_remain: 1000,
+                x: 0, 
+                y: 0,
+                z: 0,
+                yaw: 0
+            };
+            this.ui.set_drone_status(_id, status);
+        }
     }
 
     send_takeoff_cmd(_id) {
