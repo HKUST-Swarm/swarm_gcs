@@ -14,10 +14,10 @@ To take the full advantage of swarm\_gcs, Messages defined in [swarm\_msgs](http
 We are going to modified protocols and messages for swarm\_gcs to be more generic.
 
 The swarm mode of swarm\_gcs:
-![SwarmGCS](./docs/intro1.png)
+![SwarmGCS](./docs/intro1.PNG)
 
 The single drone mode on an iPad with dense map:
-![SwarmGCS](./docs/single.png)
+![SwarmGCS](./docs/single.PNG)
 
 
 # Related Paper
