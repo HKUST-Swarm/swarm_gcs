@@ -1,5 +1,12 @@
 # Intro
 ![SwarmGCS](./docs/swarm_gcs.png)
+
+This project stands as a part of Omni-swarm: A Decentralized Omnidirectional Visual-Inertial-UWB State Estimation System for Aerial Swarm.
+You may use it alone on any type of robot or as a part of Omni-swarm for swarm robots.
+
+# Related Paper
+__Omni-swarm: A Decentralized Omnidirectional Visual-Inertial-UWB State Estimation System for Aerial Swarm__ The VINS-Fisheye is a part of Omni-swarm. If you want use VIN-Fisheye as a part of your research project, please cite this paper.
+
 # Build
 Prerequirements
 LCM is required now.
