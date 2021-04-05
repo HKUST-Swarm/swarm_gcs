@@ -4,7 +4,7 @@
 *swarm\_gcs* is a 3d user interface (or ground station) for robots and aerial swarm based on ROS and Three.js. 
 You may use it as a web app on your PC and mobile devices (iPad for example) or standalone application.
 
-This project stands as a part of Omni-swarm: A Decentralized Omnidirectional Visual-Inertial-UWB State Estimation System for Aerial Swarm.
+This project stands as a part of __[Omni-swarm](https://arxiv.org/abs/2103.04131): A Decentralized Omnidirectional Visual-Inertial-UWB State Estimation System for Aerial Swarm__.
 You may use it alone on any type of robot or as a part of Omni-swarm for swarm robots.
 
 
