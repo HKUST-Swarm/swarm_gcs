@@ -9,8 +9,7 @@ You may use it alone on any type of robot or as a part of Omni-swarm for swarm r
 
 
 # Prerequisite
-To take the full advantage of swarm\_gcs, Messages defined in [swarm\_msgs](https://github.com/HKUST-Swarm/swarm_msgs) and our custom [mavlink](https://github.com/HKUST-Swarm/mavlink) protocol is required now.
-
+To take the full advantage of swarm\_gcs, messages defined in [swarm\_msgs](https://github.com/HKUST-Swarm/swarm_msgs) and our custom [mavlink](https://github.com/HKUST-Swarm/mavlink) protocol are required now.
 We are going to modified protocols and messages for swarm\_gcs to be more generic.
 
 The swarm mode of swarm\_gcs:
