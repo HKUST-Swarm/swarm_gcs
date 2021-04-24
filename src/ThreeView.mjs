@@ -100,7 +100,7 @@ class ThreeView {
         this.camera.up.z = 1;
         this.camera.near = 0.01;
 
-        this.chessboard_z = -0.05;
+        this.chessboard_z = -0.25;
         this.hover_outline = false;
         // renderer.setClearColor("white", 1);
         this.scene.background = new THREE.Color(0xcff3fa);
@@ -743,7 +743,7 @@ class ThreeView {
 
     update_detection(_id, target_id, rel_pos, inv_dep) {
         var _det_id = _id * 10000 + target_id;
-        console.log("Detection ", _id, "->", target_id, " [", rel_pos, "]", "D", 1 / inv_dep);
+        // console.log("Detection ", _id, "->", target_id, " [", rel_pos, "]", "D", 1 / inv_dep);
 
         var arrowHelper;
 
@@ -836,17 +836,8 @@ class ThreeView {
         this.scene.add(dirLight);
 
 
-        var dirLight = new THREE.DirectionalLight(0xffffff, 0.0);
-        dirLight.position.set(-2, 2, 2);
-        dirLight.castShadow = this.enable_shadow;
-        dirLight.shadow.camera.top = 5;
-        dirLight.shadow.camera.bottom = - 5;
-        dirLight.shadow.camera.left = - 5;
-        dirLight.shadow.camera.right = 5;
-        dirLight.shadow.camera.near = 0.1;
-        dirLight.shadow.camera.far = 200;
-        dirLight.shadow.mapSize.set(512, 512);
-        // this.scene.add(dirLight);
+        const light = new THREE.AmbientLight( 0x404040 ); // soft white light
+        this.scene.add( light );
 
         if (this.opt.chessboard) {
             this.add_chessboard()
@@ -922,30 +913,39 @@ class ThreeView {
     }
 
     add_chessboard() {
-        var cbgeometry = new THREE.PlaneGeometry(10, 10, 10, 10);
+        var x_num = 20;
+        var y_num = 20;
+        var cbgeometry = new THREE.PlaneGeometry(x_num, y_num, x_num, y_num);
 
         // Materials
         var cbmaterials = [];
-        var m1 = new THREE.MeshPhongMaterial({ color: 0xeeeeee });
-        var m2 = new THREE.MeshPhongMaterial({ color: 0x222222 });
-        m1.opacity = 0.8;
-        // m1.side = THREE.DoubleSide;
-        m2.opacity = 0.8;
-        // m2.side = THREE.DoubleSide;
+        var m1 = new THREE.MeshPhongMaterial({ color: 0xeeeeee,
+            opacity: 0.7,
+            transparent: true,
+            side: THREE.DoubleSide
+            });
+        var m2 = new THREE.MeshPhongMaterial({ color: 0x222222,
+            opacity: 0.7,
+            transparent: true,
+            side: THREE.DoubleSide
+            });
+        // m1.;
+        // m2.
         cbmaterials.push(m1);
         cbmaterials.push(m2);
 
         var l = cbgeometry.faces.length / 2; // <-- Right here. This should still be 8x8 (64)
 
-        console.log("This should be 64: " + l);// Just for debugging puporses, make sure this is 64
+        console.log("This should be 64: " + l, "faces", cbgeometry.faces.length, cbgeometry);// Just for debugging puporses, make sure this is 64
 
         for (var i = 0; i < l; i++) {
             var j = i * 2; // <-- Added this back so we can do every other 'face'
-            cbgeometry.faces[j].materialIndex = ((i + Math.floor(i / 10)) % 2); // The code here is changed, replacing all 'i's with 'j's. KEEP THE 8
-            cbgeometry.faces[j + 1].materialIndex = ((i + Math.floor(i / 10)) % 2); // Add this line in, the material index should stay the same, we're just doing the other half of the same face
+            cbgeometry.faces[j].materialIndex = ((i + Math.floor(i / x_num)) % 2); // The code here is changed, replacing all 'i's with 'j's. KEEP THE 8
+            cbgeometry.faces[j + 1].materialIndex = ((i + Math.floor(i / y_num)) % 2); // Add this line in, the material index should stay the same, we're just doing the other half of the same face
         }
 
         cbmaterials.opacity = .8;
+        cbmaterials.transparent = true;
         // cbmaterials.side = THREE.DoubleSide;
 
         // Mesh
@@ -955,6 +955,15 @@ class ThreeView {
         cb.receiveShadow = this.enable_shadow;
         cb.position.z = this.chessboard_z;
         this.scene.add(cb);
+
+
+        const size = 1000;
+        const divisions = 100;
+        
+        var gridHelper = new THREE.GridHelper( size, divisions );
+        // gridHelper.quaternion.setFromEuler(new THREE.Euler( Math.Pi/2, 0, 0));
+        gridHelper.geometry.rotateX( Math.PI / 2 );
+        this.scene.add( gridHelper );
     }
 
 

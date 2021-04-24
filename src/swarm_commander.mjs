@@ -30,91 +30,92 @@ import {BaseCommander} from "./base_commander.mjs"
 //                  1
 //      2         3             4
 //                  5
-
+let scale = 1.5;
+let height = 1.3;
 let formations = {
     0: {
         1: {
-            x: 0, y:0, z: 1
+            x: 0, y:0, z: height
         },
         2: {
-            x:1, y:0, z: 1
+            x:-scale, y:0, z: height
         },
         3: {
-            x: 0, y:-1, z: 1
+            x: 0, y:scale, z: height
         },
         4: {
-            x: -1, y:0, z: 1
+            x: scale, y:0, z: height
         },
         5: {
-            x: 0, y:1, z: 1
+            x: 0, y:-scale, z: height
         }
     },
     1: {
         1: {
-            x: 1, y:1, z: 1
+            x: scale, y:scale, z: height
         },
         2: {
-            x:1, y:-1, z: 1
+            x:-scale, y:scale, z: height
         },
         3: {
-            x: -1, y:-1, z: 1
+            x: -scale, y:-scale, z: height
         },
         4: {
-            x: -1, y:1, z: 1
+            x: scale, y:-scale, z: height
         },
         5: {
-            x: 0, y:0, z: 1
+            x: 0, y:0, z: height
         }
     },
     2: {
         1: {
-            x: 1, y:-1, z: 1
+            x: scale, y:-scale, z: height
         },
         2: {
-            x:1, y:1, z: 1
+            x:0, y:scale, z: height
         },
         3: {
-            x: 0, y:0, z: 1
+            x: 0, y:0, z: height
         },
         4: {
-            x: 0, y:1, z: 1
+            x: scale, y:scale, z: height
         },
         5: {
-            x: -1, y:0, z: 1
+            x: -scale, y:0, z: height
         },
     },    
     3: {
         1: {
-            x: 1, y:0, z: 1
+            x: scale, y:0, z: height
         },
         2: {
-            x:-1, y:-1, z: 1
+            x:-scale, y:-scale, z: height
         },
         3: {
-            x: -1, y:0, z: 1
+            x: -scale, y:0, z: height
         },
         4: {
-            x: -1, y:1, z: 1
+            x: -scale, y:scale, z: height
         },
         5: {
-            x: 0, y:0, z: 1
+            x: 0, y:0, z: height
         }
     },
     4: {
         1: {
-            x: 1, y:0, z: 1
+            x: scale, y:0, z: height
         },
         2: {
-            x:0, y:-1, z: 1
+            x:0, y:-scale, z: height
         },
         3: {
-            x: 0, y:0, z: 1
+            x: 0, y:0, z: height
         },
         4: {
-            x: 0, y:1, z: 1
+            x: 0, y:scale, z: height
         },
         5: {
-            x: -1, y:0, z: 1
+            x: -scale, y:0, z: height
         }
     }
 };
@@ -136,7 +137,8 @@ let vaild_ids = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 class SwarmCommander extends BaseCommander{
     constructor(ui) {
         super(ui);
-        this.mav = new MAVLink(null, 0, 0);
+        this.mav = new MAVLink10Processor(null, 0, 0);
+        // this.mav = new MAVLink(null, 0, 0);
 
         this.select_id = -1;
         this._lps_time = 0;
@@ -159,10 +161,10 @@ class SwarmCommander extends BaseCommander{
     }
     
     sub_vicon_id(i) {
-        console.log("subscribing vicon "+ i);
+        console.log("subscribing vicon "+ i,  "/SwarmNode"+i+"/pose");
         var vicon_sub = new ROSLIB.Topic({
             ros: this.ros,
-            name: "/swarm_mocap/SwarmNodePose" + i,
+            name: "/SwarmNode"+i+"/pose",
             messageType: "geometry_msgs/PoseStamped"
         });
         
@@ -200,7 +202,7 @@ class SwarmCommander extends BaseCommander{
             self.ui.update_drone_traj(msg.ns, msg.points)
         });
 
-        this.bspine_viz_listener = new ROSLIB.Topic({
+        this.bspine_viz_listener_1 = new ROSLIB.Topic({
             ros: ros,
             name: "/planning/swarm_traj",
             messageType: "bspline/Bspline",
@@ -214,15 +216,33 @@ class SwarmCommander extends BaseCommander{
             queue_length:10
         });
 
-        var on_bspine_recv = function (msg) {
+        this.bspine_recv_listener = new ROSLIB.Topic({
+            ros: ros,
+            name: "/planning/swarm_traj_recv",
+            messageType: "bspline/Bspline",
+            queue_length:10
+        });
+
+        this.bspine_viz_listener_1.subscribe(function (msg) {
             // console.log("bspline drone_id", msg.drone_id);
             if (msg.drone_id >= 0) {
-                self.ui.update_drone_traj_bspline(msg.drone_id, msg)
+                self.ui.update_drone_traj_bspline_localframe(msg.drone_id, msg)
             }
-        };
+        });
 
-        this.bspine_viz_listener.subscribe(on_bspine_recv);
-        this.bspine_viz_send_listener.subscribe(on_bspine_recv);
+        this.bspine_viz_send_listener.subscribe(function (msg) {
+            // console.log("bspline drone_id", msg.drone_id);
+            if (msg.drone_id >= 0) {
+                self.ui.update_drone_traj_bspline_selfframe(msg.drone_id, msg)
+            }
+        });
+        
+        this.bspine_recv_listener.subscribe(function (msg) {
+            // console.log("bspline drone_id", msg.drone_id);
+            if (msg.drone_id >= 0) {
+                self.ui.update_drone_traj_bspline_selfframe(msg.drone_id, msg)
+            }
+        });
         
         this.swarm_drone_fused = new ROSLIB.Topic({
             ros: ros,
@@ -235,13 +255,6 @@ class SwarmCommander extends BaseCommander{
             self.on_swarm_drone_fused(msg);
         });
 
-        this.swarm_fused_sub = new ROSLIB.Topic({
-            ros: ros,
-            name: "/planning/swarm_traj_recv",
-            messageType: "bspline/Bspline",
-            queue_length:10
-        });
-        
         this.incoming_data_listener = new ROSLIB.Topic({
             ros: ros,
             name: "/uwb_node/incoming_broadcast_data",
@@ -253,10 +266,7 @@ class SwarmCommander extends BaseCommander{
             self.on_incoming_data(incoming_msg);
         });
 
-        this.vicon_subs = {
-            // 2: this.sub_vicon_id(2),
-            // 0: this.sub_vicon_id(0)
-        }
+        this.vicon_subs = {        };
        
         this.send_uwb_msg = new ROSLIB.Topic({
             ros : ros,
@@ -310,7 +320,7 @@ class SwarmCommander extends BaseCommander{
         let msgs = this.mav.parseBuffer(buf);
         // console.log(msgs);
         for (var k in msgs) {
-          let msg = msgs[k];
+            let msg = msgs[k];
             switch (msg.name) {
                 case "NODE_REALTIME_INFO": {
                     this.on_drone_realtime_info_recv(incoming_msg.remote_id, incoming_msg.lps_time, msg);
@@ -531,14 +541,17 @@ class SwarmCommander extends BaseCommander{
         this.stop_transformation_thread();
         console.log("Will send emergency command");
         let landing_cmd = 6;
-        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, -1, landing_cmd, -1, 10000, 0, 0, 0, 0, 0, 0, 0, 0);
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, -1, landing_cmd, -1, 5000, 0, 0, 0, 0, 0, 0, 0, 0);
         this.send_msg_to_swarm(scmd);
     }
 
     send_traj_cmd(_id, cmd) {
         console.log("send traj", cmd);
-        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, 100+cmd, 
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        var ox = 0, oy = 0, oz = 1;
+        var T = 30;
+        var enable_yaw = cmd;
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, 16, 
+            1, enable_yaw, T*10000, ox*10000, oy*10000, oz*10000, 0, 0, 0, 0);
         this.send_msg_to_swarm(scmd);
     }
 
@@ -673,17 +686,18 @@ class SwarmCommander extends BaseCommander{
 
     request_transformation_change(next_trans) {
         console.log("Try to request formation, ", next_trans);
-        for (var j = 0; j < 1; j ++) {
+        for (var j = 0; j < 5; j ++) {
             for (var i = 1; i < 6; i ++) {
                 var _pos = formations[next_trans][i];
                 var pos = new THREE.Vector3(_pos.x, _pos.y, _pos.z);
                 var quat = new THREE.Quaternion(0, 0, 0, 1);
                 var ret = this.ui.transfer_vo_with_based(pos, quat, this.ui.primary_id, i);
                 if (ret != null) {
-                    console.log(i, pos, ret.pos);
+                    console.log("Drone ", i, "pos_gcs", pos, "pos_vo", ret.pos);
                     this.send_flyto_cmd(i, ret.pos, false);
                 } 
             }
+            // await new Promise(r => setTimeout(r, 50));
         }
         // if (this.current_formation < 0) {
         //     next_trans = next_trans + 100;
