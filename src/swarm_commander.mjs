@@ -278,12 +278,15 @@ class SwarmCommander extends BaseCommander{
         this.sub_pcl.subscribe(function (msg) {
             self.on_globalmap_recv(msg);
         });
-
     }
 
 
     on_globalmap_recv(msg) {
-        var pcl = new PointCloud2(msg);
+        var t0 = performance.now()
+        var pcl = new PointCloud2(msg, true);
+        var t1 = performance.now()
+        console.log("Call to PointCloud2 took " + (t1 - t0) + " milliseconds.")
+        
         this.ui.update_pcl(pcl);
     }
  

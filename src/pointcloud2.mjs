@@ -116,6 +116,7 @@ class PointCloud2 {
         console.log("PCL length" + (this.points.length/3/1000.0).toFixed(1) + "k points; total size " + (msg.points.length/1000.0).toFixed(1) + "k cost time " + ((tnow() - ts)*1000).toFixed(1) + "ms");
       }
     }
+    
     processMessage_pcl2 (msg){
 
     var ts = tnow();
@@ -188,10 +189,10 @@ class PointCloud2 {
 
       var vx = ( px / 10 ) + 0.5;
 			var vy = ( py / 10 ) + 0.5;
-      var vz = ( (3 - pz) / 10 ) + 0.5;
+      var vz = ( (3 - pz) / 10 );
       // console.log(vx);
       var color = new THREE.Color();
-      color.setHSL(vz, 1, 0.5);
+      color.setHSL(-vz, 1, 0.5);
 			this.colors.push( color.r, color.g, color.b );
 
       // if(this.points.colors){
@@ -213,11 +214,12 @@ class PointCloud2 {
     geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( this.points, 3 ) );
     geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( this.colors, 3 ) );
     geometry.computeBoundingSphere();
-    var material = new THREE.PointsMaterial( { size: 0.1, vertexColors: THREE.VertexColors } );
+    var material = new THREE.PointsMaterial( { size: this.grid_size, vertexColors: THREE.VertexColors } );
     var points = new THREE.Points( geometry, material );
 
     return points;
   }
+
   boxes_object() {
     var bufferGeometry = new THREE.BoxBufferGeometry(this.grid_size, this.grid_size, this.grid_size );
     var geometry = new THREE.InstancedBufferGeometry();
@@ -261,6 +263,7 @@ class PointCloud2 {
     // geometry.addAttribute('edgeColor', new Float32Array([0, 0, 0]))
     var mesh = new THREE.Mesh( geometry, material );
     mesh.frustumCulled = false;
+    mesh.alwaysSelectAsActiveMesh = true;
     return mesh;
     
   }

@@ -384,6 +384,7 @@ class ThreeView {
             this.scene.remove(this.pcl);
         }
         this.pcl = pcl.boxes_object();
+        // this.pcl = pcl.points_object();
         this.scene.add(this.pcl);
     }
 
