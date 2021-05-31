@@ -152,6 +152,8 @@ class ThreeView {
         this.right_start_y = 0;
         this.last_evt = null;
 
+        this.update_inc_pcl = [];
+
         this.init_postprocessing();
 
         window.addEventListener('mousedown', function (e) {
@@ -383,6 +385,12 @@ class ThreeView {
         }
         this.pcl = pcl.boxes_object();
         this.scene.add(this.pcl);
+    }
+
+    update_inc_pcl(pcl) {
+        var obj = pcl.boxes_object();
+        this.update_inc_pcl.push(obj);
+        this.scene.add(obj);
     }
 
     load_aircraft() {

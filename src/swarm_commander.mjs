@@ -1,5 +1,6 @@
 import * as THREE from '../build/three.module.js';
 import {BaseCommander} from "./base_commander.mjs"
+import {PointCloud2} from './pointcloud2.mjs';
 
 
 //Formations
@@ -267,8 +268,29 @@ class SwarmCommander extends BaseCommander{
             serviceType : 'swarm_transformation/translation'
         });
 
+
+        this.sub_pcl = new ROSLIB.Topic({
+            ros:this.ros,
+            messageType:"sensor_msgs/PointCloud2",
+            name:"/sdf_map/occupancy_all_4"
+        });
+        
+        this.sub_pcl.subscribe(function (msg) {
+            self.on_globalmap_recv(msg);
+        });
+
     }
 
+
+    on_globalmap_recv(msg) {
+        var pcl = new PointCloud2(msg);
+        this.ui.update_pcl(pcl);
+    }
+ 
+    on_inc_globalmap_recv(msg) {
+        var pcl = new PointCloud2(msg);
+        this.ui.update_inc_pcl(pcl);
+    }
  
     on_vicon_msg(_id, msg) {
         // msg.qua
