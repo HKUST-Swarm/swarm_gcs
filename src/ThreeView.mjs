@@ -101,7 +101,8 @@ class ThreeView {
         this.camera.up.z = 1;
         this.camera.near = 0.01;
 
-        this.chessboard_z = -0.25;
+        this.chessboard_z = 0;
+        this.uav_gc_height = 0.12;
         this.hover_outline = false;
         // renderer.setClearColor("white", 1);
         this.scene.background = new THREE.Color(0xcff3fa);
@@ -695,7 +696,7 @@ class ThreeView {
 
         this.uavs_ground[_id].position.x = pos.x;
         this.uavs_ground[_id].position.y = pos.y;
-        this.uavs_ground[_id].position.z = this.chessboard_z + 0.02;
+        this.uavs_ground[_id].position.z = this.chessboard_z + this.uav_gc_height;
 
 
         var line_pts = this.uavs_line[_id].geometry.attributes.position.array;
@@ -976,7 +977,7 @@ class ThreeView {
         this.scene.add(cb);
 
 
-        const size = 1000;
+        const size = 100;
         const divisions = 100;
         
         var gridHelper = new THREE.GridHelper( size, divisions );
