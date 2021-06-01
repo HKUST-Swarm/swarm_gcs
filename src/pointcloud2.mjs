@@ -17,7 +17,7 @@ function tnow() {
   return new Date().getTime() / 1000;
 }
 
-import * as THREE from '../build/three.module.js';
+import * as THREE from "../third_party/three.js/build/three.module.js";
 
 
 function decode64(inbytes, outbytes, record_size, pointRatio) {
@@ -220,8 +220,8 @@ class PointCloud2 {
 
   points_object() {
     var geometry = new THREE.BufferGeometry();
-    geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( this.points, 3 ) );
-    geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( this.colors, 4 ) );
+    geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( this.points, 3 ) );
+    geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( this.colors, 4 ) );
     geometry.computeBoundingSphere();
     var material = new THREE.PointsMaterial( { size: this.grid_size*1.5, vertexColors: THREE.VertexColors,
       transparent: true,
@@ -268,13 +268,13 @@ class PointCloud2 {
 
     // console.log(this.centers)
 
-    geometry.addAttribute( 'center', 
+    geometry.setAttribute( 'center', 
       new THREE.InstancedBufferAttribute( new Float32Array( centers), 3 )
     );
 
-    geometry.addAttribute( 'offset', offsetAttribute );
-    geometry.addAttribute( 'ca', colorAttribute );
-    // geometry.addAttribute('edgeColor', new Float32Array([0, 0, 0]))
+    geometry.setAttribute( 'offset', offsetAttribute );
+    geometry.setAttribute( 'ca', colorAttribute );
+    // geometry.setAttribute('edgeColor', new Float32Array([0, 0, 0]))
     var mesh = new THREE.Mesh( geometry, material );
     mesh.frustumCulled = false;
     mesh.alwaysSelectAsActiveMesh = true;

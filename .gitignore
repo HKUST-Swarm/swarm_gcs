@@ -8,3 +8,4 @@ models/swarm-drone-0-0-4-save.obj
 models/swarm-drone-0-0-4-ms.obj
 swarm_gcs-linux-x64/
 swarm_gcs-linux-x64.zip
+package-lock.json

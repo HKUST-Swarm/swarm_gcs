@@ -1,23 +1,22 @@
 
-import * as THREE from '../build/three.module.js';
+import * as THREE from "../third_party/three.js/build/three.module.js";
 import { OrbitControls } from '../libs/OrbitControlsiPad.js';
-import { TransformControls } from '../libs/jsm/controls/TransformControls.js';
-import { ThreeMFLoader } from '../libs/jsm/loaders/3MFLoader.js';
+import { ThreeMFLoader } from '../third_party/three.js/examples/jsm/loaders/3MFLoader.js';
 
-import { OBJLoader2 } from '../libs/jsm/loaders/OBJLoader2.js';
-import { MTLLoader } from '../libs/jsm/loaders/MTLLoader.js';
-import { MtlObjBridge } from "../libs/jsm/loaders/obj2/bridge/MtlObjBridge.js";
-// import { * } from "../libs/jszip.min.js";
+import { OBJLoader } from '../third_party/three.js/examples/jsm/loaders/OBJLoader.js';
+import { MTLLoader } from '../third_party/three.js/examples/jsm/loaders/MTLLoader.js';
+// import { MtlObjBridge } from "../third_party/three.js/examples/jsm/loaders/obj2/bridge/MtlObjBridge.js";
 import Stats from '../libs/stats.module.js';
-import { EffectComposer } from '../libs/jsm/postprocessing/EffectComposer.js';
-import { OutlinePass } from '../libs/jsm/postprocessing/OutlinePass.js';
-import { RenderPass } from '../libs/jsm/postprocessing/RenderPass.js';
-import { ShaderPass } from '../libs/jsm/postprocessing/ShaderPass.js';
-import { FXAAShader } from '../libs/jsm/shaders/FXAAShader.js';
+import { EffectComposer } from '../third_party/three.js/examples/jsm/postprocessing/EffectComposer.js';
+import { OutlinePass } from '../third_party/three.js/examples/jsm/postprocessing/OutlinePass.js';
+import { RenderPass } from '../third_party/three.js/examples/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from '../third_party/three.js/examples/jsm/postprocessing/ShaderPass.js';
+import { FXAAShader } from '../third_party/three.js/examples/jsm/shaders/FXAAShader.js';
+import { TransformControls } from '../third_party/three.js/examples/jsm/controls/TransformControls.js';
+
 import { SelectionBox } from './UAVSelectionBox.js';
 import { SelectionHelper } from './SelectionHelper.js';
 import { bsplineinterpolate } from "../libs/b-spline.js"
-import { Projector } from "../libs/jsm/renderers/Projector.js"
 
 function tnow() {
     return new Date().getTime() / 1000;
@@ -80,7 +79,7 @@ class ThreeView {
         // this.position = $("#urdf").position();
 
         this.renderer.setSize(this.width, this.height);
-        renderer.context.getExtension('OES_standard_derivatives');
+        renderer.getContext().getExtension('OES_standard_derivatives');
 
         var camera = this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 1000);
 
@@ -351,8 +350,6 @@ class ThreeView {
 
 
 
-        renderer.gammaOutput = true;
-        renderer.gammaFactor = 2.2;
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -416,7 +413,7 @@ class ThreeView {
 
         // return;
         console.log("loading aircraft");
-        let objLoader2 = new OBJLoader2();
+        let objLoader2 = new OBJLoader();
         let callbackOnLoad = function (object3d) {
             object3d.castShadow = true;
             object3d.scale.set(0.001, 0.001, 0.001);
@@ -429,16 +426,18 @@ class ThreeView {
             var mesh = object3d.children[0];
             // obj.scene.add(object3d);
         };
-        let onLoadMtl = function (mtlParseResult) {
-            objLoader2.setModelName("swarm_drone");
-            objLoader2.setLogging(true, true);
-            objLoader2.addMaterials(MtlObjBridge.addMaterialsFromMtlLoader(mtlParseResult));
-            objLoader2.load('./models/swarm_drone.obj3d', callbackOnLoad, null, null, null);
-            // objLoader2.load('../models/swarm-drone-0-0-4.obj', callbackOnLoad, null, null, null);
-        };
-        let mtlLoader = new MTLLoader();
-        mtlLoader.load('./models/swarm_drone.mtl', onLoadMtl);
-        // mtlLoader.load('../models/swarm-drone-0-0-4.mtl', onLoadMtl);
+
+        const manager = new THREE.LoadingManager();
+            new MTLLoader( manager )
+                .setPath( './models/' )
+                .load( 'swarm_drone.mtl', function ( materials ) {
+                materials.preload();
+
+            new OBJLoader( manager )
+                .setMaterials( materials )
+                .setPath( './models/' )
+                .load( 'swarm_drone.obj3d', callbackOnLoad, null, null );
+        } );
     }
 
     create_new_uav(_id) {
@@ -856,7 +855,7 @@ class ThreeView {
         this.scene.add( light );
 
         if (this.opt.chessboard) {
-            this.add_chessboard()
+            // this.add_chessboard();
         }
 
         if (this.opt.grid) {
@@ -868,7 +867,6 @@ class ThreeView {
             depthTest: false,
             depthWrite: false,
             transparent: true,
-            linewidth: 1,
             fog: false,
             color:"#FFB6C1"
         } );
@@ -932,54 +930,34 @@ class ThreeView {
         var x_num = 20;
         var y_num = 20;
         var cbgeometry = new THREE.PlaneGeometry(x_num, y_num, x_num, y_num);
+        var cb = new THREE.Mesh(cbgeometry, new THREE.MeshPhongMaterial( {
+            color: 0xffffff,
+            flatShading: true,
+            vertexColors: THREE.FaceColors,
+            shininess: 0, 
+            opacity: 0.8,
+            transparent: true
+        }));
+        const count = cbgeometry.attributes.position.count;
+        cbgeometry.setAttribute( 'color', new THREE.BufferAttribute( new Float32Array( count * 3 ), 3 ) );
+        console.log(cbgeometry);
+        const color = new THREE.Color();
+        const positions1 = cbgeometry.attributes.position;
+        const colors1 = cbgeometry.attributes.color;
 
-        // Materials
-        var cbmaterials = [];
-        var m1 = new THREE.MeshPhongMaterial({ color: 0xeeeeee,
-            opacity: 0.7,
-            transparent: true,
-            side: THREE.DoubleSide
-            });
-        var m2 = new THREE.MeshPhongMaterial({ color: 0x222222,
-            opacity: 0.7,
-            transparent: true,
-            side: THREE.DoubleSide
-            });
-        // m1.;
-        // m2.
-        cbmaterials.push(m1);
-        cbmaterials.push(m2);
-
-        var l = cbgeometry.faces.length / 2; // <-- Right here. This should still be 8x8 (64)
-
-        console.log("This should be 64: " + l, "faces", cbgeometry.faces.length, cbgeometry);// Just for debugging puporses, make sure this is 64
-
-        for (var i = 0; i < l; i++) {
-            var j = i * 2; // <-- Added this back so we can do every other 'face'
-            cbgeometry.faces[j].materialIndex = ((i + Math.floor(i / x_num)) % 2); // The code here is changed, replacing all 'i's with 'j's. KEEP THE 8
-            cbgeometry.faces[j + 1].materialIndex = ((i + Math.floor(i / y_num)) % 2); // Add this line in, the material index should stay the same, we're just doing the other half of the same face
+        for ( let i = 0; i < count; i ++ ) {
+            if (i % 3 == 0) {
+                colors1.setXYZ( i, 1.0, 1.0, 1.0 );
+            } else {
+                colors1.setXYZ( i, 0.0, 0.0, 0.0 );
+            }
         }
-
-        cbmaterials.opacity = .8;
-        cbmaterials.transparent = true;
-        // cbmaterials.side = THREE.DoubleSide;
-
-        // Mesh
-        var cb = new THREE.Mesh(cbgeometry, new THREE.MeshFaceMaterial(cbmaterials));
-        // var cb = new THREE.Mesh( cbgeometry , new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
-
+        
         cb.receiveShadow = this.enable_shadow;
         cb.position.z = this.chessboard_z;
         this.scene.add(cb);
 
 
-        const size = 100;
-        const divisions = 100;
-        
-        var gridHelper = new THREE.GridHelper( size, divisions );
-        // gridHelper.quaternion.setFromEuler(new THREE.Euler( Math.Pi/2, 0, 0));
-        gridHelper.geometry.rotateX( Math.PI / 2 );
-        this.scene.add( gridHelper );
     }
 
 
