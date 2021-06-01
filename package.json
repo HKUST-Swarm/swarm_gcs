@@ -20,6 +20,6 @@
     "electron": "^10.4.7",
     "jspack": "0.0.4",
     "rosnodejs": "^3.0.2",
-    "underscore": "^1.9.1"
+    "underscore": "^1.12.1"
   }
 }
