@@ -217,7 +217,6 @@ class SwarmGCSUI {
     }
     stop_formation() {
         this.cmder.stop_mission_id(-1);
-        this.cmder.stop_transformation_thread();
     }
 
     set_server_ip(_ip) {
@@ -357,7 +356,7 @@ class SwarmGCSUI {
 
     set_ros_conn(_conn) {
         this.view.ros_conn = _conn;
-        if (_conn == "OK") {
+        if (_conn == "Nodejs" || _conn == "WebSock" ) {
             this.view.ros_conn_color = good_topbar_color;
         } else {
             this.view.ros_conn_color = "red";

@@ -64,10 +64,6 @@ for (var i = 0; i < 100; i ++) {
     uav_colors.push(get_random_color());
 }
 
-console.log(uav_colors);
-
-console.log(get_random_color());
-
 let use_outline_passes = true;
 // let use_outline_passes = false;
 

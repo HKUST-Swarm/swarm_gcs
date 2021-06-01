@@ -1,125 +1,9 @@
 import * as THREE from '../build/three.module.js';
 import {BaseCommander} from "./base_commander.mjs"
 import {PointCloud2} from './pointcloud2.mjs';
+import {formations} from './formations.mjs';
 
-
-//Formations
-
-//Formation 0
-//                2
-//   3          1          5
-//               4
-
-//Formation 1
-//       2                   1
-//                  5
-//      3                    4
-
-
-//Formation 2
-//       2                   1
-//      3                    4
-//                  5
-
-
-//Formation 3
-//                   1
-//                   5
-//       2          3          4
-
-//Formation 4
-//                  1
-//      2         3             4
-//                  5
-let scale = 1.5;
-let height = 1.3;
-let formations = {
-    0: {
-        1: {
-            x: 0, y:0, z: height
-        },
-        2: {
-            x:-scale, y:0, z: height
-        },
-        3: {
-            x: 0, y:scale, z: height
-        },
-        4: {
-            x: scale, y:0, z: height
-        },
-        5: {
-            x: 0, y:-scale, z: height
-        }
-    },
-    1: {
-        1: {
-            x: scale, y:scale, z: height
-        },
-        2: {
-            x:-scale, y:scale, z: height
-        },
-        3: {
-            x: -scale, y:-scale, z: height
-        },
-        4: {
-            x: scale, y:-scale, z: height
-        },
-        5: {
-            x: 0, y:0, z: height
-        }
-    },
-    2: {
-        1: {
-            x: scale, y:-scale, z: height
-        },
-        2: {
-            x:0, y:scale, z: height
-        },
-        3: {
-            x: 0, y:0, z: height
-        },
-        4: {
-            x: scale, y:scale, z: height
-        },
-        5: {
-            x: -scale, y:0, z: height
-        },
-    },    
-    3: {
-        1: {
-            x: scale, y:0, z: height
-        },
-        2: {
-            x:-scale, y:-scale, z: height
-        },
-        3: {
-            x: -scale, y:0, z: height
-        },
-        4: {
-            x: -scale, y:scale, z: height
-        },
-        5: {
-            x: 0, y:0, z: height
-        }
-    },
-    4: {
-        1: {
-            x: scale, y:0, z: height
-        },
-        2: {
-            x:0, y:-scale, z: height
-        },
-        3: {
-            x: 0, y:0, z: height
-        },
-        4: {
-            x: 0, y:scale, z: height
-        },
-        5: {
-            x: -scale, y:0, z: height
-        }
-    }
-};
+var mavlink = mavlink10;
 function _base64ToArrayBuffer(base64) {
     var binary_string = window.atob(base64);
     var len = binary_string.length;
@@ -154,29 +38,78 @@ class SwarmCommander extends BaseCommander{
         
         this.missions = {}
 
-
         this.uav_pos = {}
+
+        this.vicon_subs = {}
 
         this.mission_update();
     }
     
     sub_vicon_id(i) {
-        console.log("subscribing vicon "+ i,  "/SwarmNode"+i+"/pose");
-        var vicon_sub = new ROSLIB.Topic({
-            ros: this.ros,
-            name: "/SwarmNode"+i+"/pose",
-            messageType: "geometry_msgs/PoseStamped"
-        });
-        
-        let _id = i;
-        let self = this;
-        this.vicon_subs[_id] = (vicon_sub);
-        vicon_sub.subscribe(function (incoming_msg) {
-            self.on_vicon_msg(_id, incoming_msg);
-        });
+        if (this.nodejs) {
+        }else{
+            console.log("subscribing vicon "+ i,  "/SwarmNode"+i+"/pose");
+            var vicon_sub = new ROSLIB.Topic({
+                ros: this.ros,
+                name: "/SwarmNode"+i+"/pose",
+                messageType: "geometry_msgs/PoseStamped"
+            });
+            
+            let _id = i;
+            let self = this;
+            this.vicon_subs[_id] = (vicon_sub);
+            vicon_sub.subscribe(function (incoming_msg) {
+                self.on_vicon_msg(_id, incoming_msg);
+            });
+        }
     }
 
-    setup_ros_sub_pub() {
+    setup_ros_sub_pub_nodejs() {
+        console.log("setup_ros_sub_pub_nodejs");
+        const nh = this.nh;
+        let self = this;
+
+
+        this.sub_remote_nodes = nh.subscribe('/uwb_node/remote_nodes', 'swarmcomm_msgs/remote_uwb_info', (msg) => {
+            self.on_remote_nodes_info(msg);
+        });
+
+        this.sub_uwb_info = nh.subscribe('/uwb_node/remote_nodes', 'swarmcomm_msgs/remote_uwb_info', (msg) => {
+            self.on_remote_nodes_info(msg);
+        });
+
+
+        this.bspine_viz_listener_1 = nh.subscribe("/planning/swarm_traj_recv", "bspline/Bspline", (msg) => {
+            if (msg.drone_id >= 0) {
+                self.ui.update_drone_traj_bspline(msg.drone_id, msg)
+            }
+        });
+
+        this.bspine_viz_listener_2 = nh.subscribe("/planning/swarm_traj", "bspline/Bspline", (msg) => {
+            if (msg.drone_id >= 0) {
+                self.ui.update_drone_traj_bspline(msg.drone_id, msg)
+            }
+        });
+
+
+        this.incoming_data_listener = nh.subscribe("/uwb_node/incoming_broadcast_data", "swarmcomm_msgs/incoming_broadcast_data", (msg) => {
+            self.on_incoming_data(msg);
+        });
+
+        this.send_uwb_msg = nh.advertise('/uwb_node/send_broadcast_data', 'swarmcomm_msgs/data_buffer');
+
+        this.sub_pcl = nh.subscribe('/sdf_map/occupancy_all_4', 'sensor_msgs/PointCloud2', (msg) => {
+            self.on_globalmap_recv(msg);
+        });
+
+        this.sub_frontier = nh.subscribe("/expl_ground_node/frontier", 'sensor_msgs/PointCloud2', (msg) => {
+            self.on_frontier_recv(msg);
+        });
+
+
+    }
+
+    setup_ros_sub_pub_websocket() {
         let ros = this.ros;
         let self = this;
         this.remote_nodes_listener = new ROSLIB.Topic({
@@ -241,8 +174,6 @@ class SwarmCommander extends BaseCommander{
             self.on_incoming_data(incoming_msg);
         });
 
-        this.vicon_subs = {        };
-       
         this.send_uwb_msg = new ROSLIB.Topic({
             ros : ros,
             name : '/uwb_node/send_broadcast_data',
@@ -269,16 +200,15 @@ class SwarmCommander extends BaseCommander{
         });
 
 
-        // this.sub_pcl = new ROSLIB.Topic({
-        //     ros:this.ros,
-        //     messageType:"sensor_msgs/PointCloud2",
-        //     name:"/sdf_map/occupancy_all_4"
-        // });
+        this.sub_pcl = new ROSLIB.Topic({
+            ros:this.ros,
+            messageType:"sensor_msgs/PointCloud2",
+            name:"/sdf_map/occupancy_all_4"
+        });
         
-        // this.sub_pcl.subscribe(function (msg) {
-        //     self.on_globalmap_recv(msg);
-        // });
-
+        this.sub_pcl.subscribe(function (msg) {
+            self.on_globalmap_recv(msg);
+        });
 
         this.sub_frontier = new ROSLIB.Topic({
             ros:this.ros,
@@ -289,25 +219,6 @@ class SwarmCommander extends BaseCommander{
         this.sub_frontier.subscribe(function (msg) {
             self.on_frontier_recv(msg);
         });
-
-
-        const rosnodejs = require('rosnodejs');
-        rosnodejs.initNode('/my_node')
-        .then(() => {
-          const nh = rosnodejs.nh;
-          const sub = nh.subscribe('/sdf_map/occupancy_all_4', 'sensor_msgs/PointCloud2', (msg) => {
-            // console.log("PCL Rec by nodejs", msg)
-            var t0 = performance.now()
-            var pcl = new PointCloud2(msg, {
-                is_frontier: false,
-                is_pcl2: true,
-                encoding_base64: false
-            });
-            console.log("Call to PointCloud2 took " + (performance.now() - t0) + " milliseconds.")
-            self.ui.update_pcl(pcl);
-          });
-        });
-
     }
 
 
@@ -315,8 +226,7 @@ class SwarmCommander extends BaseCommander{
         var t0 = performance.now()
         var pcl = new PointCloud2(msg, {
             is_frontier: false,
-            is_pcl2: true,
-            encoding_base64: true
+            is_pcl2: true
         });
         var t1 = performance.now()
         this.ui.update_pcl(pcl);
@@ -326,8 +236,7 @@ class SwarmCommander extends BaseCommander{
         var t0 = performance.now()
         var pcl = new PointCloud2(msg, {
             is_frontier: true,
-            is_pcl2: true,
-            encoding_base64: true
+            is_pcl2: true
         });
         var t1 = performance.now()
         // console.log("Call to PointCloud2 took " + (t1 - t0) + " milliseconds.")
@@ -359,10 +268,14 @@ class SwarmCommander extends BaseCommander{
         
         let ts = tnow();
         //note that message may come from different nodes, should fix here
-        let buf = _base64ToArrayBuffer(incoming_msg.data);
-        // console.log(buf);
+        var buf;
+        if (incoming_msg.data.buffer) {
+            buf =  new Uint8Array(incoming_msg.data)
+        } else{
+            buf = _base64ToArrayBuffer(incoming_msg.data);
+        }
+
         let msgs = this.mav.parseBuffer(buf);
-        // console.log(msgs);
         for (var k in msgs) {
             let msg = msgs[k];
             switch (msg.name) {
@@ -436,8 +349,6 @@ class SwarmCommander extends BaseCommander{
     }
 
     on_drone_status_recv(_id, lps_time, status) {
-        
-        // console.log(status);
         if (! (_id in this.vicon_subs) && this.ui.global_local_mode ) {
             this.sub_vicon_id(_id);
         }
@@ -472,7 +383,6 @@ class SwarmCommander extends BaseCommander{
     }
 
     send_takeoff_cmd(_id) {
-        this.stop_transformation_thread();
         console.log("Will send takeoff command");
         let takeoff_cmd = 5;
         let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id,  takeoff_cmd, 10000, 15000, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -480,7 +390,6 @@ class SwarmCommander extends BaseCommander{
     }
 
     send_landing_cmd(_id) {
-        this.stop_transformation_thread();
         console.log("Will send landing command");
         let landing_cmd = 6;
         let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, landing_cmd, 0, this.landing_speed *10000, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -543,7 +452,6 @@ class SwarmCommander extends BaseCommander{
     }
 
     send_emergency_cmd() {
-        this.stop_transformation_thread();
         console.log("Will send emergency command");
         let landing_cmd = 6;
         let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, -1, landing_cmd, -1, 5000, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -562,8 +470,19 @@ class SwarmCommander extends BaseCommander{
 
     send_msg_to_swarm(_msg) {
         let _data = _msg.pack(this.mav);
-        var msg = new ROSLIB.Message({data : _data, send_method: 2});
-        this.send_uwb_msg.publish(msg);
+        if (this.nodejs) {
+            this.send_uwb_msg.publish({
+                header: {
+                    frame_id: "world",
+                    stamp: this.rosnodejs.Time.now()
+                },
+                data : _data,
+                send_method: 2,
+            });
+        } else {
+            var msg = new ROSLIB.Message({data : _data, send_method: 2});
+            this.send_uwb_msg.publish(msg);
+        }
     }
 
     send_formation_hold_cmd(master_id, mode) {
@@ -704,39 +623,8 @@ class SwarmCommander extends BaseCommander{
             }
             // await new Promise(r => setTimeout(r, 50));
         }
-        // if (this.current_formation < 0) {
-        //     next_trans = next_trans + 100;
-        // }
-
-        // var request = new ROSLIB.ServiceRequest({
-        //     next_formation: next_trans
-        // });
-        
-        // let obj = this;
-        // this.change_formation_client.callService(request, function(result) {
-        //     console.log(result);
-        //     obj.ui.set_active_formation(result.current_formation, 0);
-
-        //     setTimeout(function() {
-        //         obj.ui.set_active_formation(result.current_formation, 1);
-        //         obj.current_formation = result.current_formation;
-
-        //         obj.ui.clear_drone_trajs();
-        //     }, result.period*1000);
-        // });
     }
 
-    stop_transformation_thread() {
-        console.log("Try to stop formation thread");
-        var request = new ROSLIB.ServiceRequest({
-            next_formation: -1
-        });
-        let obj = this;        
-        this.change_formation_client.callService(request, function(result) {
-            console.log(result);
-            obj.current_formation = result.current_formation;
-        });
-    }
 }
 
 
