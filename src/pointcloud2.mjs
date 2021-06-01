@@ -50,8 +50,8 @@ for(var i=0;i<64;i++){decode64.e[decode64.S.charAt(i)]=i;}
 
 
 class PointCloud2 {
-    constructor(msg, is_pcl2 = true, is_frontier = false, debug_output = false ) {
-      this.max_pts = 100000;
+    constructor(msg, opt, debug_output=false) {
+      this.max_pts = 1000000;
       this.points = [];
       this.buffer = null;
       this.debug_output = debug_output;
@@ -64,9 +64,10 @@ class PointCloud2 {
 
       this.grid_map = {}
 
-      this.is_frontier = is_frontier;
+      this.opt = opt;
+      this.is_frontier = opt.is_frontier;
 
-      if (is_pcl2) {
+      if (opt.is_pcl2) {
         this.processMessage_pcl2(msg);
       } else {
         this.processMessage_pcl(msg);
@@ -140,20 +141,23 @@ class PointCloud2 {
     }
 
     var n, pointRatio = this.points.pointRatio;
-    var bufSz = this.max_pts * msg.point_step;
+    var bufSz = msg.width * msg.point_step;
 
     if (msg.data.buffer) {
-      this.buffer = msg.data.slice(0, Math.min(msg.data.byteLength, bufSz));
-      n = Math.min(msg.height*msg.width / pointRatio, this.points.positions.array.length / 3);
+      // this.buffer = msg.data//.slice(0, Math.min(msg.data.byteLength, bufSz));
+      this.buffer = new Uint8Array(msg.data).buffer;
+      n = msg.width;
+      pointRatio = 1;
     } else {
       if (!this.buffer || this.buffer.byteLength < bufSz) {
         this.buffer = new Uint8Array(bufSz);
       }
       n = decode64(msg.data, this.buffer, msg.point_step, pointRatio);
+      this.buffer = this.buffer.buffer;
       pointRatio = 1;
     }
 
-    var dv = new DataView(this.buffer.buffer);
+    var dv = new DataView(this.buffer);
     var littleEndian = !msg.is_bigendian;
     var x = fields.x.offset;
     var y = fields.y.offset;
@@ -177,17 +181,17 @@ class PointCloud2 {
       py = pyn * this.grid_size;
       pz = pzn * this.grid_size;
 
-      var obj = pxn.toString() + "|" + pyn.toString() + "|" + pzn.toString();
-      // console.log(obj);
-      if (isNaN(px) || isNaN(py) || isNaN(pz)) {
-        continue;
-      }
+      // var obj = pxn.toString() + "|" + pyn.toString() + "|" + pzn.toString();
+      // // console.log(obj);
+      // if (isNaN(px) || isNaN(py) || isNaN(pz)) {
+      //   continue;
+      // }
 
-      if (this.grid_map[obj] == true) {
-        continue;
-      } else {
-        this.grid_map[obj] = true;
-      }
+      // if (this.grid_map[obj] == true) {
+      //   continue;
+      // } else {
+      //   this.grid_map[obj] = true;
+      // }
 
       this.points.push(px);
       this.points.push(py);
@@ -205,14 +209,8 @@ class PointCloud2 {
         color.setHSL(-vz, 1, 0.5);
 			  this.colors.push( color.r, color.g, color.b, 1.0);
       }
-
-      // if(this.points.colors){
-      //     color = this.points.colormap(this.points.getColor(dv,base,littleEndian));
-      //     this.points.colors.array[3*i    ] = color.r;
-      //     this.points.colors.array[3*i + 1] = color.g;
-      //     this.points.colors.array[3*i + 2] = color.b;
-      // }
     }
+
 
     if (this.debug_output) {
       console.log("PCL2 length" + (this.points.length/3/1000.0).toFixed(1) + "k points; total size " + (n/1000.0).toFixed(1) + "k cost time " + ((tnow() - ts)*1000).toFixed(1) + "ms");

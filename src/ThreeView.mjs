@@ -888,7 +888,7 @@ class ThreeView {
         var diry = new THREE.Vector3(0.0, 1.0, 0);
         var dirz = new THREE.Vector3(0.0, 0, 1.0);
 
-        var origin = new THREE.Vector3(0, 0, 0);
+        var origin = new THREE.Vector3(0, 0, this.uav_gc_height);
         var length = 10;
         var hex_x = 0xff0000;
         var hex_y = 0x00ff00;

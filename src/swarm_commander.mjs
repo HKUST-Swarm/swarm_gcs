@@ -269,15 +269,15 @@ class SwarmCommander extends BaseCommander{
         });
 
 
-        this.sub_pcl = new ROSLIB.Topic({
-            ros:this.ros,
-            messageType:"sensor_msgs/PointCloud2",
-            name:"/sdf_map/occupancy_all_4"
-        });
+        // this.sub_pcl = new ROSLIB.Topic({
+        //     ros:this.ros,
+        //     messageType:"sensor_msgs/PointCloud2",
+        //     name:"/sdf_map/occupancy_all_4"
+        // });
         
-        this.sub_pcl.subscribe(function (msg) {
-            self.on_globalmap_recv(msg);
-        });
+        // this.sub_pcl.subscribe(function (msg) {
+        //     self.on_globalmap_recv(msg);
+        // });
 
 
         this.sub_frontier = new ROSLIB.Topic({
@@ -290,21 +290,45 @@ class SwarmCommander extends BaseCommander{
             self.on_frontier_recv(msg);
         });
 
+
+        const rosnodejs = require('rosnodejs');
+        rosnodejs.initNode('/my_node')
+        .then(() => {
+          const nh = rosnodejs.nh;
+          const sub = nh.subscribe('/sdf_map/occupancy_all_4', 'sensor_msgs/PointCloud2', (msg) => {
+            // console.log("PCL Rec by nodejs", msg)
+            var t0 = performance.now()
+            var pcl = new PointCloud2(msg, {
+                is_frontier: false,
+                is_pcl2: true,
+                encoding_base64: false
+            });
+            console.log("Call to PointCloud2 took " + (performance.now() - t0) + " milliseconds.")
+            self.ui.update_pcl(pcl);
+          });
+        });
+
     }
 
 
     on_globalmap_recv(msg) {
         var t0 = performance.now()
-        var pcl = new PointCloud2(msg, true);
+        var pcl = new PointCloud2(msg, {
+            is_frontier: false,
+            is_pcl2: true,
+            encoding_base64: true
+        });
         var t1 = performance.now()
-        // console.log("Call to PointCloud2 took " + (t1 - t0) + " milliseconds.")
-        
         this.ui.update_pcl(pcl);
     }
 
     on_frontier_recv(msg) {
         var t0 = performance.now()
-        var pcl = new PointCloud2(msg, true, true);
+        var pcl = new PointCloud2(msg, {
+            is_frontier: true,
+            is_pcl2: true,
+            encoding_base64: true
+        });
         var t1 = performance.now()
         // console.log("Call to PointCloud2 took " + (t1 - t0) + " milliseconds.")
         
