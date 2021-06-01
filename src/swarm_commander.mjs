@@ -278,6 +278,18 @@ class SwarmCommander extends BaseCommander{
         this.sub_pcl.subscribe(function (msg) {
             self.on_globalmap_recv(msg);
         });
+
+
+        this.sub_frontier = new ROSLIB.Topic({
+            ros:this.ros,
+            messageType:"sensor_msgs/PointCloud2",
+            name:"/expl_ground_node/frontier"
+        });
+        
+        this.sub_frontier.subscribe(function (msg) {
+            self.on_frontier_recv(msg);
+        });
+
     }
 
 
@@ -285,11 +297,20 @@ class SwarmCommander extends BaseCommander{
         var t0 = performance.now()
         var pcl = new PointCloud2(msg, true);
         var t1 = performance.now()
-        console.log("Call to PointCloud2 took " + (t1 - t0) + " milliseconds.")
+        // console.log("Call to PointCloud2 took " + (t1 - t0) + " milliseconds.")
         
         this.ui.update_pcl(pcl);
     }
- 
+
+    on_frontier_recv(msg) {
+        var t0 = performance.now()
+        var pcl = new PointCloud2(msg, true, true);
+        var t1 = performance.now()
+        // console.log("Call to PointCloud2 took " + (t1 - t0) + " milliseconds.")
+        
+        this.ui.update_frontier(pcl);
+    }
+
     on_inc_globalmap_recv(msg) {
         var pcl = new PointCloud2(msg);
         this.ui.update_inc_pcl(pcl);

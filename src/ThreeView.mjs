@@ -77,6 +77,7 @@ class ThreeView {
         this.scene = new THREE.Scene();
         this.opt = opt;
         var renderer = this.renderer = new THREE.WebGLRenderer();
+        this.scene.fog = new THREE.FogExp2( 0xefd1b5, 0.0025 );
 
         this.width = document.getElementById("urdf").offsetWidth;
         this.height = document.getElementById("urdf").offsetHeight;
@@ -151,8 +152,9 @@ class ThreeView {
         this.on_right_down = false;
         this.right_start_y = 0;
         this.last_evt = null;
+        this.frontier = null;
 
-        this.update_inc_pcl = [];
+        this.inc_pcl = [];
 
         this.init_postprocessing();
 
@@ -388,9 +390,17 @@ class ThreeView {
         this.scene.add(this.pcl);
     }
 
+    update_frontier(pcl) {
+        if (this.frontier != null) {
+            this.scene.remove(this.frontier);
+        }
+        this.frontier = pcl.points_object();
+        this.scene.add(this.frontier);
+    }
+
     update_inc_pcl(pcl) {
         var obj = pcl.boxes_object();
-        this.update_inc_pcl.push(obj);
+        this.inc_pcl.push(obj);
         this.scene.add(obj);
     }
 
@@ -878,7 +888,7 @@ class ThreeView {
         var dirz = new THREE.Vector3(0.0, 0, 1.0);
 
         var origin = new THREE.Vector3(0, 0, 0);
-        var length = 0.3;
+        var length = 10;
         var hex_x = 0xff0000;
         var hex_y = 0x00ff00;
         var hex_z = 0x0000ff;

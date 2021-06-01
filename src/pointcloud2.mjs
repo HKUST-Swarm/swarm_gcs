@@ -50,7 +50,7 @@ for(var i=0;i<64;i++){decode64.e[decode64.S.charAt(i)]=i;}
 
 
 class PointCloud2 {
-    constructor(msg, is_pcl2 = true, debug_output = false ) {
+    constructor(msg, is_pcl2 = true, is_frontier = false, debug_output = false ) {
       this.max_pts = 100000;
       this.points = [];
       this.buffer = null;
@@ -63,6 +63,8 @@ class PointCloud2 {
       this.grid_size = 0.15;
 
       this.grid_map = {}
+
+      this.is_frontier = is_frontier;
 
       if (is_pcl2) {
         this.processMessage_pcl2(msg);
@@ -107,9 +109,13 @@ class PointCloud2 {
         var vy = ( py / 10 ) + 0.5;
         var vz = ( (2 - pz) / 10 ) + 0.5;
         // console.log(vx);
-        var color = new THREE.Color();
-        color.setHSL(vz, 1, 0.5);
-        this.colors.push( color.r, color.g, color.b );
+        if (this.is_frontier) {
+          this.colors.push( 0.0, 0.0, 1.0, 0.5);
+        }else {
+          var color = new THREE.Color();
+          color.setHSL(-vz, 1, 0.5);
+          this.colors.push( color.r, color.g, color.b, 1.0);
+        }
   
       }
       if (this.debug_output) {
@@ -191,9 +197,14 @@ class PointCloud2 {
 			var vy = ( py / 10 ) + 0.5;
       var vz = ( (3 - pz) / 10 );
       // console.log(vx);
-      var color = new THREE.Color();
-      color.setHSL(-vz, 1, 0.5);
-			this.colors.push( color.r, color.g, color.b );
+
+      if (this.is_frontier) {
+			  this.colors.push( 0.0, 1.0, 0.0, 0.5);
+      }else {
+        var color = new THREE.Color();
+        color.setHSL(-vz, 1, 0.5);
+			  this.colors.push( color.r, color.g, color.b, 1.0);
+      }
 
       // if(this.points.colors){
       //     color = this.points.colormap(this.points.getColor(dv,base,littleEndian));
@@ -212,9 +223,13 @@ class PointCloud2 {
   points_object() {
     var geometry = new THREE.BufferGeometry();
     geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( this.points, 3 ) );
-    geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( this.colors, 3 ) );
+    geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( this.colors, 4 ) );
     geometry.computeBoundingSphere();
-    var material = new THREE.PointsMaterial( { size: this.grid_size, vertexColors: THREE.VertexColors } );
+    var material = new THREE.PointsMaterial( { size: this.grid_size*1.5, vertexColors: THREE.VertexColors,
+      transparent: true,
+      opacity: 0.4
+    } );
+    material.transparent = true;
     var points = new THREE.Points( geometry, material );
 
     return points;
@@ -227,7 +242,7 @@ class PointCloud2 {
     geometry.attributes.position = bufferGeometry.attributes.position;
     geometry.attributes.uv = bufferGeometry.attributes.uv;
 
-    var colorAttribute = new THREE.InstancedBufferAttribute( new Float32Array( this.colors ), 3 );
+    var colorAttribute = new THREE.InstancedBufferAttribute( new Float32Array( this.colors ), 4 );
     var offsetAttribute = new THREE.InstancedBufferAttribute( new Float32Array( this.points ), 3 );
     
     
@@ -237,6 +252,7 @@ class PointCloud2 {
       fragmentShader: document.getElementById( 'fshader' ).textContent
     } );
     material.extensions.derivatives = true;
+    // material.transparent = true;
 
 
     var vectors = [
@@ -265,7 +281,6 @@ class PointCloud2 {
     mesh.frustumCulled = false;
     mesh.alwaysSelectAsActiveMesh = true;
     return mesh;
-    
   }
 }
 

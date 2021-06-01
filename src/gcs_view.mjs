@@ -376,6 +376,12 @@ class SwarmGCSUI {
         }
     }
 
+    update_frontier(pcl) {
+        if (this.display_pcl) {
+            this.threeview.update_frontier(pcl);
+        }
+    }
+
     update_inc_pcl(pcl) {
         if (this.display_pcl) {
             this.threeview.update_inc_pcl(pcl);

@@ -89,12 +89,19 @@
     float vEdgeWidth = 0.05;
     return vUv.x > 1.0 - vEdgeWidth || vUv.x < vEdgeWidth|| vUv.y > 1.0 - vEdgeWidth || vUv.y < vEdgeWidth  ;
   }
-  void main() {
-    if (is_border()) {
-      gl_FragColor = vec4(0.043, 0.235, 0.431, 1.0);
-      gl_FragColor = vec4(0.043, 0.235, 0.431, 1.0);
 
-    } else {
+  bool is_border_line() {
+    float vEdgeWidth = 0.00;
+    return vUv.x > 1.0 - vEdgeWidth || vUv.x < vEdgeWidth|| vUv.y > 1.0 - vEdgeWidth || vUv.y < vEdgeWidth  ;
+  }
+
+  void main() {
+
+    if (is_border_line()) {
+      gl_FragColor = vec4(0, 0, 0, 0.0);
+    } else if (is_border()) {
+      gl_FragColor = vColor - vec4(0.2, 0.2, 0.2, 0.0);
+    } else{
       gl_FragColor = vColor;
 
     }
