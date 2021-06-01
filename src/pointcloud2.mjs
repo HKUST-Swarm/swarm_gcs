@@ -195,7 +195,7 @@ class PointCloud2 {
 
       var vx = ( px / 10 ) + 0.5;
 			var vy = ( py / 10 ) + 0.5;
-      var vz = ( (3 - pz) / 10 );
+      var vz = ( (3 - pz) / 5 );
       // console.log(vx);
 
       if (this.is_frontier) {
