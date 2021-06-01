@@ -89,12 +89,19 @@
     float vEdgeWidth = 0.05;
     return vUv.x > 1.0 - vEdgeWidth || vUv.x < vEdgeWidth|| vUv.y > 1.0 - vEdgeWidth || vUv.y < vEdgeWidth  ;
   }
-  void main() {
-    if (is_border()) {
-      gl_FragColor = vec4(0.043, 0.235, 0.431, 1.0);
-      gl_FragColor = vec4(0.043, 0.235, 0.431, 1.0);
 
-    } else {
+  bool is_border_line() {
+    float vEdgeWidth = 0.00;
+    return vUv.x > 1.0 - vEdgeWidth || vUv.x < vEdgeWidth|| vUv.y > 1.0 - vEdgeWidth || vUv.y < vEdgeWidth  ;
+  }
+
+  void main() {
+
+    if (is_border_line()) {
+      gl_FragColor = vec4(0, 0, 0, 0.0);
+    } else if (is_border()) {
+      gl_FragColor = vColor - vec4(0.2, 0.2, 0.2, 0.0);
+    } else{
       gl_FragColor = vColor;
 
     }
@@ -126,8 +133,7 @@
           </li>
          
           <!--As we don't use vicon basically, disable this-->
-          
-          <li class="nav-item dropdown">
+          <!-- <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
               DISPLAY:{{display_mode}}
@@ -136,7 +142,7 @@
               <a class="dropdown-item" href="#" v-on:click="set_display_mode_global">GLOBAL</a>
               <a class="dropdown-item" href="#" v-on:click="set_display_mode_local">LOCAL</a>
             </div>
-          </li>
+          </li> -->
           
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
@@ -308,7 +314,7 @@
     // console.log(ui);
     var sc = new SwarmCommander(ui);
     window.ui = ui;
-</script>
+  </script>
 </body>
 
 </html>

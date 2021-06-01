@@ -11,7 +11,7 @@ function createWindow () {
     width: 1280,
     height: 720,
     webPreferences: {
-      nodeIntegration: false
+      nodeIntegration: true
     }
     // frame:false
   })
@@ -56,6 +56,5 @@ app.on('activate', () => {
     createWindow()
   }
 })
-
 
 

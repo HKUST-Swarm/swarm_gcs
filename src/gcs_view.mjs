@@ -217,7 +217,6 @@ class SwarmGCSUI {
     }
     stop_formation() {
         this.cmder.stop_mission_id(-1);
-        this.cmder.stop_transformation_thread();
     }
 
     set_server_ip(_ip) {
@@ -246,9 +245,11 @@ class SwarmGCSUI {
         for (var i = 0; i < traj.pos_pts.length; i++) {
             var pos = traj.pos_pts[i];
             var ret = this.transfer_vo_with_based(new THREE.Vector3(pos.x, pos.y, pos.z), new THREE.Quaternion(), traj.drone_id, this.primary_id);
-            traj.pos_pts[i].x = ret.pos.x;
-            traj.pos_pts[i].y = ret.pos.y;
-            traj.pos_pts[i].z = ret.pos.z;
+            if (ret != null) {
+                traj.pos_pts[i].x = ret.pos.x;
+                traj.pos_pts[i].y = ret.pos.y;
+                traj.pos_pts[i].z = ret.pos.z;
+            }
         }
         this.threeview.update_drone_traj_bspline(ns, traj);
         } catch {
@@ -370,7 +371,7 @@ class SwarmGCSUI {
 
     set_ros_conn(_conn) {
         this.view.ros_conn = _conn;
-        if (_conn == "OK") {
+        if (_conn == "Nodejs" || _conn == "WebSock" ) {
             this.view.ros_conn_color = good_topbar_color;
         } else {
             this.view.ros_conn_color = "red";
@@ -389,6 +390,17 @@ class SwarmGCSUI {
         }
     }
 
+    update_frontier(pcl) {
+        if (this.display_pcl) {
+            this.threeview.update_frontier(pcl);
+        }
+    }
+
+    update_inc_pcl(pcl) {
+        if (this.display_pcl) {
+            this.threeview.update_inc_pcl(pcl);
+        }
+    }
 
     set_available_drone_num( _num) {
         this.view.available_nodes = _num;

@@ -1,5 +1,27 @@
 # Intro
 ![SwarmGCS](./docs/swarm_gcs.png)
+
+*swarm\_gcs* is a 3d user interface (or ground station) for robots and aerial swarm based on ROS and Three.js. 
+You may use it as a web app on your PC and mobile devices (iPad for example) or standalone application.
+
+This project stands as a part of __[Omni-swarm](https://arxiv.org/abs/2103.04131): A Decentralized Omnidirectional Visual-Inertial-UWB State Estimation System for Aerial Swarm__.
+You may use it alone on any type of robot or as a part of Omni-swarm for swarm robots.
+
+
+# Prerequisite
+To take the full advantage of swarm\_gcs, messages defined in [swarm\_msgs](https://github.com/HKUST-Swarm/swarm_msgs) and our custom [mavlink](https://github.com/HKUST-Swarm/mavlink) protocol are required now.
+We are going to modified protocols and messages for swarm\_gcs to be more generic.
+
+The swarm mode of swarm\_gcs:
+![SwarmGCS](./docs/intro1.PNG)
+
+The single drone mode on an iPad with dense map:
+![SwarmGCS](./docs/single.PNG)
+
+
+# Related Paper
+__Omni-swarm: A Decentralized Omnidirectional Visual-Inertial-UWB State Estimation System for Aerial Swarm__ The VINS-Fisheye is a part of Omni-swarm. If you want use VIN-Fisheye as a part of your research project, please cite this paper.
+
 # Build
 Prerequirements
 LCM is required now.
@@ -43,7 +65,7 @@ roslaunch rosbridge_server rosbridge_websocket.launch
 
 Then open 
 
-http://swarm-gcs.xuhao1.me in browser and select Server IP: 127.0.0.1
+http://swarm-gcs.xuhao1.me in browser on PC or mobile devices and select Server IP: (127.0.0.1 if you are running rosbridge on localhost)
 
 
 Way 2: Use nginx as webserver
@@ -103,7 +125,7 @@ Then open http://127.0.0.1 or open http://your-ip/ on mobile device (iPad 12 inc
 roslaunch launch/swarm_simulation.launch
 ```
 
-Note: After updating code, you may need to clear your Chrome cache.
+Note: After updating code, you may need to clear your Chrome cache or refresh with Ctrl+F5.
 
 Way 3: Download executable from Release and unzip it
 

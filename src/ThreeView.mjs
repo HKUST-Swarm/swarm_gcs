@@ -64,10 +64,6 @@ for (var i = 0; i < 100; i ++) {
     uav_colors.push(get_random_color());
 }
 
-console.log(uav_colors);
-
-console.log(get_random_color());
-
 let use_outline_passes = true;
 // let use_outline_passes = false;
 
@@ -77,6 +73,7 @@ class ThreeView {
         this.scene = new THREE.Scene();
         this.opt = opt;
         var renderer = this.renderer = new THREE.WebGLRenderer();
+        this.scene.fog = new THREE.FogExp2( 0xefd1b5, 0.0025 );
 
         this.width = document.getElementById("urdf").offsetWidth;
         this.height = document.getElementById("urdf").offsetHeight;
@@ -100,7 +97,8 @@ class ThreeView {
         this.camera.up.z = 1;
         this.camera.near = 0.01;
 
-        this.chessboard_z = -0.25;
+        this.chessboard_z = 0;
+        this.uav_gc_height = 0.12;
         this.hover_outline = false;
         // renderer.setClearColor("white", 1);
         this.scene.background = new THREE.Color(0xcff3fa);
@@ -151,6 +149,9 @@ class ThreeView {
         this.on_right_down = false;
         this.right_start_y = 0;
         this.last_evt = null;
+        this.frontier = null;
+
+        this.inc_pcl = [];
 
         this.init_postprocessing();
 
@@ -382,7 +383,22 @@ class ThreeView {
             this.scene.remove(this.pcl);
         }
         this.pcl = pcl.boxes_object();
+        // this.pcl = pcl.points_object();
         this.scene.add(this.pcl);
+    }
+
+    update_frontier(pcl) {
+        if (this.frontier != null) {
+            this.scene.remove(this.frontier);
+        }
+        this.frontier = pcl.points_object();
+        this.scene.add(this.frontier);
+    }
+
+    update_inc_pcl(pcl) {
+        var obj = pcl.boxes_object();
+        this.inc_pcl.push(obj);
+        this.scene.add(obj);
     }
 
     load_aircraft() {
@@ -676,7 +692,7 @@ class ThreeView {
 
         this.uavs_ground[_id].position.x = pos.x;
         this.uavs_ground[_id].position.y = pos.y;
-        this.uavs_ground[_id].position.z = this.chessboard_z + 0.02;
+        this.uavs_ground[_id].position.z = this.chessboard_z + this.uav_gc_height;
 
 
         var line_pts = this.uavs_line[_id].geometry.attributes.position.array;
@@ -868,8 +884,8 @@ class ThreeView {
         var diry = new THREE.Vector3(0.0, 1.0, 0);
         var dirz = new THREE.Vector3(0.0, 0, 1.0);
 
-        var origin = new THREE.Vector3(0, 0, 0);
-        var length = 0.3;
+        var origin = new THREE.Vector3(0, 0, this.uav_gc_height);
+        var length = 10;
         var hex_x = 0xff0000;
         var hex_y = 0x00ff00;
         var hex_z = 0x0000ff;
@@ -957,7 +973,7 @@ class ThreeView {
         this.scene.add(cb);
 
 
-        const size = 1000;
+        const size = 100;
         const divisions = 100;
         
         var gridHelper = new THREE.GridHelper( size, divisions );

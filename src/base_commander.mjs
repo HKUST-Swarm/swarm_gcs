@@ -5,12 +5,35 @@ class BaseCommander {
       this.ui.cmder = this;        
 
       this.server_ip = this.ui.server_ip;
-      this.setup_ros_conn();
+      this.nodejs = false;
+
+      console.log("Initializing commander")
+      try {
+        const rosnodejs = require('rosnodejs');
+        rosnodejs.loadAllPackages();
+        rosnodejs.initNode('/swarm_gcs');
+        this.rosnodejs = rosnodejs;
+        this.nh = rosnodejs.nh;
+        this.nodejs = true;
+        console.log("nodejs interface success!");
+        this.connected = true;
+        ui.set_ros_conn("Nodejs");
+        this.setup_ros_sub_pub_nodejs();
+      }
+      catch (e){
+        console.error("Could not initialize nodejs", e, ", use websocket interface");
+        this.setup_ros_conn();
+      }
 
       this.connected = false;
   }
-  
-  setup_ros_sub_pub() {
+
+  setup_ros_sub_pub_nodejs() {
+    console.log("Not implement yet");
+  }
+
+  setup_ros_sub_pub_websocket() {
+    console.log("Not implement yet");
   }
 
   set_server_ip(_ip, reconnect=false) {
@@ -44,9 +67,9 @@ class BaseCommander {
         ros.on("connection", function () {
             // console.log("Connected to websocket server.");
             self.connected = true;
-            _ui.set_ros_conn("OK");
+            _ui.set_ros_conn("WebSock");
 
-            self.setup_ros_sub_pub();
+            self.setup_ros_sub_pub_websocket();
         });
         
         ros.on('error', function(error) {

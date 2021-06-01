@@ -50,8 +50,8 @@ for(var i=0;i<64;i++){decode64.e[decode64.S.charAt(i)]=i;}
 
 
 class PointCloud2 {
-    constructor(msg, is_pcl2 = true, debug_output = false ) {
-      this.max_pts = 100000;
+    constructor(msg, opt, debug_output=false) {
+      this.max_pts = 1000000;
       this.points = [];
       this.buffer = null;
       this.debug_output = debug_output;
@@ -64,7 +64,10 @@ class PointCloud2 {
 
       this.grid_map = {}
 
-      if (is_pcl2) {
+      this.opt = opt;
+      this.is_frontier = opt.is_frontier;
+
+      if (opt.is_pcl2) {
         this.processMessage_pcl2(msg);
       } else {
         this.processMessage_pcl(msg);
@@ -107,15 +110,20 @@ class PointCloud2 {
         var vy = ( py / 10 ) + 0.5;
         var vz = ( (2 - pz) / 10 ) + 0.5;
         // console.log(vx);
-        var color = new THREE.Color();
-        color.setHSL(vz, 1, 0.5);
-        this.colors.push( color.r, color.g, color.b );
+        if (this.is_frontier) {
+          this.colors.push( 0.0, 0.0, 1.0, 0.5);
+        }else {
+          var color = new THREE.Color();
+          color.setHSL(-vz, 1, 0.5);
+          this.colors.push( color.r, color.g, color.b, 1.0);
+        }
   
       }
       if (this.debug_output) {
         console.log("PCL length" + (this.points.length/3/1000.0).toFixed(1) + "k points; total size " + (msg.points.length/1000.0).toFixed(1) + "k cost time " + ((tnow() - ts)*1000).toFixed(1) + "ms");
       }
     }
+    
     processMessage_pcl2 (msg){
 
     var ts = tnow();
@@ -133,20 +141,23 @@ class PointCloud2 {
     }
 
     var n, pointRatio = this.points.pointRatio;
-    var bufSz = this.max_pts * msg.point_step;
+    var bufSz = msg.width * msg.point_step;
 
     if (msg.data.buffer) {
-      this.buffer = msg.data.slice(0, Math.min(msg.data.byteLength, bufSz));
-      n = Math.min(msg.height*msg.width / pointRatio, this.points.positions.array.length / 3);
+      // this.buffer = msg.data//.slice(0, Math.min(msg.data.byteLength, bufSz));
+      this.buffer = new Uint8Array(msg.data).buffer;
+      n = msg.width;
+      pointRatio = 1;
     } else {
       if (!this.buffer || this.buffer.byteLength < bufSz) {
         this.buffer = new Uint8Array(bufSz);
       }
       n = decode64(msg.data, this.buffer, msg.point_step, pointRatio);
+      this.buffer = this.buffer.buffer;
       pointRatio = 1;
     }
 
-    var dv = new DataView(this.buffer.buffer);
+    var dv = new DataView(this.buffer);
     var littleEndian = !msg.is_bigendian;
     var x = fields.x.offset;
     var y = fields.y.offset;
@@ -170,17 +181,17 @@ class PointCloud2 {
       py = pyn * this.grid_size;
       pz = pzn * this.grid_size;
 
-      var obj = pxn.toString() + "|" + pyn.toString() + "|" + pzn.toString();
-      // console.log(obj);
-      if (isNaN(px) || isNaN(py) || isNaN(pz)) {
-        continue;
-      }
+      // var obj = pxn.toString() + "|" + pyn.toString() + "|" + pzn.toString();
+      // // console.log(obj);
+      // if (isNaN(px) || isNaN(py) || isNaN(pz)) {
+      //   continue;
+      // }
 
-      if (this.grid_map[obj] == true) {
-        continue;
-      } else {
-        this.grid_map[obj] = true;
-      }
+      // if (this.grid_map[obj] == true) {
+      //   continue;
+      // } else {
+      //   this.grid_map[obj] = true;
+      // }
 
       this.points.push(px);
       this.points.push(py);
@@ -188,19 +199,18 @@ class PointCloud2 {
 
       var vx = ( px / 10 ) + 0.5;
 			var vy = ( py / 10 ) + 0.5;
-      var vz = ( (3 - pz) / 10 ) + 0.5;
+      var vz = ( (3 - pz) / 5 );
       // console.log(vx);
-      var color = new THREE.Color();
-      color.setHSL(vz, 1, 0.5);
-			this.colors.push( color.r, color.g, color.b );
 
-      // if(this.points.colors){
-      //     color = this.points.colormap(this.points.getColor(dv,base,littleEndian));
-      //     this.points.colors.array[3*i    ] = color.r;
-      //     this.points.colors.array[3*i + 1] = color.g;
-      //     this.points.colors.array[3*i + 2] = color.b;
-      // }
+      if (this.is_frontier) {
+			  this.colors.push( 0.0, 1.0, 0.0, 0.5);
+      }else {
+        var color = new THREE.Color();
+        color.setHSL(-vz, 1, 0.5);
+			  this.colors.push( color.r, color.g, color.b, 1.0);
+      }
     }
+
 
     if (this.debug_output) {
       console.log("PCL2 length" + (this.points.length/3/1000.0).toFixed(1) + "k points; total size " + (n/1000.0).toFixed(1) + "k cost time " + ((tnow() - ts)*1000).toFixed(1) + "ms");
@@ -211,13 +221,18 @@ class PointCloud2 {
   points_object() {
     var geometry = new THREE.BufferGeometry();
     geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( this.points, 3 ) );
-    geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( this.colors, 3 ) );
+    geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( this.colors, 4 ) );
     geometry.computeBoundingSphere();
-    var material = new THREE.PointsMaterial( { size: 0.1, vertexColors: THREE.VertexColors } );
+    var material = new THREE.PointsMaterial( { size: this.grid_size*1.5, vertexColors: THREE.VertexColors,
+      transparent: true,
+      opacity: 0.4
+    } );
+    material.transparent = true;
     var points = new THREE.Points( geometry, material );
 
     return points;
   }
+
   boxes_object() {
     var bufferGeometry = new THREE.BoxBufferGeometry(this.grid_size, this.grid_size, this.grid_size );
     var geometry = new THREE.InstancedBufferGeometry();
@@ -225,7 +240,7 @@ class PointCloud2 {
     geometry.attributes.position = bufferGeometry.attributes.position;
     geometry.attributes.uv = bufferGeometry.attributes.uv;
 
-    var colorAttribute = new THREE.InstancedBufferAttribute( new Float32Array( this.colors ), 3 );
+    var colorAttribute = new THREE.InstancedBufferAttribute( new Float32Array( this.colors ), 4 );
     var offsetAttribute = new THREE.InstancedBufferAttribute( new Float32Array( this.points ), 3 );
     
     
@@ -235,6 +250,7 @@ class PointCloud2 {
       fragmentShader: document.getElementById( 'fshader' ).textContent
     } );
     material.extensions.derivatives = true;
+    // material.transparent = true;
 
 
     var vectors = [
@@ -261,8 +277,8 @@ class PointCloud2 {
     // geometry.addAttribute('edgeColor', new Float32Array([0, 0, 0]))
     var mesh = new THREE.Mesh( geometry, material );
     mesh.frustumCulled = false;
+    mesh.alwaysSelectAsActiveMesh = true;
     return mesh;
-    
   }
 }
 
