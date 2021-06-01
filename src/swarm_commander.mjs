@@ -96,7 +96,6 @@ class SwarmCommander extends BaseCommander{
             self.on_incoming_data(msg);
         });
 
-        this.send_uwb_msg = nh.advertise('/uwb_node/send_broadcast_data', 'swarmcomm_msgs/data_buffer');
 
         this.sub_pcl = nh.subscribe('/sdf_map/occupancy_all_4', 'sensor_msgs/PointCloud2', (msg) => {
             self.on_globalmap_recv(msg);
@@ -106,7 +105,9 @@ class SwarmCommander extends BaseCommander{
             self.on_frontier_recv(msg);
         });
 
+        this.send_uwb_msg = nh.advertise('/uwb_node/send_broadcast_data', 'swarmcomm_msgs/data_buffer');
 
+        this.move_simple_goal = nh.advertise('/move_base_simple/goal', 'geometry_msgs/PoseStamped');
     }
 
     setup_ros_sub_pub_websocket() {
@@ -396,9 +397,13 @@ class SwarmCommander extends BaseCommander{
         this.send_msg_to_swarm(scmd);
     }
 
-    send_flyto_debug(){
-        console.log("Send flyto debug");
-        var msg = new ROSLIB.Message({
+    send_simple_move(){
+        console.log("Send simple move");
+        var msg = {
+            header: {
+                frame_id: "world",
+                stamp: this.rosnodejs.Time.now()
+            },
             pose: {
                 position: {
                     x: 0,
@@ -412,9 +417,14 @@ class SwarmCommander extends BaseCommander{
                     z: 0
                 }
             }
-        });
+        };
 
-        this.move_simple_goal.publish(msg);
+        if (this.nodejs) {
+            this.move_simple_goal.publish(msg);
+        } else {
+            var _msg = new ROSLIB.Message(msg);
+            this.move_simple_goal.publish(_msg);
+        }
     }
 
     send_flyto_cmd(_id, pos, direct) {

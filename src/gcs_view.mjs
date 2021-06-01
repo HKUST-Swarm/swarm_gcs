@@ -126,8 +126,8 @@ class SwarmGCSUI {
                     obj.formation_hold(mode)
                 },
 
-                formation_swap: function(mode) {
-                    obj.formation_swap()
+                send_simple_move: function(mode) {
+                    obj.send_simple_move()
                 },
 
                 stop_formation: function() {
@@ -165,8 +165,8 @@ class SwarmGCSUI {
         this.other_vo_origin = {};
     }
 
-    formation_swap() {
-        this.cmder.send_flyto_debug();
+    send_simple_move() {
+        this.cmder.send_simple_move();
     }
 
     formation_hold(mode) {

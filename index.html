@@ -263,7 +263,10 @@
             id="range_select">
              <img src="material-design-icons/content/drawable-xxxhdpi/ic_select_all_white_48dp.png" class="small_icon" />
             Select</button> -->
-
+            <button type="button" v-on:click="send_simple_move()" class="btn btn-primary btn-lg">
+              <img src="material-design-icons/av/drawable-xxxhdpi/ic_repeat_white_48dp.png" class="small_icon" />
+              Exp!</button>
+        
   
           <hr />
           <h4>FORMATIONs</h4> 
@@ -273,9 +276,6 @@
           <button type="button" v-on:click="formation_hold(1)" class="btn btn-primary btn-lg">
               <img src="material-design-icons/navigation/drawable-xxxhdpi/ic_apps_white_48dp.png" class="small_icon" />
               Lock</button>
-          <button type="button" v-on:click="formation_swap()" class="btn btn-primary btn-lg">
-                <img src="material-design-icons/av/drawable-xxxhdpi/ic_repeat_white_48dp.png" class="small_icon" />
-                Swap</button>
           <button type="button" class="btn btn-secondary btn-danger" v-on:click="stop_formation()">
               <img src="material-design-icons/navigation/drawable-xxxhdpi/ic_cancel_white_48dp.png" class="small_icon" />
             STOP</button>
