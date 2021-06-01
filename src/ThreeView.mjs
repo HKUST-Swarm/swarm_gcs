@@ -518,8 +518,8 @@ class ThreeView {
             0.5);
         var raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(mv, this.camera);
-        var _tmp;
-        var pos = raycaster.ray.intersectPlane(planeZ, _tmp);
+		var target = new THREE.Vector3();
+        var pos = raycaster.ray.intersectPlane(planeZ, target);
         if (pos.z != null) {
             pos.z += z_off;
             this.create_aircraft_waypoint(this.ui.select_id, pos);
