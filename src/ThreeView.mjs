@@ -1120,8 +1120,8 @@ class ThreeView {
 function toScreenPosition(position, camera, renderer) {
     var vector = new THREE.Vector3();
 
-    var widthHalf = 0.5 * renderer.context.canvas.width;
-    var heightHalf = 0.5 * renderer.context.canvas.height;
+    var widthHalf = 0.5 * renderer.getContext().canvas.width;
+    var heightHalf = 0.5 * renderer.getContext().canvas.height;
 
     var matrixWorld = new THREE.Matrix4();
     matrixWorld.compose(position, new THREE.Quaternion(), new THREE.Vector3());

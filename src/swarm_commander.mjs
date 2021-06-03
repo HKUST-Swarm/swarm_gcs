@@ -297,7 +297,6 @@ class SwarmCommander extends BaseCommander{
                 }
 
                 case "NODE_BASED_FUSED": {
-                    // console.log(msg);
                     this.on_node_based_coorindate(incoming_msg.remote_id, incoming_msg.lps_time, msg);
                     break;
                 }
