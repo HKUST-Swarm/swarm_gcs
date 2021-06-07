@@ -396,7 +396,7 @@ class SwarmCommander extends BaseCommander{
         this.send_msg_to_swarm(scmd);
     }
 
-    send_simple_move(){
+    send_simple_move(_id){
         console.log("Send simple move");
         var msg = {
             header: {
@@ -424,6 +424,14 @@ class SwarmCommander extends BaseCommander{
             var _msg = new ROSLIB.Message(msg);
             this.move_simple_goal.publish(_msg);
         }
+
+        var exp_cmd = 30;
+
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, exp_cmd, 
+            0, 
+            0, 
+            0, 0, 0, 0, 0, 0, 0, 0);
+        this.send_msg_to_swarm(scmd);
     }
 
     send_flyto_cmd(_id, pos, direct) {
