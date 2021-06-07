@@ -469,6 +469,14 @@ class SwarmGCSUI {
         // warn_vo_(_id);
 
     }
+    
+    on_marker_add_lines(ns, lines, color) {
+        this.threeview.on_marker_add_lines(ns, lines, new THREE.Color(color.r, color.g, color.b));
+    }
+
+    on_marker_delete_lines(ns) {
+        this.threeview.on_marker_delete_lines(ns)
+    }
 
     update_three_id_pose(_id, pos, quat, vx=null, vy=null, vz=null, covx=0, covy=0, covz=0, covyaw=0, update_yaw_cov = false) {
         if (!this.threeview.has_uav(_id)) {
