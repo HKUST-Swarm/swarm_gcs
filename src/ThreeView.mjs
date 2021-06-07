@@ -152,6 +152,8 @@ class ThreeView {
 
         this.inc_pcl = [];
 
+        this.grid_markers = {};
+
         this.init_postprocessing();
 
         window.addEventListener('mousedown', function (e) {
@@ -1056,6 +1058,35 @@ class ThreeView {
         for (var _id in this.uavs) {
             this.uavs[_id].position.z = -10000;
         }
+    }
+
+    on_marker_add_lines(ns, lines, color) {
+        this.on_marker_delete_lines(ns);
+        const material = new THREE.LineBasicMaterial( { color: color, linewidth: 5} );
+        
+        for (var i = 0; i < lines.length/2; i++) {
+            const points = [];
+            for (var j = 0; j < lines[i].length; j ++) {
+                points.push( new THREE.Vector3(lines[i][j].x, lines[i][j].y, lines[i][j].z));
+            }
+            
+            const geometry = new THREE.BufferGeometry().setFromPoints( points );
+            const line = new THREE.Line( geometry, material );
+            this.scene.add( line );
+            lines.push(line);
+        }
+
+        this.grid_markers[ns] = lines;
+    }
+
+    on_marker_delete_lines(ns) {
+        if (ns in this.grid_markers) {
+            for (var i = 0; i < this.grid_markers[ns].length; i++) {
+                this.scene.remove(this.grid_markers[ns][i]);
+                // console.log("removing markers", ns, i, this.grid_markers[ns][i]);
+            }
+        }
+        this.grid_markers[ns] = [];
     }
 
     update_uav_labels() {

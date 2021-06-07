@@ -74,6 +74,10 @@ class SwarmCommander extends BaseCommander{
             self.on_remote_nodes_info(msg);
         });
 
+        this.sub_grid = nh.subscribe('/expl_ground_node/grid', 'visualization_msgs/Marker', (msg) => {
+            self.on_grid(msg);
+        });
+
         this.sub_uwb_info = nh.subscribe('/uwb_node/remote_nodes', 'swarmcomm_msgs/remote_uwb_info', (msg) => {
             self.on_remote_nodes_info(msg);
         });
@@ -221,6 +225,24 @@ class SwarmCommander extends BaseCommander{
             self.on_frontier_recv(msg);
         });
     }
+
+    on_grid(msg) {
+        console.log(msg);
+        var ns = msg.ns + msg.id;
+        if (msg.action == 2) {
+            this.ui.on_marker_delete_lines(ns);
+        } else {
+            var lines = [];
+            for (var i = 0; i < msg.points.length/2; i++) {
+                var line = [];
+                line.push(msg.points[i*2], msg.points[i*2+1]);
+                lines.push(line);
+            }
+            this.ui.on_marker_add_lines(ns, lines, msg.color);
+        }
+
+    }
+    
 
 
     on_globalmap_recv(msg) {
