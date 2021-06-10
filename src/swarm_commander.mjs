@@ -264,7 +264,7 @@ class SwarmCommander extends BaseCommander{
         var t1 = performance.now()
         // console.log("Call to PointCloud2 took " + (t1 - t0) + " milliseconds.")
         
-        this.ui.update_frontier(pcl);
+        // this.ui.update_frontier(pcl);
     }
 
     on_inc_globalmap_recv(msg) {

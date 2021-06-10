@@ -203,7 +203,7 @@ class PointCloud2 {
       // console.log(vx);
 
       if (this.is_frontier) {
-			  this.colors.push( 0.2, 0.2, 0.2, 0.4);
+			  this.colors.push( 0.2, 0.2, 0.2, 0.2);
       }else {
         var color = new THREE.Color();
         color.setHSL(-vz, 1, 0.5);
