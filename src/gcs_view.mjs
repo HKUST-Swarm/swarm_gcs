@@ -346,6 +346,9 @@ class SwarmGCSUI {
             case "traj1":
                 this.cmder.send_traj_cmd(this.select_id, 1);
                 break;
+            case "expo":
+                this.cmder.send_simple_move(this.select_id);
+                break;
             default:
                 break;
         }
@@ -732,6 +735,9 @@ class SwarmGCSUI {
                     break;
                 case "circle":
                     cmd = "绕圈";
+                    break;
+                case "expo":
+                    cmd = "探索";
                     break;
                 default:
                     cmd = _cmd;

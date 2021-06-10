@@ -162,14 +162,14 @@
           <li class="nav-item">
               <a class="nav-link" href="#">
               <img src="material-design-icons/maps/drawable-xxxhdpi/ic_flight_white_48dp.png" style="height: 1.4em; width: 1.4em;" />
-                SELECTED:{{selected_uav}}
+                SEL:{{selected_uav}}
               </a>
           </li>
 
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
-              PRIMARY:{{primary_id}}
+              PRI:{{primary_id}}
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" href="#" v-for="(_, _id) in uavs" v-on:click="set_primary_id(_id)">{{_id}}</a>
@@ -267,7 +267,7 @@
             id="range_select">
              <img src="material-design-icons/content/drawable-xxxhdpi/ic_select_all_white_48dp.png" class="small_icon" />
             Select</button> -->
-            <button type="button" v-on:click="send_simple_move()" class="btn btn-primary btn-lg">
+            <button type="button" v-on:click="command('expo')" class="btn btn-primary btn-lg">
               <img src="material-design-icons/av/drawable-xxxhdpi/ic_repeat_white_48dp.png" class="small_icon" />
               Exp!</button>
         
