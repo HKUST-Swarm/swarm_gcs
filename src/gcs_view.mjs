@@ -469,6 +469,53 @@ class SwarmGCSUI {
         // warn_vo_(_id);
 
     }
+
+    set_drone_status_mavlink_standard(_id, status) {
+        let obj = this;
+
+        var status;
+        if (_id in this.view.uavs) {
+            status = this.view.uavs[_id];
+        } else {
+            status = {
+            x:"0.00",
+            y:"0.00",
+            z:"0.00",
+            bat_vol:(status.voltage_battery/1000.0).toFixed(2),
+            ctrl_auth: "NA",
+            ctrl_mode: "NA",
+            ctrl_input_mode: "NA",
+            flight_status: "NA",
+            vo_valid: "NA",
+            lps_time: "NA",
+            vo_latency: 0,
+            lps_time_dt: 0,
+            bat_remain: status.battery_remaining*12,
+            bat_good: status.battery_remaining > 30,
+            _id:_id,
+            ui:obj}
+        }
+
+        Vue.set(this.view.uavs, _id, status);
+
+        if (!(this.view.primary_id in this.view.uavs)) {
+            this.set_primary_id(_id)
+        }
+
+        // if (status.bat_vol < 14.7) {
+            // this.warn_battery_level(_id, status.bat_vol);
+        // }
+
+        if (status.battery_remaining < 30) {
+            this.warn_battery_remain(_id, status.battery_remaining*12);
+        }
+
+        if (!status.vo_valid) {
+            this.warn_vo_(_id);
+        }
+        // warn_vo_(_id);
+
+    }
     
     on_marker_add_lines(ns, lines, color) {
         this.threeview.on_marker_add_lines(ns, lines, new THREE.Color(color.r, color.g, color.b));
@@ -500,10 +547,32 @@ class SwarmGCSUI {
 
     update_drone_selfpose(_id, pos, quat, vx=null, vy=null, vz=null) {
         // console.log("Update Drone selfpose ", _id, pos, quat);
-       this.uav_local_poses[_id] = {
-           pos:pos, quat:quat
-       };
+        if (!(_id in this.uav_local_poses)) {
+            this.uav_local_poses[_id] = {
+                pos: new THREE.Vector3(),
+                quat: new THREE.Quaternion(),
+            };
+        }
 
+        if (pos !== null) {
+            this.uav_local_poses[_id].pos = pos;
+        } else {
+            pos = this.uav_local_poses[_id].pos;
+        }
+
+        if (quat !== null) {
+            this.uav_local_poses[_id].quat = quat;
+        } else {
+            quat = this.uav_local_poses[_id].quat;
+        }
+
+        if (_id in this.view.uavs) {
+            var status = this.view.uavs[_id];
+            status.x = toFixedString(pos.x, 2);
+            status.y = toFixedString(pos.y, 2);
+            status.z = toFixedString(pos.z, 2);
+        }
+    
        //For enable loop closure, we shouldn't check id is primary id
        
        if (!this.global_local_mode && (_id != this.primary_id || this.loop_mode )) {

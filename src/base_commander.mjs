@@ -19,6 +19,7 @@ class BaseCommander {
         this.connected = true;
         ui.set_ros_conn("Nodejs");
         this.setup_ros_sub_pub_nodejs();
+        this.setup_udp_nodejs();
       }
       catch (e){
         console.error("Could not initialize nodejs", e, ", use websocket interface");
@@ -26,6 +27,10 @@ class BaseCommander {
       }
 
       this.connected = false;
+  }
+
+  setup_udp_nodejs() {
+    console.log("Not implement yet");
   }
 
   setup_ros_sub_pub_nodejs() {

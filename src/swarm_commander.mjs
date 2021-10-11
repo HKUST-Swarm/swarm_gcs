@@ -3,7 +3,8 @@ import {BaseCommander} from "./base_commander.mjs"
 import {PointCloud2} from './pointcloud2.mjs';
 import {formations} from './formations.mjs';
 
-var mavlink = mavlink10;
+var mavlink = mavlink20;
+var mavlinkprocessor = MAVLink20Processor;
 function _base64ToArrayBuffer(base64) {
     var binary_string = window.atob(base64);
     var len = binary_string.length;
@@ -22,7 +23,7 @@ let vaild_ids = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 class SwarmCommander extends BaseCommander{
     constructor(ui) {
         super(ui);
-        this.mav = new MAVLink10Processor(null, 0, 0);
+        this.mav = new mavlinkprocessor(null, 0, 0);
 
         this.select_id = -1;
         this._lps_time = 0;
@@ -226,6 +227,21 @@ class SwarmCommander extends BaseCommander{
         });
     }
 
+
+    setup_udp_nodejs() {
+        let self = this;
+        const dgram = require('dgram');
+        this.udp_socket = dgram.createSocket('udp4');
+        this.udp_socket.bind(14550, function () {});
+        this.udp_socket.on('message', (msg, rinfo) => {
+            // console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+            self.drone_mav_ip = rinfo.address;
+            self.drone_mav_port= rinfo.port;
+            self.parseMavlinkStandard(msg);
+        });
+          
+    }
+
     on_grid(msg) {
         console.log(msg);
         var ns = msg.ns + msg.id;
@@ -283,6 +299,80 @@ class SwarmCommander extends BaseCommander{
         this.ui.update_drone_globalpose(_id, pos, quat);
     }
 
+
+    parseMavlinkStandard(buf, srcId, time_ms) {
+        let msgs = this.mav.parseBuffer(buf);
+        for (var k in msgs) {
+            let msg = msgs[k];
+            console.log(msg);
+
+            switch (msg.name) {
+                case "SYS_STATUS": 
+                    this.on_mavlink_system_status(msg);
+                    break;
+                case "LOCAL_POSITION_NED":
+                    this.on_mavlink_local_position_ned(msg);
+                    break;
+                case "ATTITUDE_QUATERNION":
+                    this.on_mavlink_attitude_quaternion(msg);
+                    break;
+            }
+        }
+    }
+
+
+    on_mavlink_system_status(msg) {
+        this.ui.set_drone_status_mavlink_standard(msg.header.srcSystem, msg);
+    }
+
+    on_mavlink_local_position_ned(msg){
+        var pos = new THREE.Vector3(msg.x, msg.y, msg.z);
+        var _id = msg.header.srcSystem;
+        this.ui.update_drone_selfpose(_id, pos, null, msg.vx, msg.vy, msg.vz);
+        this.uav_pos[_id] = pos;
+    }
+
+    on_mavlink_attitude_quaternion(msg){
+        var quat = new THREE.Quaternion(msg.q4, msg.q1, msg.q2, msg.q3);
+        var _id = msg.header.srcSystem;
+        this.ui.update_drone_selfpose(_id, null, quat);
+    }
+
+    parseMavlinkCustom(buf, srcId, time_ms) {
+        let msgs = this.mav.parseBuffer(buf);
+        for (var k in msgs) {
+            let msg = msgs[k];
+            switch (msg.name) {
+                case "NODE_REALTIME_INFO": {
+                    this.on_drone_realtime_info_recv(srcId, time_ms, msg);
+                    break;
+                }
+
+                case "DRONE_STATUS": {
+                    // console.log(msg);
+                    this.on_drone_status_recv(srcId, time_ms, msg);
+                    break;
+                }
+                case "NODE_LOCAL_FUSED" : {
+                    // console.log(msg);
+                    this.on_node_local_fused(srcId, time_ms, msg);
+                    break;
+                }
+
+                case "NODE_BASED_FUSED": {
+                    this.on_node_based_coorindate(srcId, time_ms, msg);
+                    break;
+                }
+
+                case "NODE_DETECTED": {
+                    this.on_node_detected(srcId, time_ms, msg);
+                    break;
+                }
+
+            }
+        }
+    }
+
     on_incoming_data(incoming_msg) {
         // console.log(incoming_msg);
         if (!vaild_ids.has(incoming_msg.remote_id)) {
@@ -298,39 +388,7 @@ class SwarmCommander extends BaseCommander{
             buf = _base64ToArrayBuffer(incoming_msg.data);
         }
 
-        let msgs = this.mav.parseBuffer(buf);
-        for (var k in msgs) {
-            let msg = msgs[k];
-            switch (msg.name) {
-                case "NODE_REALTIME_INFO": {
-                    this.on_drone_realtime_info_recv(incoming_msg.remote_id, incoming_msg.lps_time, msg);
-                    break;
-                }
-
-                case "DRONE_STATUS": {
-                    // console.log(msg);
-                    this.on_drone_status_recv(incoming_msg.remote_id, incoming_msg.lps_time, msg);
-                    break;
-                }
-                case "NODE_LOCAL_FUSED" : {
-                    // console.log(msg);
-                    this.on_node_local_fused(incoming_msg.remote_id, incoming_msg.lps_time, msg);
-                    break;
-                }
-
-                case "NODE_BASED_FUSED": {
-                    this.on_node_based_coorindate(incoming_msg.remote_id, incoming_msg.lps_time, msg);
-                    break;
-                }
-
-                case "NODE_DETECTED": {
-                    this.on_node_detected(incoming_msg.remote_id, incoming_msg.lps_time, msg);
-                    break;
-                }
-            }
-        }
-        let dt = tnow() - ts;
-        // console.log("Process time ", dt*1000);
+        this.parseMavlinkUWB(buf, incoming_msg.remote_id, incoming_msg.lps_time);
     }
 
 
