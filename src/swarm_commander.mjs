@@ -15,6 +15,17 @@ function _base64ToArrayBuffer(base64) {
     return bytes;
 }
 
+let formation_params = {
+    xmin: -3,
+    xmax: 3,
+    ymin: -1,
+    ymax: 2,
+    zmin: 0.8,
+    zmax: 1.8,
+    safe_distance_planar: 1.0
+};
+
+
 function tnow() {
     return new Date().getTime() / 1000;
 }
@@ -706,24 +717,30 @@ class SwarmCommander extends BaseCommander{
     }
 
     request_transformation_change(next_trans) {
-        console.log("Try to request formation, ", next_trans);
-        for (var j = 0; j < 5; j ++) {
-            for (var i = 1; i < 6; i ++) {
-                var _pos = formations[next_trans][i];
-                var pos = new THREE.Vector3(_pos.x, _pos.y, _pos.z);
-                var quat = new THREE.Quaternion(0, 0, 0, 1);
-                var ret = this.ui.transfer_vo_with_based(pos, quat, this.ui.primary_id, i);
-                if (ret != null) {
-                    console.log("Drone ", i, "pos_gcs", pos, "pos_vo", ret.pos);
-                    this.send_flyto_cmd(i, ret.pos, false);
-                } 
+        if (next_trans >= 0) {
+            console.log("Try to request formation, ", next_trans);
+            for (var j = 0; j < 5; j ++) {
+                for (var i = 1; i < 6; i ++) {
+                    var _pos = formations[next_trans][i];
+                    var pos = new THREE.Vector3(_pos.x, _pos.y, _pos.z);
+                    var quat = new THREE.Quaternion(0, 0, 0, 1);
+                    var ret = this.ui.transfer_vo_with_based(pos, quat, this.ui.primary_id, i);
+                    if (ret != null) {
+                        console.log("Drone ", i, "pos_gcs", pos, "pos_vo", ret.pos);
+                        this.send_flyto_cmd(i, ret.pos, false);
+                    } 
+                }
+                // await new Promise(r => setTimeout(r, 50));
             }
-            // await new Promise(r => setTimeout(r, 50));
+        } else {
+            console.log("Try to request random formation");
+            var formations_random = generate_random_formation(formation_params.xmin, formation_params.xmax, 
+                formation_params.ymin, formation_params.ymax, formation_params.zmin, formation_params.zmax, 
+                formation_params.safe_distance_planar, [1, 2, 3, 4, 5]);
         }
     }
 
 }
-
 
 
 
