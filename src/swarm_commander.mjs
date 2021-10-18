@@ -1,4 +1,4 @@
-import * as THREE from '../build/three.module.js';
+import * as THREE from "../third_party/three.js/build/three.module.js";
 import {BaseCommander} from "./base_commander.mjs"
 import {PointCloud2} from './pointcloud2.mjs';
 import {formations} from './formations.mjs';
@@ -74,6 +74,10 @@ class SwarmCommander extends BaseCommander{
             self.on_remote_nodes_info(msg);
         });
 
+        this.sub_grid = nh.subscribe('/expl_ground_node/grid', 'visualization_msgs/Marker', (msg) => {
+            self.on_grid(msg);
+        });
+
         this.sub_uwb_info = nh.subscribe('/uwb_node/remote_nodes', 'swarmcomm_msgs/remote_uwb_info', (msg) => {
             self.on_remote_nodes_info(msg);
         });
@@ -96,7 +100,6 @@ class SwarmCommander extends BaseCommander{
             self.on_incoming_data(msg);
         });
 
-        this.send_uwb_msg = nh.advertise('/uwb_node/send_broadcast_data', 'swarmcomm_msgs/data_buffer');
 
         this.sub_pcl = nh.subscribe('/sdf_map/occupancy_all_4', 'sensor_msgs/PointCloud2', (msg) => {
             self.on_globalmap_recv(msg);
@@ -106,7 +109,9 @@ class SwarmCommander extends BaseCommander{
             self.on_frontier_recv(msg);
         });
 
+        this.send_uwb_msg = nh.advertise('/uwb_node/send_broadcast_data', 'swarmcomm_msgs/data_buffer');
 
+        this.move_simple_goal = nh.advertise('/move_base_simple/goal', 'geometry_msgs/PoseStamped');
     }
 
     setup_ros_sub_pub_websocket() {
@@ -221,6 +226,24 @@ class SwarmCommander extends BaseCommander{
         });
     }
 
+    on_grid(msg) {
+        console.log(msg);
+        var ns = msg.ns + msg.id;
+        if (msg.action == 2) {
+            this.ui.on_marker_delete_lines(ns);
+        } else {
+            var lines = [];
+            for (var i = 0; i < msg.points.length/2; i++) {
+                var line = [];
+                line.push(msg.points[i*2], msg.points[i*2+1]);
+                lines.push(line);
+            }
+            this.ui.on_marker_add_lines(ns, lines, msg.color);
+        }
+
+    }
+    
+
 
     on_globalmap_recv(msg) {
         var t0 = performance.now()
@@ -241,7 +264,7 @@ class SwarmCommander extends BaseCommander{
         var t1 = performance.now()
         // console.log("Call to PointCloud2 took " + (t1 - t0) + " milliseconds.")
         
-        this.ui.update_frontier(pcl);
+        // this.ui.update_frontier(pcl);
     }
 
     on_inc_globalmap_recv(msg) {
@@ -296,7 +319,6 @@ class SwarmCommander extends BaseCommander{
                 }
 
                 case "NODE_BASED_FUSED": {
-                    // console.log(msg);
                     this.on_node_based_coorindate(incoming_msg.remote_id, incoming_msg.lps_time, msg);
                     break;
                 }
@@ -396,9 +418,13 @@ class SwarmCommander extends BaseCommander{
         this.send_msg_to_swarm(scmd);
     }
 
-    send_flyto_debug(){
-        console.log("Send flyto debug");
-        var msg = new ROSLIB.Message({
+    send_simple_move(_id){
+        console.log("Send simple move");
+        var msg = {
+            header: {
+                frame_id: "world",
+                stamp: this.rosnodejs.Time.now()
+            },
             pose: {
                 position: {
                     x: 0,
@@ -412,9 +438,22 @@ class SwarmCommander extends BaseCommander{
                     z: 0
                 }
             }
-        });
+        };
 
-        this.move_simple_goal.publish(msg);
+        if (this.nodejs) {
+            this.move_simple_goal.publish(msg);
+        } else {
+            var _msg = new ROSLIB.Message(msg);
+            this.move_simple_goal.publish(_msg);
+        }
+
+        var exp_cmd = 30;
+
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, exp_cmd, 
+            0, 
+            0, 
+            0, 0, 0, 0, 0, 0, 0, 0);
+        this.send_msg_to_swarm(scmd);
     }
 
     send_flyto_cmd(_id, pos, direct) {

@@ -1,5 +1,5 @@
 import {ThreeView} from "./ThreeView.mjs"
-import * as THREE from '../build/three.module.js';
+import * as THREE from "../third_party/three.js/build/three.module.js";
 
 function tnow() {
     return new Date().getTime() / 1000;
@@ -126,8 +126,8 @@ class SwarmGCSUI {
                     obj.formation_hold(mode)
                 },
 
-                formation_swap: function(mode) {
-                    obj.formation_swap()
+                send_simple_move: function(mode) {
+                    obj.send_simple_move()
                 },
 
                 stop_formation: function() {
@@ -165,8 +165,8 @@ class SwarmGCSUI {
         this.other_vo_origin = {};
     }
 
-    formation_swap() {
-        this.cmder.send_flyto_debug();
+    send_simple_move() {
+        this.cmder.send_simple_move();
     }
 
     formation_hold(mode) {
@@ -346,6 +346,9 @@ class SwarmGCSUI {
             case "traj1":
                 this.cmder.send_traj_cmd(this.select_id, 1);
                 break;
+            case "expo":
+                this.cmder.send_simple_move(this.select_id);
+                break;
             default:
                 break;
         }
@@ -465,6 +468,14 @@ class SwarmGCSUI {
         }
         // warn_vo_(_id);
 
+    }
+    
+    on_marker_add_lines(ns, lines, color) {
+        this.threeview.on_marker_add_lines(ns, lines, new THREE.Color(color.r, color.g, color.b));
+    }
+
+    on_marker_delete_lines(ns) {
+        this.threeview.on_marker_delete_lines(ns)
     }
 
     update_three_id_pose(_id, pos, quat, vx=null, vy=null, vz=null, covx=0, covy=0, covz=0, covyaw=0, update_yaw_cov = false) {
@@ -724,6 +735,9 @@ class SwarmGCSUI {
                     break;
                 case "circle":
                     cmd = "绕圈";
+                    break;
+                case "expo":
+                    cmd = "探索";
                     break;
                 default:
                     cmd = _cmd;
