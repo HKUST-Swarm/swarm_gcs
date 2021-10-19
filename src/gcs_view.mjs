@@ -84,7 +84,13 @@ class SwarmGCSUI {
                 server_ip: this.server_ip,
                 server_ip_list: this.server_ip_list,
                 is_wrap_swarm: false,
-                formation_class : ["btn btn-secondary", "btn btn-secondary", "btn btn-secondary", "btn btn-secondary", "btn btn-secondary"],
+                formation_class : {
+                    0:"btn btn-secondary", 
+                    1:"btn btn-secondary", 
+                    2:"btn btn-secondary", 
+                    3:"btn btn-secondary", 
+                    4:"btn btn-secondary",
+                    100:"btn btn-secondary"},
                 flyto_class: "btn btn-secondary btn-lg"
             },
             methods: {
@@ -241,6 +247,7 @@ class SwarmGCSUI {
     }
 
     update_drone_traj_bspline(ns, traj) {
+        // console.log("Traj recv. Updating...")
         for (var i = 0; i < traj.pos_pts.length; i++) {
             var pos = traj.pos_pts[i];
             var ret = this.transfer_vo_with_based(new THREE.Vector3(pos.x, pos.y, pos.z), new THREE.Quaternion(), traj.drone_id, this.primary_id);
