@@ -82,47 +82,58 @@ class SwarmCommander extends BaseCommander{
         const nh = this.nh;
         let self = this;
 
+        var sub_opts = {
+            queueSize: 100
+        };
 
         this.sub_remote_nodes = nh.subscribe('/uwb_node/remote_nodes', 'swarmcomm_msgs/remote_uwb_info', (msg) => {
             self.on_remote_nodes_info(msg);
-        });
+        }, sub_opts);
 
         this.sub_grid = nh.subscribe('/expl_ground_node/grid', 'visualization_msgs/Marker', (msg) => {
             self.on_grid(msg);
-        });
+        }, sub_opts);
 
         this.sub_uwb_info = nh.subscribe('/uwb_node/remote_nodes', 'swarmcomm_msgs/remote_uwb_info', (msg) => {
             self.on_remote_nodes_info(msg);
-        });
+        }, sub_opts);
 
 
         this.bspine_viz_listener_1 = nh.subscribe("/planning/swarm_traj_recv", "bspline/Bspline", (msg) => {
             if (msg.drone_id >= 0) {
                 self.ui.update_drone_traj_bspline(msg.drone_id, msg)
             }
-        });
+        }, sub_opts);
 
         this.bspine_viz_listener_2 = nh.subscribe("/planning/swarm_traj", "bspline/Bspline", (msg) => {
             if (msg.drone_id >= 0) {
                 self.ui.update_drone_traj_bspline(msg.drone_id, msg)
             }
-        });
+        }, sub_opts);
 
 
         this.incoming_data_listener = nh.subscribe("/uwb_node/incoming_broadcast_data", "swarmcomm_msgs/incoming_broadcast_data", (msg) => {
             self.on_incoming_data(msg);
-        });
+        }, sub_opts);
 
+
+        var sub_opts_pcl = {
+            queueSize: 1
+        };
 
         this.sub_pcl = nh.subscribe('/sdf_map/occupancy_all_4', 'sensor_msgs/PointCloud2', (msg) => {
             self.on_globalmap_recv(msg);
-        });
+        }, sub_opts_pcl);
 
         this.sub_frontier = nh.subscribe("/expl_ground_node/frontier", 'sensor_msgs/PointCloud2', (msg) => {
             self.on_frontier_recv(msg);
-        });
+        }, sub_opts_pcl);
 
-        this.send_uwb_msg = nh.advertise('/uwb_node/send_broadcast_data', 'swarmcomm_msgs/data_buffer');
+        var advertiste_opts = {
+            queueSize: 100
+        }
+
+        this.send_uwb_msg = nh.advertise('/uwb_node/send_broadcast_data', 'swarmcomm_msgs/data_buffer', advertiste_opts);
 
         this.move_simple_goal = nh.advertise('/move_base_simple/goal', 'geometry_msgs/PoseStamped');
     }
