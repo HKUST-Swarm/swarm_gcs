@@ -531,6 +531,7 @@ class SwarmCommander extends BaseCommander{
                 data : _data,
                 send_method: 2,
             });
+            console.log("Publishing via nodejs", _data);
         } else {
             var msg = new ROSLIB.Message({data : _data, send_method: 2});
             this.send_uwb_msg.publish(msg);
@@ -670,7 +671,6 @@ class SwarmCommander extends BaseCommander{
                     var quat = new THREE.Quaternion(0, 0, 0, 1);
                     var ret = this.ui.transfer_vo_with_based(pos, quat, this.ui.primary_id, i);
                     if (ret != null) {
-                        console.log("Drone ", i, "pos_gcs", pos, "pos_vo", ret.pos);
                         this.send_flyto_cmd(i, ret.pos, false);
                     } 
                 }
@@ -689,7 +689,6 @@ class SwarmCommander extends BaseCommander{
                     var quat = new THREE.Quaternion(0, 0, 0, 1);
                     var ret = this.ui.transfer_vo_with_based(pos, quat, this.ui.primary_id, i);
                     if (ret != null) {
-                        console.log("Drone ", i, "pos_gcs", pos, "pos_vo", ret.pos);
                         this.send_flyto_cmd(i, ret.pos, false);
                     } 
                 }
