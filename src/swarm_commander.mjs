@@ -531,6 +531,17 @@ class SwarmCommander extends BaseCommander{
         this.send_msg_to_swarm(scmd);
     }
 
+    send_mission(_id, cmd) {
+        console.log("send mission", cmd);
+        var ox = 0, oy = 0, oz = 1;
+        var T = 30;
+        var enable_yaw = cmd;
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, 20, 
+            cmd, enable_yaw, T*10000, ox*10000, oy*10000, oz*10000, 0, 0, 0, 0);
+        this.send_msg_to_swarm(scmd);
+    }
+    
+
     send_msg_to_swarm(_msg) {
         let _data = _msg.pack(this.mav);
         if (this.nodejs) {
@@ -585,7 +596,7 @@ class SwarmCommander extends BaseCommander{
     }
 
     stop_mission_id(_id) {
-        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, -1, 11, 
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, -1, 99, 
             -1, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         console.log("Hold the formation");
         this.send_msg_to_swarm(scmd);

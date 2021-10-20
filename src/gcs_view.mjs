@@ -356,6 +356,9 @@ class SwarmGCSUI {
             case "expo":
                 this.cmder.send_simple_move(this.select_id);
                 break;
+            case "mission0":
+                this.cmder.send_mission(this.select_id, 0);
+                break;
             default:
                 break;
         }
@@ -745,6 +748,9 @@ class SwarmGCSUI {
                     break;
                 case "expo":
                     cmd = "探索";
+                    break;
+                case "mission0":
+                    cmd = "mission0";
                     break;
                 default:
                     cmd = _cmd;
