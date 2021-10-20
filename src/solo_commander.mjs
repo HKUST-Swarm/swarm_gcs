@@ -1,6 +1,6 @@
 import {BaseCommander} from "./base_commander.mjs"
 import {PointCloud2} from './pointcloud2.mjs';
-import * as THREE from '../build/three.module.js';
+import * as THREE from "../third_party/three.js/build/three.module.js";
 
 function tnow() {
     return new Date().getTime() / 1000;

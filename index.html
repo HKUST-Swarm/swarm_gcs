@@ -14,6 +14,8 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
 
+    <!-- Insert this line above script imports  -->
+  <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
     crossorigin="anonymous"></script>
@@ -27,7 +29,9 @@
   <script src="./libs/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script src="./libs/roslib.min.js"></script>
-  <!-- <script src='./libs/jszip.min.js'></script> -->
+  
+  <script>if (window.module) module = window.module;</script>
+
   <link rel="stylesheet" type="text/css" href="gcs_common.css">
   <style>
     #swarm-sidebar {
@@ -158,14 +162,14 @@
           <li class="nav-item">
               <a class="nav-link" href="#">
               <img src="material-design-icons/maps/drawable-xxxhdpi/ic_flight_white_48dp.png" style="height: 1.4em; width: 1.4em;" />
-                SELECTED:{{selected_uav}}
+                SEL:{{selected_uav}}
               </a>
           </li>
 
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
-              PRIMARY:{{primary_id}}
+              PRI:{{primary_id}}
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" href="#" v-for="(_, _id) in uavs" v-on:click="set_primary_id(_id)">{{_id}}</a>
@@ -242,6 +246,7 @@
             Direct Flyto</button> -->
             <button type="button" v-on:click="command('flyto_traj')" class="btn btn-primary btn-lg"
             id="flyto">
+            
             <img src="material-design-icons/content/drawable-xxxhdpi/ic_forward_white_48dp.png" class="small_icon" />
             Flyto</button>
             <button type="button" v-on:click="command('circle')" class="btn btn-primary btn-lg" >
@@ -256,14 +261,23 @@
             <button type="button" v-on:click="command('traj0')" class="btn btn-primary btn-lg">
                 <img src="material-design-icons/action/drawable-xxxhdpi/ic_hourglass_empty_white_48dp.png" class="small_icon" />
                 Traj</button>
+
             <button type="button" v-on:click="command('traj1')" class="btn btn-primary btn-lg">
             <img src="material-design-icons/action/drawable-xxxhdpi/ic_hourglass_empty_white_48dp.png" class="small_icon" />
             Traj Yaw</button>
+
+            <button type="button" v-on:click="command('mission0')" class="btn btn-primary btn-lg">
+                <img src="material-design-icons/action/drawable-xxxhdpi/ic_hourglass_empty_white_48dp.png" class="small_icon" />
+                MISSION 0</button>
+
             <!-- <button type="button" v-on:click="range_select" class="btn btn-primary btn-lg"
             id="range_select">
              <img src="material-design-icons/content/drawable-xxxhdpi/ic_select_all_white_48dp.png" class="small_icon" />
             Select</button> -->
-
+            <button type="button" v-on:click="command('expo')" class="btn btn-primary btn-lg">
+              <img src="material-design-icons/av/drawable-xxxhdpi/ic_repeat_white_48dp.png" class="small_icon" />
+              Exp!</button>
+        
   
           <hr />
           <h4>FORMATIONs</h4> 
@@ -273,9 +287,6 @@
           <button type="button" v-on:click="formation_hold(1)" class="btn btn-primary btn-lg">
               <img src="material-design-icons/navigation/drawable-xxxhdpi/ic_apps_white_48dp.png" class="small_icon" />
               Lock</button>
-          <button type="button" v-on:click="formation_swap()" class="btn btn-primary btn-lg">
-                <img src="material-design-icons/av/drawable-xxxhdpi/ic_repeat_white_48dp.png" class="small_icon" />
-                Swap</button>
           <button type="button" class="btn btn-secondary btn-danger" v-on:click="stop_formation()">
               <img src="material-design-icons/navigation/drawable-xxxhdpi/ic_cancel_white_48dp.png" class="small_icon" />
             STOP</button>
@@ -296,6 +307,9 @@
           <button type="button" v-on:click="formation(4)" v-bind:class="[formation_class[4]]">
               <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />            
               4</button>
+          <button type="button" v-on:click="formation(100)" v-bind:class="[formation_class[100]]">
+              <img src="material-design-icons/image/drawable-xxxhdpi/ic_transform_white_48dp.png" class="small_icon" />            
+            R</button>
 
         </div>
         <!-- <button type="button" class="btn btn-secondary btn-lg" >Mission C</button> -->
@@ -308,8 +322,8 @@
     import { SwarmCommander } from './src/swarm_commander.mjs';
     import { SwarmGCSUI } from "./src/gcs_view.mjs";
     var ui = new SwarmGCSUI({}, {
-      chessboard:true,
-      grid: false
+      chessboard:false,
+      grid: true
     });
     // console.log(ui);
     var sc = new SwarmCommander(ui);

@@ -1,7 +1,7 @@
-import * as THREE from '../build/three.module.js';
+import * as THREE from "../third_party/three.js/build/three.module.js";
 import {BaseCommander} from "./base_commander.mjs"
 import {PointCloud2} from './pointcloud2.mjs';
-import {formations} from './formations.mjs';
+import {formations, generate_random_formation} from './formations.mjs';
 
 var mavlink = mavlink10;
 function _base64ToArrayBuffer(base64) {
@@ -19,6 +19,19 @@ function tnow() {
 }
   
 let vaild_ids = new Set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+let resend_ctrl_times= 3;
+
+let formation_params = {
+    xmin: -3,
+    xmax: 3,
+    ymin: -1,
+    ymax: 2,
+    zmin: 0.8,
+    zmax: 1.8,
+    safe_distance_planar: 1.0
+};
+
+
 class SwarmCommander extends BaseCommander{
     constructor(ui) {
         super(ui);
@@ -70,44 +83,60 @@ class SwarmCommander extends BaseCommander{
         const nh = this.nh;
         let self = this;
 
+        var sub_opts = {
+            queueSize: 100
+        };
 
         this.sub_remote_nodes = nh.subscribe('/uwb_node/remote_nodes', 'swarmcomm_msgs/remote_uwb_info', (msg) => {
             self.on_remote_nodes_info(msg);
-        });
+        }, sub_opts);
+
+        this.sub_grid = nh.subscribe('/expl_ground_node/grid', 'visualization_msgs/Marker', (msg) => {
+            self.on_grid(msg);
+        }, sub_opts);
 
         this.sub_uwb_info = nh.subscribe('/uwb_node/remote_nodes', 'swarmcomm_msgs/remote_uwb_info', (msg) => {
             self.on_remote_nodes_info(msg);
-        });
+        }, sub_opts);
 
 
         this.bspine_viz_listener_1 = nh.subscribe("/planning/swarm_traj_recv", "bspline/Bspline", (msg) => {
             if (msg.drone_id >= 0) {
                 self.ui.update_drone_traj_bspline(msg.drone_id, msg)
             }
-        });
+        }, sub_opts);
 
         this.bspine_viz_listener_2 = nh.subscribe("/planning/swarm_traj", "bspline/Bspline", (msg) => {
             if (msg.drone_id >= 0) {
                 self.ui.update_drone_traj_bspline(msg.drone_id, msg)
             }
-        });
+        }, sub_opts);
 
 
         this.incoming_data_listener = nh.subscribe("/uwb_node/incoming_broadcast_data", "swarmcomm_msgs/incoming_broadcast_data", (msg) => {
             self.on_incoming_data(msg);
-        });
+        }, sub_opts);
 
-        this.send_uwb_msg = nh.advertise('/uwb_node/send_broadcast_data', 'swarmcomm_msgs/data_buffer');
+
+        var sub_opts_pcl = {
+            queueSize: 1
+        };
 
         this.sub_pcl = nh.subscribe('/sdf_map/occupancy_all_4', 'sensor_msgs/PointCloud2', (msg) => {
             self.on_globalmap_recv(msg);
-        });
+        }, sub_opts_pcl);
 
         this.sub_frontier = nh.subscribe("/expl_ground_node/frontier", 'sensor_msgs/PointCloud2', (msg) => {
             self.on_frontier_recv(msg);
-        });
+        }, sub_opts_pcl);
 
+        var advertiste_opts = {
+            queueSize: 100
+        }
 
+        this.send_uwb_msg = nh.advertise('/uwb_node/send_broadcast_data', 'swarmcomm_msgs/data_buffer', advertiste_opts);
+
+        this.move_simple_goal = nh.advertise('/move_base_simple/goal', 'geometry_msgs/PoseStamped');
     }
 
     setup_ros_sub_pub_websocket() {
@@ -247,6 +276,24 @@ class SwarmCommander extends BaseCommander{
         });
     }
 
+    on_grid(msg) {
+        console.log(msg);
+        var ns = msg.ns + msg.id;
+        if (msg.action == 2) {
+            this.ui.on_marker_delete_lines(ns);
+        } else {
+            var lines = [];
+            for (var i = 0; i < msg.points.length/2; i++) {
+                var line = [];
+                line.push(msg.points[i*2], msg.points[i*2+1]);
+                lines.push(line);
+            }
+            this.ui.on_marker_add_lines(ns, lines, msg.color);
+        }
+
+    }
+    
+
 
     on_globalmap_recv(msg) {
         var t0 = performance.now()
@@ -267,7 +314,7 @@ class SwarmCommander extends BaseCommander{
         var t1 = performance.now()
         // console.log("Call to PointCloud2 took " + (t1 - t0) + " milliseconds.")
         
-        this.ui.update_frontier(pcl);
+        // this.ui.update_frontier(pcl);
     }
 
     on_inc_globalmap_recv(msg) {
@@ -322,7 +369,6 @@ class SwarmCommander extends BaseCommander{
                 }
 
                 case "NODE_BASED_FUSED": {
-                    // console.log(msg);
                     this.on_node_based_coorindate(incoming_msg.remote_id, incoming_msg.lps_time, msg);
                     break;
                 }
@@ -461,9 +507,13 @@ class SwarmCommander extends BaseCommander{
         this.send_msg_to_swarm(scmd);
     }
 
-    send_flyto_debug(){
-        console.log("Send flyto debug");
-        var msg = new ROSLIB.Message({
+    send_simple_move(_id){
+        console.log("Send simple move");
+        var msg = {
+            header: {
+                frame_id: "world",
+                stamp: this.rosnodejs.Time.now()
+            },
             pose: {
                 position: {
                     x: 0,
@@ -477,9 +527,22 @@ class SwarmCommander extends BaseCommander{
                     z: 0
                 }
             }
-        });
+        };
 
-        this.move_simple_goal.publish(msg);
+        if (this.nodejs) {
+            this.move_simple_goal.publish(msg);
+        } else {
+            var _msg = new ROSLIB.Message(msg);
+            this.move_simple_goal.publish(_msg);
+        }
+
+        var exp_cmd = 30;
+
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, exp_cmd, 
+            0, 
+            0, 
+            0, 0, 0, 0, 0, 0, 0, 0);
+        this.send_msg_to_swarm(scmd);
     }
 
     send_flyto_cmd(_id, pos, direct) {
@@ -533,6 +596,17 @@ class SwarmCommander extends BaseCommander{
         this.send_msg_to_swarm(scmd);
     }
 
+    send_mission(_id, cmd) {
+        console.log("send mission", cmd);
+        var ox = 0, oy = 0, oz = 1;
+        var T = 30;
+        var enable_yaw = cmd;
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, 20, 
+            cmd, enable_yaw, T*10000, ox*10000, oy*10000, oz*10000, 0, 0, 0, 0);
+        this.send_msg_to_swarm(scmd);
+    }
+    
+
     send_msg_to_swarm(_msg) {
         let _data = _msg.pack(this.mav);
         if (this.nodejs) {
@@ -544,6 +618,7 @@ class SwarmCommander extends BaseCommander{
                 data : _data,
                 send_method: 2,
             });
+            console.log("Publishing via nodejs", _data);
         } else {
             var msg = new ROSLIB.Message({data : _data, send_method: 2});
             this.send_uwb_msg.publish(msg);
@@ -587,7 +662,7 @@ class SwarmCommander extends BaseCommander{
     }
 
     stop_mission_id(_id) {
-        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, -1, 11, 
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, -1, 99, 
             -1, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         console.log("Hold the formation");
         this.send_msg_to_swarm(scmd);
@@ -674,25 +749,41 @@ class SwarmCommander extends BaseCommander{
     }
 
     request_transformation_change(next_trans) {
-        console.log("Try to request formation, ", next_trans);
-        for (var j = 0; j < 5; j ++) {
-            for (var i = 1; i < 6; i ++) {
-                var _pos = formations[next_trans][i];
-                var pos = new THREE.Vector3(_pos.x, _pos.y, _pos.z);
-                var quat = new THREE.Quaternion(0, 0, 0, 1);
-                var ret = this.ui.transfer_vo_with_based(pos, quat, this.ui.primary_id, i);
-                if (ret != null) {
-                    console.log("Drone ", i, "pos_gcs", pos, "pos_vo", ret.pos);
-                    this.send_flyto_cmd(i, ret.pos, false);
-                } 
+        if (next_trans < 100) {
+            console.log("Try to request formation, ", next_trans);
+            for (var j = 0; j < resend_ctrl_times; j ++) {
+                for (var i = 1; i < 6; i ++) {
+                    var _pos = formations[next_trans][i];
+                    var pos = new THREE.Vector3(_pos.x, _pos.y, _pos.z);
+                    var quat = new THREE.Quaternion(0, 0, 0, 1);
+                    var ret = this.ui.transfer_vo_with_based(pos, quat, this.ui.primary_id, i);
+                    if (ret != null) {
+                        this.send_flyto_cmd(i, ret.pos, false);
+                    } 
+                }
+                // await new Promise(r => setTimeout(r, 50));
             }
-            // await new Promise(r => setTimeout(r, 50));
+        } else {
+            var formations_random = generate_random_formation(formation_params.xmin, formation_params.xmax, 
+                formation_params.ymin, formation_params.ymax, formation_params.zmin, formation_params.zmax, 
+                formation_params.safe_distance_planar, [1, 2, 3, 4, 5]);
+            console.log("Try to request random formation:", formations_random);
+
+            for (var j = 0; j < resend_ctrl_times; j ++) {
+                for (var i = 1; i < 6; i ++) {
+                    var _pos = formations_random[i];
+                    var pos = new THREE.Vector3(_pos.x, _pos.y, _pos.z);
+                    var quat = new THREE.Quaternion(0, 0, 0, 1);
+                    var ret = this.ui.transfer_vo_with_based(pos, quat, this.ui.primary_id, i);
+                    if (ret != null) {
+                        this.send_flyto_cmd(i, ret.pos, false);
+                    } 
+                }
+            }
         }
     }
 
 }
-
-
 
 
 // module.exports = {
