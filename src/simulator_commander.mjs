@@ -10,6 +10,20 @@ class SimSingleCommander extends BaseCommander {
         
         let self = this;
         this.ui.on_gamepad = function(id, axes, buttons) { self.on_gamepad(id, axes, buttons); };
+
+        this.status = {
+            x:0,
+            y:0,
+            z:0,
+            control_auth:0,
+            commander_mode:0,
+            input_mode:0,
+            flight_status:0,
+            vo_valid:0,
+            bat_vol:0,
+            lps_time:0
+        };
+        this.ui.set_drone_status(0, this.status); 
     }
 
     setup_ros_sub_pub_nodejs() {
@@ -27,6 +41,10 @@ class SimSingleCommander extends BaseCommander {
             }
         }, sub_opts);
 
+        this.vio_sub = nh.subscribe("/visual_slam/odom", "nav_msgs/Odometry", (msg) => {
+            self.on_vo_msg(msg);
+        }, sub_opts);
+
 
         var advertiste_opts = {
             queueSize: 100
@@ -34,6 +52,28 @@ class SimSingleCommander extends BaseCommander {
 
         this.pubjoy = nh.advertise('/joy', 'sensor_msgs/Joy', advertiste_opts);
     }
+
+    update_status() {
+        this.ui.set_drone_status(0, this.status); 
+    }
+
+    on_vo_msg(msg) {
+        var x = msg.pose.pose.position.x;
+        var y = msg.pose.pose.position.y;
+        var z = msg.pose.pose.position.z;
+        this.status.x = x;
+        this.status.y = y;
+        this.status.z = z;
+        this.status.vo_valid = true;
+
+        let _q = msg.pose.pose.orientation;
+        var quat = new THREE.Quaternion(_q.x, _q.y, _q.z, _q.w);
+        var pos = new THREE.Vector3(msg.pose.pose.position.x, msg.pose.pose.position.y, msg.pose.pose.position.z);
+
+        this.ui.update_drone_selfpose(0, pos, quat);
+        this.update_status();
+    }
+
 
     on_gamepad (id, axes, buttons) {
         var _buttons = [];

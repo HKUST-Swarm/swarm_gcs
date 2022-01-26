@@ -326,9 +326,12 @@
     import { SimSingleCommander } from './src/simulator_commander.mjs';
     import { SwarmGCSUI } from "./src/gcs_view.mjs";
     var ui = new SwarmGCSUI({}, {
-      chessboard: false,
-      grid: true
+      chessboard: true,
+      grid: true,
+      camera_mode: "track",
+      camera_relative_pos : {x: -3, y:0, z:3} 
     });
+    ui.select_id = 0;
     var sc = new SimSingleCommander(ui);
     window.ui = ui;
   </script>

@@ -96,6 +96,10 @@ class ThreeView {
         this.camera.up.z = 1;
         this.camera.near = 0.01;
 
+        if ("camera_mode" in opt) {
+            this.camera_mode = opt.camera_mode;
+        }
+
         this.chessboard_z = 0;
         this.uav_gc_height = 0.12;
         this.hover_outline = false;
@@ -755,7 +759,17 @@ class ThreeView {
         // if (vx !== null) {
         // this.uavs[_id].linear_velocity.set( vx, vy, vz );
         // }
+        if (this.camera_mode == "track" || this.camera_mode == "follow") {
+            if (_id == this.ui.select_id) {
+                this.camera.lookAt(pos.x, pos.y, pos.z);
+            }
 
+            if (this.camera_mode == "follow") {
+                this.camera.position.x = this.opt.camera_relative_pos.x +  pos.x;
+                this.camera.position.y = this.opt.camera_relative_pos.y +  pos.y;
+                this.camera.position.z = this.opt.camera_relative_pos.y +  pos.z;
+            }
+        }
     }
 
     update_detection(_id, target_id, rel_pos, inv_dep) {
@@ -1136,7 +1150,7 @@ class ThreeView {
             // console.log("test");
             setTimeout(function () {
                 obj.animate()
-            }, 30);
+            }, 10);
         });
 
         this.composer.render();

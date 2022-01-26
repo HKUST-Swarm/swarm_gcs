@@ -189,10 +189,8 @@ class SwarmGCSUI {
     }
 
     disp_gamepad(_id, rc, buttons) {
-        if (_id.includes("Microsoft Controller")) {
-            this.view.rc = rc;
-            Vue.set(this.view.rc, rc);
-        }
+        this.view.rc = rc;
+        Vue.set(this.view.rc, rc);
     }
 
     check_gamepad() {
@@ -200,7 +198,15 @@ class SwarmGCSUI {
         if (gamepads[0]) {
             if (this.on_gamepad) {
                 let axes = gamepads[0].axes;
-                var rc = [axes[2], -axes[3], -axes[1], axes[0]];
+                var rc =  [axes[2], -axes[3], -axes[1], axes[0]];
+                if (gamepads[0].id.includes("Microsoft Controller")) {
+                    rc = [axes[2], -axes[3], -axes[1], axes[0]];
+                }
+
+                if (gamepads[0].id.includes("FeiYing Model")) {
+                    rc = [axes[0], axes[1], axes[2], axes[4]];
+                }
+
                 if (!this.rc0) {
                     this.rc0 = rc.slice(0);
                 }
