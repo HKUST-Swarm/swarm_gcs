@@ -27,15 +27,6 @@ class SwarmGCSUI {
     constructor(opt_ui, opt_3d) {
         let obj = this;
        
-        let dstatus = {
-            x:0,
-            y:0,
-            z:0,
-            ctrl_mode:0,
-            auth_mode:0,
-            bat_vol:0
-        }
-
         this.select_id = -1;
         this.warn_count = 0;
         this.last_speak_time = tnow() - 10;
@@ -84,6 +75,7 @@ class SwarmGCSUI {
                 server_ip: this.server_ip,
                 server_ip_list: this.server_ip_list,
                 is_wrap_swarm: false,
+                rc:[0.0, 0.0, 0.0, 0.0],//AETR
                 formation_class : {
                     0:"btn btn-secondary", 
                     1:"btn btn-secondary", 
@@ -169,6 +161,58 @@ class SwarmGCSUI {
         this.uav_global_poses = {};
         this.uav_local_poses_in_drone_coor = {};
         this.other_vo_origin = {};
+
+        this.setup_gamepads();
+
+    }
+
+
+    setup_gamepads() {
+        let obj = this;
+        this.on_gamepad = null;
+        this.rc0 = null;
+
+        window.addEventListener("gamepadconnected", (event) => {
+            console.log("A gamepad connected:");
+            obj.gamepad = event.gamepad;
+            console.log(event.gamepad);
+        });
+          
+
+        window.addEventListener("gamepaddisconnected", (event) => {
+            console.log("A gamepad disconnected:");
+            console.log(event.gamepad);
+        });
+          
+        setInterval(function(){obj.check_gamepad()}, 10);
+
+    }
+
+    disp_gamepad(_id, rc, buttons) {
+        if (_id.includes("Microsoft Controller")) {
+            this.view.rc = rc;
+            Vue.set(this.view.rc, rc);
+        }
+    }
+
+    check_gamepad() {
+        var gamepads = navigator.getGamepads();
+        if (gamepads[0]) {
+            if (this.on_gamepad) {
+                let axes = gamepads[0].axes;
+                var rc = [axes[2], -axes[3], -axes[1], axes[0]];
+                if (!this.rc0) {
+                    this.rc0 = rc.slice(0);
+                }
+
+                // rc[0] -= this.rc0[0];
+                // rc[1] -= this.rc0[1];
+                // rc[3] -= this.rc0[3];
+
+                this.on_gamepad(gamepads[0].id, rc, gamepads[0].buttons);
+                this.disp_gamepad(gamepads[0].id, rc, gamepads[0].buttons);
+            }
+        }
     }
 
     send_simple_move() {
@@ -430,7 +474,7 @@ class SwarmGCSUI {
             this.view.lps_time = _lps_time;
         }
     }
-
+    
     set_drone_status(_id, status) {
 
         let ctrl_auths = ["RC", "APP", "ONBOARD"]
@@ -858,13 +902,58 @@ Vue.component('uav-component', {
     <div class="uav_details">
       CTL_AUTH <span style="color:white">{{status.ctrl_auth}}</span>
       INPUT_MODE <span style="color:white">{{status.ctrl_input_mode}}</span>
-      CTL_MODE <span style="color:white">{{status.ctrl_mode}}</span>
+      CTL_MODE <span style="color:white">{{status.ctrl_mode*2}}</span>
       FLT_SAT <span style="color:white">{{status.flight_status}}</span>
     </div>
     </li>
     </ul>
   </div>`
-})
+});
 
+Vue.component('joy-component', {
+    methods: {
+        toFixedString : function(n, dec=0){
+            var sign = "+";
+            if (n < 0) {
+                sign = "";
+            }
+            return sign + (n*100).toFixed(dec) +"%";
+        }
+    },
+    props: ["rc"],    
+    template:  ` 
+    <div class="css-joydisp">
+      <div class="css-joysingle" style="position: relative; left: -80px;">
+        <svg style="width: 100%; height: 100%; position: absolute; z-index: 1;">
+          <g transform="translate(78.5 78.5) scale(0.95, 0.95)">
+            <circle cx="0" cy="0" r="78.5" fill="none" stroke="hsla(210, 50%, 20%, 0.2)" stroke-width="1"></circle>
+            <line x1="0" y1="-78.5" x2="0" y2="78.5" stroke="hsla(210, 50%, 20%, 0.2)" stroke-width="1"></line>
+            <line x1="-78.5" y1="0" x2="78.5" y2="0" stroke="hsla(210, 50%, 20%, 0.2)" stroke-width="1"></line>
+            <line x1="0" y1="0" :x2="rc[3]*78.5" :y2="rc[2]*-78.5" stroke="#19334D" stroke-width="1">
+            </line>
+            <circle :cx="rc[3]*78.5" :cy="rc[2]*-78.5" r="4" fill="#19334D"></circle>
+          </g>
+        </svg>
+      </div>
+      <div class="css-joysingle" style="position: relative; left: -80px;">
+        <svg style="width: 100%; height: 100%; position: absolute; z-index: 1;">
+          <g transform="translate(78.5 78.5) scale(0.95, 0.95)">
+            <circle cx="0" cy="0" r="78.5" fill="none" stroke="hsla(210, 50%, 20%, 0.2)" stroke-width="1"></circle>
+            <line x1="0" y1="-78.5" x2="0" y2="78.5" stroke="hsla(210, 50%, 20%, 0.2)" stroke-width="1"></line>
+            <line x1="-78.5" y1="0" x2="78.5" y2="0" stroke="hsla(210, 50%, 20%, 0.2)" stroke-width="1"></line>
+            <line x1="0" y1="0" :x2="rc[0]*78.5" :y2="rc[1]*-78.5" stroke="#19334D" stroke-width="1">
+            </line>
+            <circle :cx="rc[0]*78.5" :cy="rc[1]*-78.5" r="4" fill="#19334D"></circle>
+          </g>
+        </svg>
+      </div>
+      <div  style="position: absolute; bottom:0px;">
+        Ail <span style="color:black">{{toFixedString(rc[0])}}</span>
+        Ele <span style="color:black">{{toFixedString(rc[1])}}</span>
+        Thr <span style="color:black">{{toFixedString(rc[2])}}</span>
+        Rud <span style="color:black">{{toFixedString(rc[3])}}</span>
+      </div>
+    </div>
+`});
 
 export {SwarmGCSUI}

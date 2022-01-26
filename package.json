@@ -17,7 +17,7 @@
   "author": "GitHub",
   "license": "CC0-1.0",
   "devDependencies": {
-    "electron": "^10.4.7",
+    "electron": "^16.0.7",
     "jspack": "0.0.4",
     "rosnodejs": "^3.0.2",
     "underscore": "^1.9.1"

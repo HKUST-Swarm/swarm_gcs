@@ -11,15 +11,15 @@ function createWindow () {
     width: 1440,
     height: 900,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      contextIsolation: false
     },
-    fullscreen: true
-    // frame:false
+    // fullscreen: true
   })
 
   // and load the index.html of the app.
   win.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
+    pathname: path.join(__dirname, 'index-sim.html'),
     protocol: 'file:',
     slashes: true
 }))
