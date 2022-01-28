@@ -767,7 +767,7 @@ class ThreeView {
             if (this.camera_mode == "follow") {
                 this.camera.position.x = this.opt.camera_relative_pos.x +  pos.x;
                 this.camera.position.y = this.opt.camera_relative_pos.y +  pos.y;
-                this.camera.position.z = this.opt.camera_relative_pos.y +  pos.z;
+                this.camera.position.z = this.opt.camera_relative_pos.z +  pos.z;
             }
         }
     }
