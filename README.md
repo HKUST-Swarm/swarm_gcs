@@ -22,40 +22,6 @@ The single drone mode on an iPad with dense map:
 # Related Paper
 __Omni-swarm: A Decentralized Omnidirectional Visual-Inertial-UWB State Estimation System for Aerial Swarm__ The VINS-Fisheye is a part of Omni-swarm. If you want use VIN-Fisheye as a part of your research project, please cite this paper.
 
-# Build
-Prerequirements
-LCM is required now.
-
-```
-git clone https://github.com/lcm-proj/lcm
-mkdir -p lcm/build
-cd lcm/build
-cmake -DCMAKE_BUILD_TYPE=Release ..
-make -j8
-sudo make install
-```
-
-For ros, rosbridge_suite and inf_uwb_ros is required. System rosbridge_suite may conflict with latest Python.
-```
-pip install pymongo
-pip install autobahn
-pip install twisted
-sudo apt install ros-<ROS_DISTRO>-rosauth
-```
-
-For rosbridge
-```
-cd catkin_ws/src
-git clone https://github.com/RobotWebTools/rosbridge_suite
-git clone https://github.com/HKUST-Swarm/inf_uwb_ros
-```
-
-Build to executable
-
-```bash
-./build.sh
-```
-
 # Usage
 Way -1: Recommend:
 ```base
@@ -63,7 +29,7 @@ $roscore #Start ros stuffs
 $cd ~/path-to-swarm_gcs/
 $electron . #Let nodejs inside swarm_gcs connect to ros!
 
-Way 0: Most convient way:
+Way 0: Second convient way:
 
 ```
 roslaunch rosbridge_server rosbridge_websocket.launch
