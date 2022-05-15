@@ -23,11 +23,13 @@ The single drone mode on an iPad with dense map:
 __Omni-swarm: A Decentralized Omnidirectional Visual-Inertial-UWB State Estimation System for Aerial Swarm__ The VINS-Fisheye is a part of Omni-swarm. If you want use VIN-Fisheye as a part of your research project, please cite this paper.
 
 # Usage
-Way -1: Recommend:
-```base
+Way -1: Recommend: (Prerequirement: electron)
+
+```bash
 $roscore #Start ros stuffs
 $cd ~/path-to-swarm_gcs/
 $electron . #Let nodejs inside swarm_gcs connect to ros!
+```
 
 Way 0: Second convient way:
 
