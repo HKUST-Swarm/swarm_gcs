@@ -57,6 +57,12 @@ Build to executable
 ```
 
 # Usage
+Way -1: Recommend:
+```base
+$roscore #Start ros stuffs
+$cd ~/path-to-swarm_gcs/
+$electron . #Let nodejs inside swarm_gcs connect to ros!
+
 Way 0: Most convient way:
 
 ```
