@@ -18,7 +18,7 @@ Buffer.prototype.toByteArray = function () {
 
 mavlink10 = function(){};
 
-// Implement the X25CRC function (present in the Python version through the mavutil.py package)
+// Implement the CRC-16/MCRF4XX function (present in the Python version through the mavutil.py package)
 mavlink10.x25Crc = function(buffer, crcIN) {
 
     var bytes = buffer;
@@ -1495,27 +1495,27 @@ mavlink10.messages.swarm_remote_command.prototype.pack = function(mav) {
 
 
                 lps_time                  : LPS_TIME (int32_t)
+                id                        : Message ID detection (int64_t)
                 target_id                 : Target ID of drone (int32_t)
-                x                         : Relative X Position*10000 (float)
-                y                         : Relative Y Position*10000 (float)
-                z                         : Relative Z Position*10000 (float)
-                prob                      : Prob*10000 (int16_t)
-                inv_dep                   : inverse depth*10000;0 then unavailable (uint16_t)
-                local_pose_self_x         : X Position of Detetor (float)
-                local_pose_self_y         : Y Position of Detector (float)
-                local_pose_self_z         : Z Position of Detector (float)
-                local_pose_self_yaw        : Yaw of Detector (float)
+                rel_x                     : Relative X Position (float)
+                rel_y                     : Relative Y Position (float)
+                rel_z                     : Relative Z Position (float)
+                rel_yaw                   : Yaw of Detector (float)
+                cov_x                     : Covariance of Relative X Position (float)
+                cov_y                     : Covariance of Relative Y Position (float)
+                cov_z                     : Covariance of Relative Z Position (float)
+                cov_yaw                   : Covariance of Yaw of Detector (float)
 
 */
-mavlink10.messages.node_detected = function(lps_time, target_id, x, y, z, prob, inv_dep, local_pose_self_x, local_pose_self_y, local_pose_self_z, local_pose_self_yaw) {
+mavlink10.messages.node_detected = function(lps_time, id, target_id, rel_x, rel_y, rel_z, rel_yaw, cov_x, cov_y, cov_z, cov_yaw) {
 
-    this.format = '<iifffffffhH';
+    this.format = '<qiiffffffff';
     this.id = mavlink10.MAVLINK_MSG_ID_NODE_DETECTED;
-    this.order_map = [0, 1, 2, 3, 4, 9, 10, 5, 6, 7, 8];
-    this.crc_extra = 74;
+    this.order_map = [1, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    this.crc_extra = 80;
     this.name = 'NODE_DETECTED';
 
-    this.fieldnames = ['lps_time', 'target_id', 'x', 'y', 'z', 'prob', 'inv_dep', 'local_pose_self_x', 'local_pose_self_y', 'local_pose_self_z', 'local_pose_self_yaw'];
+    this.fieldnames = ['lps_time', 'id', 'target_id', 'rel_x', 'rel_y', 'rel_z', 'rel_yaw', 'cov_x', 'cov_y', 'cov_z', 'cov_yaw'];
 
 
     this.set(arguments);
@@ -1523,7 +1523,7 @@ mavlink10.messages.node_detected = function(lps_time, target_id, x, y, z, prob, 
 }
         mavlink10.messages.node_detected.prototype = new mavlink10.message;
 mavlink10.messages.node_detected.prototype.pack = function(mav) {
-    return mavlink10.message.prototype.pack.call(this, mav, this.crc_extra, jspack.Pack(this.format, [ this.lps_time, this.target_id, this.x, this.y, this.z, this.local_pose_self_x, this.local_pose_self_y, this.local_pose_self_z, this.local_pose_self_yaw, this.prob, this.inv_dep]));
+    return mavlink10.message.prototype.pack.call(this, mav, this.crc_extra, jspack.Pack(this.format, [ this.id, this.lps_time, this.target_id, this.rel_x, this.rel_y, this.rel_z, this.rel_yaw, this.cov_x, this.cov_y, this.cov_z, this.cov_yaw]));
 }
 
 /* 
@@ -1538,7 +1538,7 @@ mavlink10.messages.node_detected.prototype.pack = function(mav) {
                 onboard_cmd_valid         : ONBOARD CMD VALID (uint8_t)
                 sdk_valid                 : SDK VALID (uint8_t)
                 vo_valid                  : VO VALID (uint8_t)
-                vo_latency                : VO LATENCT (float)
+                vo_latency                : VO Latency (float)
                 bat_vol                   : BATTERY_VOL (float)
                 bat_remain                : BATTERY_REMAIN (float)
                 x                         : X Position (float)
@@ -6244,7 +6244,7 @@ mavlink10.map = {
         200: { format: '<ifffhhhhhh10HB', type: mavlink10.messages.node_realtime_info, order_map: [0, 11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], crc_extra: 161 },
         201: { format: '<ihhhhhhhhB', type: mavlink10.messages.node_relative_fused, order_map: [0, 9, 1, 2, 3, 4, 5, 6, 7, 8], crc_extra: 236 },
         202: { format: '<iiiiiiiiiiibB', type: mavlink10.messages.swarm_remote_command, order_map: [0, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], crc_extra: 125 },
-        203: { format: '<iifffffffhH', type: mavlink10.messages.node_detected, order_map: [0, 1, 2, 3, 4, 9, 10, 5, 6, 7, 8], crc_extra: 74 },
+        203: { format: '<qiiffffffff', type: mavlink10.messages.node_detected, order_map: [1, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10], crc_extra: 80 },
         204: { format: '<ifffffffBBBBBBBB', type: mavlink10.messages.drone_status, order_map: [0, 8, 9, 10, 11, 12, 13, 14, 15, 1, 2, 3, 4, 5, 6, 7], crc_extra: 80 },
         205: { format: '<ihhhhhhhhhhb', type: mavlink10.messages.drone_odom_gt, order_map: [0, 11, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], crc_extra: 225 },
         206: { format: '<ihhhhb', type: mavlink10.messages.drone_pose_gt, order_map: [0, 5, 1, 2, 3, 4], crc_extra: 241 },
@@ -6637,7 +6637,7 @@ MAVLink10Processor.prototype.decode = function(msgbuf) {
     messageChecksum = mavlink10.x25Crc([decoder.crc_extra], messageChecksum);
     
     if ( receivedChecksum != messageChecksum ) {
-        throw new Error('invalid MAVLink CRC in msgID ' +msgId+ ', got 0x' + receivedChecksum + ' checksum, calculated payload checkum as 0x'+messageChecksum );
+        throw new Error('invalid MAVLink CRC in msgID ' +msgId+ ', got 0x' + receivedChecksum + ' checksum, calculated payload checksum as 0x'+messageChecksum );
     }
 
     var paylen = jspack.CalcLength(decoder.format);
@@ -6674,7 +6674,7 @@ MAVLink10Processor.prototype.decode = function(msgbuf) {
             var currentType =  decoder.format[typeIndex];
 
             if (isNaN(parseInt(currentType))) {
-                // This field is not an array cehck the type and add it to the args
+                // This field is not an array check the type and add it to the args
                 tempArgs[orderIndex] = t[memberIndex];
                 memberIndex++;
             } else {

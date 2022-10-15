@@ -491,7 +491,8 @@ class SwarmGCSUI {
             "HOVER",
             "POSVEL",
             "ATT",
-            "MISSION"
+            "MISSION",
+            "ALTCTL",
         ]
         let all_flight_status = [
             "DISARMED",
@@ -908,7 +909,7 @@ Vue.component('uav-component', {
     <div class="uav_details">
       CTL_AUTH <span style="color:white">{{status.ctrl_auth}}</span>
       INPUT_MODE <span style="color:white">{{status.ctrl_input_mode}}</span>
-      CTL_MODE <span style="color:white">{{status.ctrl_mode*2}}</span>
+      CTL_MODE <span style="color:white">{{status.ctrl_mode}}</span>
       FLT_SAT <span style="color:white">{{status.flight_status}}</span>
     </div>
     </li>

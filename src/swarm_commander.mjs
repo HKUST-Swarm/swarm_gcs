@@ -334,7 +334,6 @@ class SwarmCommander extends BaseCommander{
     }
 
     on_incoming_data(incoming_msg) {
-        // console.log(incoming_msg);
         if (!vaild_ids.has(incoming_msg.remote_id)) {
             return;
         }
