@@ -41,6 +41,7 @@ class SwarmGCSUI {
         
 
         this.global_local_mode = false;
+        this.uav_refs = {};
         this.primary_id = 0;
         var loop_mode = this.loop_mode = true;
 
@@ -232,6 +233,10 @@ class SwarmGCSUI {
         }
 
         this.cmder.send_formation_hold_cmd(_master_id, mode);
+    }
+
+    update_reference_frame(_id, ref) {
+        this.uav_refs[_id] = ref;
     }
     
     update_uav_label_pos(_id, pos) {
@@ -585,6 +590,7 @@ class SwarmGCSUI {
         // Transfer coorindate with based coorinate
             var ret = this.transfer_vo_with_based(pos, quat, _id, this.primary_id);
             if (ret !== null) {
+                console.log("updating three id", _id);
                 this.update_three_id_pose(_id, ret.pos, ret.quat, ret.vx, ret.vy, ret.vz,
                     ret.covx, ret.covy, ret.covz, ret.covyaw);
             } else {
@@ -616,6 +622,21 @@ class SwarmGCSUI {
     }
 
     transfer_vo_with_based(pos, quat, self_id, base_id) {
+        if (this.uav_refs[self_id] == base_id) {
+            //In same frame
+            return {
+                pos:pos,
+                quat:quat,
+                vx:null,
+                vy:null,
+                vz:null,
+                covx:0,
+                covx:0,
+                covx:0,
+                covyaw:0
+            }
+        }
+
         if (! (base_id in this.other_vo_origin) || !(self_id in this.other_vo_origin[base_id])) {
             if (self_id == base_id) {
                 return {

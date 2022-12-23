@@ -376,6 +376,11 @@ class SwarmCommander extends BaseCommander{
                     this.on_node_detected(incoming_msg.remote_id, incoming_msg.lps_time, msg);
                     break;
                 }
+
+                case "DRONE_ODOM_GT": { //This is not "GT" when send from drone
+                    this.on_drone_odom(incoming_msg.remote_id, incoming_msg.lps_time, msg);
+                    break;
+                }
             }
         }
         let dt = tnow() - ts;
@@ -431,16 +436,7 @@ class SwarmCommander extends BaseCommander{
         quat.setFromEuler(new THREE.Euler(0, 0, status.yaw));
         // this.ui.update_drone_selfpose(_id, pos, quat, 0, 0, 0);
         this.uav_pos[_id] = pos;
-
-        // console.log("Update --", _id, pos, quat);
-
-        // this.ui.set_bat_level(_id, status.bat_vol);
-        // this.ui.set_drone_lps_time(_id, lps_time);
-        // this.ui.set_drone_control_auth(_id, status.ctrl_auth);
-        // this.ui.set_drone_control_mode(_id, status.ctrl_mode);
-
-
-        // this.ui.set_drone_selfpose(status.x, status.y, status.z, 0, 0, 0);
+        this.ui.update_reference_frame(_id, 1); //Temp code
     }
 
     t_last = {
@@ -455,8 +451,14 @@ class SwarmCommander extends BaseCommander{
         quat.setFromEuler(new THREE.Euler(info.roll/1000.0, info.pitch/1000.0, info.yaw/1000.0));
         this.ui.update_drone_selfpose(_id, pos, quat, info.vx/100.0, info.vy/100.0, info.vz/100.0);
         this.uav_pos[_id] = pos;
-        // console.log("DT id", _id, (info.lps_time - this.t_last[_id]), "us", info.lps_time);
         // this.t_last[_id] = info.lps_time;
+    }
+
+    on_drone_odom(_id, lps_time, msg) {
+        var pos = new THREE.Vector3(msg.x/1000.0, msg.y/1000.0, msg.z/1000.0);
+        var att = new THREE.Quaternion(msg.q1/10000.0, msg.q2/10000.0, msg.q3/10000.0, msg.q0/10000.0);
+        this.ui.update_drone_selfpose(_id, pos, att, msg.vx/1000.0, msg.vy/1000.0, msg.vz/1000.0);
+        this.uav_pos[_id] = pos;
     }
 
     on_swarm_drone_fused(msg) {
