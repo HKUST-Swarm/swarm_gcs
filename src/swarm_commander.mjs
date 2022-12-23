@@ -589,12 +589,27 @@ class SwarmCommander extends BaseCommander{
 
     send_traj_cmd(_id, cmd) {
         console.log("send traj", cmd);
-        var ox = 0, oy = 0, oz = 1;
-        var T = 30;
-        var enable_yaw = cmd;
-        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, 16, 
-            1, enable_yaw, T*10000, ox*10000, oy*10000, oz*10000, 0, 0, 0, 0);
-        this.send_msg_to_swarm(scmd);
+        if (_id < 0) {
+            for (var id_drone in this.ui.uav_local_poses) {
+                var pos = this.ui.uav_local_poses[id_drone].pos;
+                var ox = pos.x, oy = pos.y, oz = pos.z;
+                var T = 30;
+                var enable_yaw = cmd;
+                console.log("Fly 8 around", ox, oy, oz, "for", id_drone);
+                let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, id_drone, 16, 
+                    1, enable_yaw, T*10000, ox*10000, oy*10000, oz*10000, 0, 0, 0, 0);
+                this.send_msg_to_swarm(scmd);
+            }
+        } else {
+            var pos = this.ui.uav_local_poses[_id].pos;
+            var ox = pos.x, oy = pos.y, oz = pos.z;
+            var T = 30;
+            var enable_yaw = cmd;
+            console.log("Fly 8 around", ox, oy, oz, "for", _id);
+            let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, 16, 
+                1, enable_yaw, T*10000, ox*10000, oy*10000, oz*10000, 0, 0, 0, 0);
+            this.send_msg_to_swarm(scmd);
+        }
     }
 
     send_mission(_id, cmd) {

@@ -590,7 +590,6 @@ class SwarmGCSUI {
         // Transfer coorindate with based coorinate
             var ret = this.transfer_vo_with_based(pos, quat, _id, this.primary_id);
             if (ret !== null) {
-                console.log("updating three id", _id);
                 this.update_three_id_pose(_id, ret.pos, ret.quat, ret.vx, ret.vy, ret.vz,
                     ret.covx, ret.covy, ret.covz, ret.covyaw);
             } else {
