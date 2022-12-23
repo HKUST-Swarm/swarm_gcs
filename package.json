@@ -21,5 +21,10 @@
     "jspack": "0.0.4",
     "rosnodejs": "^3.0.2",
     "underscore": "^1.9.1"
+  },
+  "dependencies": {
+    "rosnodejs": "^3.0.2",
+    "jspack": "0.0.4",
+    "underscore": "^1.9.1"
   }
 }

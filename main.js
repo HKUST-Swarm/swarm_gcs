@@ -14,6 +14,7 @@ function createWindow () {
       nodeIntegration: true,
       contextIsolation: false
     },
+    icon: __dirname + '/apple-touch-icon.png',
     // fullscreen: true
   })
 
