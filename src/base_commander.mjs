@@ -99,8 +99,6 @@ class BaseCommander {
         _ui.set_ros_conn("ERROR");
         self.connected = false;
         self.vicon_subs = {};
-        ros.close();
-
         setTimeout(() => {
             // _ui.select_next_server_ip();
         }, (500));
