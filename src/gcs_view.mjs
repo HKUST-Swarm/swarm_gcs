@@ -38,6 +38,7 @@ class SwarmGCSUI {
         this.server_ip_index = -1;
         this.server_ip_list = ["192.168.0.100", "127.0.0.1", location.hostname,  "10.10.1.10"];
         this.display_pcl = true;
+        this.low_bat_time = 60;
         
 
         this.global_local_mode = false;
@@ -526,7 +527,7 @@ class SwarmGCSUI {
             vo_latency:(status.vo_latency*1000).toFixed(0),
             lps_time_dt: this.view.lps_time - status.lps_time,
             bat_remain: status.bat_remain,
-            bat_good: status.bat_remain > 300,
+            bat_good: status.bat_remain > this.low_bat_time,
             _id:_id,
             ui:obj
         });
@@ -539,7 +540,7 @@ class SwarmGCSUI {
             // this.warn_battery_level(_id, status.bat_vol);
         // }
 
-        if (status.bat_remain < 300) {
+        if (status.bat_remain < this.low_bat_time) {
             this.warn_battery_remain(_id, status.bat_remain);
         }
 

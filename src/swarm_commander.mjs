@@ -44,6 +44,7 @@ class SwarmCommander extends BaseCommander{
         this.ui.cmder = this;        
 
         this.landing_speed = 0.2;
+        this.takeoff_speed = 0.6;
 
         this.last_recv_pcl = tnow();
         this.pcl_duration = 0.3;
@@ -497,7 +498,7 @@ class SwarmCommander extends BaseCommander{
     send_takeoff_cmd(_id) {
         console.log("Will send takeoff command");
         let takeoff_cmd = 5;
-        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id,  takeoff_cmd, 10000, 15000, 0, 0, 0, 0, 0, 0, 0, 0);
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id,  takeoff_cmd, 10000, this.takeoff_speed*10000, 0, 0, 0, 0, 0, 0, 0, 0);
         this.send_msg_to_swarm(scmd);
     }
 
@@ -595,9 +596,10 @@ class SwarmCommander extends BaseCommander{
                 var ox = pos.x, oy = pos.y, oz = pos.z;
                 var T = 30;
                 var enable_yaw = cmd;
-                console.log("Fly 8 around", ox, oy, oz, "for", id_drone);
+                var mode = 1;
+                console.log("Fly 8 around", ox, oy, oz, "for", id_drone, "mode", mode);
                 let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, id_drone, 16, 
-                    1, enable_yaw, T*10000, ox*10000, oy*10000, oz*10000, 0, 0, 0, 0);
+                    1, enable_yaw, T*10000, ox*10000, oy*10000, oz*10000, mode, 0, 0, 0);
                 this.send_msg_to_swarm(scmd);
             }
         } else {
