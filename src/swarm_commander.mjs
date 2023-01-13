@@ -597,6 +597,9 @@ class SwarmCommander extends BaseCommander{
                 var T = 30;
                 var enable_yaw = cmd;
                 var mode = 1;
+                if (enable_yaw) {
+                    mode = 0;
+                }
                 console.log("Fly 8 around", ox, oy, oz, "for", id_drone, "mode", mode);
                 let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, id_drone, 16, 
                     1, enable_yaw, T*10000, ox*10000, oy*10000, oz*10000, mode, 0, 0, 0);
