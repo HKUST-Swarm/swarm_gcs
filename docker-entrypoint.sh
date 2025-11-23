@@ -39,13 +39,28 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
+ensure_roscore() {
+  if ! rosparam list >/dev/null 2>&1; then
+    echo "Starting roscore..."
+    roscore >/tmp/roscore.log 2>&1 &
+    ROS_PIDS+=($!)
+    for _ in $(seq 1 30); do
+      if rosparam list >/dev/null 2>&1; then
+        return
+      fi
+      sleep 1
+    done
+    echo "Warning: roscore did not become ready within timeout" >&2
+  fi
+}
+
 start_inf_uwb() {
-  roslaunch inf_uwb_ros uwb_node_gcs.launch ${ROS_LAUNCH_ARGS:-} &
+  roslaunch --wait inf_uwb_ros uwb_node_gcs.launch ${ROS_LAUNCH_ARGS:-} &
   ROS_PIDS+=($!)
 }
 
 start_racer_ground() {
-  roslaunch swarm_exploration/exploration_manager/launch/ground_node.launch ${RACER_LAUNCH_ARGS:-} &
+  roslaunch --wait exploration_manager ground_node.launch ${RACER_LAUNCH_ARGS:-} &
   ROS_PIDS+=($!)
 }
 
@@ -76,6 +91,7 @@ run_electron() {
   fi
 }
 
+ensure_roscore
 start_inf_uwb
 start_racer_ground
 
