@@ -29,6 +29,14 @@
   <script src="./libs/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script src="./libs/roslib.min.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./third_party/three.js/build/three.module.js",
+        "three/examples/jsm/": "./third_party/three.js/examples/jsm/"
+      }
+    }
+  </script>
 
   <script>if (window.module) module = window.module;</script>
 
