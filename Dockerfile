@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgbm1 \
     libgtk-3-0 \
     libglib2.0-dev \
+    libarmadillo-dev \
     libnspr4 \
     libnss3 \
     libxcb-dri3-0 \
@@ -38,6 +39,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-noetic-rosapi \
     ros-noetic-rosbridge-server \
     ros-noetic-tf2-web-republisher \
+    ros-noetic-rviz \
     software-properties-common \
     sudo \
     unzip \
@@ -66,12 +68,34 @@ RUN git clone https://github.com/lcm-proj/lcm.git \
     && ldconfig \
     && rm -rf /tmp/lcm
 
+# Build and install nlopt v2.7.1
+WORKDIR /tmp
+RUN git clone -b v2.7.1 https://github.com/stevengj/nlopt.git \
+    && cd nlopt \
+    && mkdir build \
+    && cd build \
+    && cmake .. \
+    && make -j"$(nproc)" \
+    && sudo make install \
+    && ldconfig \
+    && rm -rf /tmp/nlopt
+
+# Install LKH-3
+WORKDIR /tmp
+RUN wget -q http://akira.ruc.dk/~keld/research/LKH-3/LKH-3.0.6.tgz \
+    && tar xzf LKH-3.0.6.tgz \
+    && cd LKH-3.0.6 \
+    && make \
+    && sudo cp LKH /usr/local/bin/ \
+    && cd /tmp \
+    && rm -rf LKH-3.0.6 LKH-3.0.6.tgz
+
 # Prepare catkin workspace for inf_uwb_ros
 RUN mkdir -p "$SWARM_WS/src"
 WORKDIR $SWARM_WS/src
 RUN git clone https://github.com/HKUST-Swarm/inf_uwb_ros.git \
     && git clone https://github.com/HKUST-Swarm/swarm_msgs.git \
-    && git clone https://github.com/HKUST-Swarm/bspline.git
+    && git clone https://github.com/Robotics-STAR-Lab/RACER.git
 
 RUN . /opt/ros/noetic/setup.sh \
     && rosdep update \

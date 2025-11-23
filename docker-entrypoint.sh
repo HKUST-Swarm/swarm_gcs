@@ -19,7 +19,7 @@ if [ -f "$SWARM_WS/devel/setup.bash" ]; then
 fi
 cd "$SWARM_GCS_ROOT"
 
-ROS_LAUNCH_PID=""
+ROS_PIDS=()
 MAIN_PID=""
 
 cleanup() {
@@ -28,16 +28,25 @@ cleanup() {
     kill "$MAIN_PID" 2>/dev/null || true
     wait "$MAIN_PID" 2>/dev/null || true
   fi
-  if [ -n "$ROS_LAUNCH_PID" ] && kill -0 "$ROS_LAUNCH_PID" 2>/dev/null; then
-    kill "$ROS_LAUNCH_PID" 2>/dev/null || true
-    wait "$ROS_LAUNCH_PID" 2>/dev/null || true
+  if [ ${#ROS_PIDS[@]} -gt 0 ]; then
+    for pid in "${ROS_PIDS[@]}"; do
+      if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+        kill "$pid" 2>/dev/null || true
+        wait "$pid" 2>/dev/null || true
+      fi
+    done
   fi
 }
 trap cleanup EXIT INT TERM
 
-start_roslaunch() {
+start_inf_uwb() {
   roslaunch inf_uwb_ros uwb_node_gcs.launch ${ROS_LAUNCH_ARGS:-} &
-  ROS_LAUNCH_PID=$!
+  ROS_PIDS+=($!)
+}
+
+start_racer_ground() {
+  roslaunch swarm_exploration/exploration_manager/launch/ground_node.launch ${RACER_LAUNCH_ARGS:-} &
+  ROS_PIDS+=($!)
 }
 
 start_main() {
@@ -67,7 +76,8 @@ run_electron() {
   fi
 }
 
-start_roslaunch
+start_inf_uwb
+start_racer_ground
 
 case "$MODE" in
   web)
