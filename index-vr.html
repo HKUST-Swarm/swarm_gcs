@@ -278,6 +278,9 @@
           <button type="button" class="btn btn-secondary btn-danger" v-on:click="stop_formation()">
               <img src="material-design-icons/navigation/drawable-xxxhdpi/ic_cancel_white_48dp.png" class="small_icon" />
             STOP</button>
+          <button type="button" class="btn btn-secondary btn-danger" v-on:click="command('restart_fc')" id="restart_fc">
+            <img src="material-design-icons/action/drawable-xxxhdpi/ic_autorenew_white_48dp.png" class="small_icon" />
+            RESTART_FC</button>
           <br/>
           
          <button type="button" v-on:click="formation(0)" v-bind:class="[formation_class[0]]">

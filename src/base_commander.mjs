@@ -128,6 +128,10 @@ class BaseCommander {
       console.log("Will send landing command");
   }
 
+  send_restart_fc_cmd(_id) {
+      console.log("Will send restart_fc command");
+  }
+
   send_flyto_cmd(_id, pos) {
       //When use VO coordinates
       console.log("Fly to ", pos);

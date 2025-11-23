@@ -538,6 +538,23 @@ class SwarmCommander extends BaseCommander{
         this.send_msg_to_swarm(scmd);
     }
 
+    send_restart_fc_cmd(_id) {
+        console.log("Will send restart flight controller command");
+        const restart_cmd = 99999;
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, restart_cmd,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0);
+        this.send_msg_to_swarm(scmd);
+    }
+
     send_simple_move(_id){
         console.log("Send simple move");
         try{

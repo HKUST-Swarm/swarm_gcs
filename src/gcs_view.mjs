@@ -398,9 +398,17 @@ class SwarmGCSUI {
                 return;
             }
         }
+        if (_cmd == "restart_fc") {
+            if (!confirm('Restart FC; Right? ID'+this.select_id)) {
+                return;
+            }
+        }
         switch (_cmd) {
             case "takeoff":
                 this.cmder.send_takeoff_cmd(this.select_id);
+                break;
+            case "restart_fc":
+                this.cmder.send_restart_fc_cmd(this.select_id);
                 break;
             case "landing":
                 this.cmder.send_landing_cmd(this.select_id);
@@ -846,6 +854,9 @@ class SwarmGCSUI {
                     break;
                 case "circle":
                     cmd = "绕圈";
+                    break;
+                case "restart_fc":
+                    cmd = "重启飞控";
                     break;
                 case "expo":
                     cmd = "探索";
