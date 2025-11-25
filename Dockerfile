@@ -103,7 +103,9 @@ RUN . /opt/ros/noetic/setup.sh \
     && rosdep install --from-paths "$SWARM_WS/src" -i -r -y
 
 WORKDIR $SWARM_WS
+RUN apt-get update && apt-get install -y --no-install-recommends libdw-dev
 RUN . /opt/ros/noetic/setup.sh \
+    && catkin_make --pkg swarm_msgs \
     && catkin_make
 
 # Copy Swarm GCS sources and install JS deps
