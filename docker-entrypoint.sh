@@ -55,7 +55,7 @@ ensure_roscore() {
 }
 
 start_inf_uwb() {
-  roslaunch --wait inf_uwb_ros uwb_node_gcs.launch ${ROS_LAUNCH_ARGS:-} &
+  roslaunch --wait inf_uwb_ros uwb_node_gcs.launch self_id:=999 ${ROS_LAUNCH_ARGS:-} &
   ROS_PIDS+=($!)
 }
 
