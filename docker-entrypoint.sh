@@ -55,12 +55,12 @@ ensure_roscore() {
 }
 
 start_inf_uwb() {
-  roslaunch --wait inf_uwb_ros uwb_node_gcs.launch ${ROS_LAUNCH_ARGS:-} &
+  roslaunch --wait inf_uwb_ros uwb_node_gcs.launch ${ROS_LAUNCH_ARGS:-} self_id:=4 &
   ROS_PIDS+=($!)
 }
 
 start_racer_ground() {
-  roslaunch --wait exploration_manager ground_node.launch ${RACER_LAUNCH_ARGS:-} &
+  roslaunch --wait exploration_manager ground_node.launch ${RACER_LAUNCH_ARGS:-} drone_id:=4 self_id:=4 &
   ROS_PIDS+=($!)
 }
 

@@ -466,7 +466,7 @@ class SwarmCommander extends BaseCommander{
         quat.setFromEuler(new THREE.Euler(0, 0, status.yaw));
         // this.ui.update_drone_selfpose(_id, pos, quat, 0, 0, 0);
         this.uav_pos[_id] = pos;
-        this.ui.update_reference_frame(_id, 1); //Temp code
+        // this.ui.update_reference_frame(_id, 1); //Temp code
     }
 
     t_last = {

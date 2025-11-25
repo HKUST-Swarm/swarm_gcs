@@ -95,7 +95,8 @@ RUN mkdir -p "$SWARM_WS/src"
 WORKDIR $SWARM_WS/src
 RUN git clone https://github.com/HKUST-Swarm/inf_uwb_ros.git \
     && git clone https://github.com/HKUST-Swarm/swarm_msgs.git \
-    && git clone https://github.com/Robotics-STAR-Lab/RACER.git
+    && git clone https://gitee.com/BUAA-SOAR/quadrotor_msgs.git \
+    && git clone https://gitee.com/BUAA-SOAR/swarm_exploration.git
 
 RUN . /opt/ros/noetic/setup.sh \
     && rosdep update \
