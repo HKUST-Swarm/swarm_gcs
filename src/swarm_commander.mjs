@@ -464,7 +464,7 @@ class SwarmCommander extends BaseCommander{
         var pos = new THREE.Vector3(status.x, status.y, status.z);
         var quat = new THREE.Quaternion();
         quat.setFromEuler(new THREE.Euler(0, 0, status.yaw));
-        // this.ui.update_drone_selfpose(_id, pos, quat, 0, 0, 0);
+        this.ui.update_drone_selfpose(_id, pos, quat, 0, 0, 0);
         this.uav_pos[_id] = pos;
         // this.ui.update_reference_frame(_id, 1); //Temp code
     }
@@ -538,6 +538,23 @@ class SwarmCommander extends BaseCommander{
         this.send_msg_to_swarm(scmd);
     }
 
+    send_restart_fc_cmd(_id) {
+        console.log("Will send restart flight controller command");
+        const restart_cmd = 99999;
+        let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, restart_cmd,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0);
+        this.send_msg_to_swarm(scmd);
+    }
+
     send_simple_move(_id){
         console.log("Send simple move");
         try{
@@ -568,12 +585,12 @@ class SwarmCommander extends BaseCommander{
                 this.move_simple_goal.publish(_msg);
             }
 
-            var exp_cmd = 30;
         }
         catch(e){
             console.log(e);
         }
 
+        let exp_cmd = 30;
         let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, exp_cmd, 
             0, 
             0, 
