@@ -31,6 +31,7 @@ DOCKER_ARGS=(
   -it
   --name "$CONTAINER_NAME"
   -v "$(pwd)":/opt/swarm_gcs
+  -v "$(pwd)/docker-entrypoint.sh":/usr/local/bin/docker-entrypoint.sh:ro
   -e RUN_MODE="$MODE"
   -e HTTP_PORT="$HOST_HTTP_PORT"
   -e ROSBRIDGE_PORT="$HOST_ROSBRIDGE_PORT"
