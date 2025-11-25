@@ -585,12 +585,12 @@ class SwarmCommander extends BaseCommander{
                 this.move_simple_goal.publish(_msg);
             }
 
-            var exp_cmd = 30;
         }
         catch(e){
             console.log(e);
         }
 
+        let exp_cmd = 30;
         let scmd = new mavlink.messages.swarm_remote_command (this.lps_time, _id, exp_cmd, 
             0, 
             0, 
