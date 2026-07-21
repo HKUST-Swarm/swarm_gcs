@@ -47,13 +47,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xvfb \
     && rm -rf /var/lib/apt/lists/*
 
-# Install modern Node.js runtime for Electron/http-server
+# Install the Node.js runtime used by the local web server and Electron
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get update \
     && apt-get install -y --no-install-recommends nodejs \
     && rm -rf /var/lib/apt/lists/*
-
-RUN npm install -g http-server
 
 # Build and install LCM v1.4.0 (follows upstream instructions, sudo kept for parity)
 WORKDIR /tmp
@@ -108,7 +106,7 @@ RUN . /opt/ros/noetic/setup.sh \
 # Copy Swarm GCS sources and install JS deps
 WORKDIR $SWARM_GCS_ROOT
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 COPY . .
 
 EXPOSE 8080

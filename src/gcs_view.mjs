@@ -1,5 +1,5 @@
 import {ThreeView} from "./ThreeView.mjs"
-import * as THREE from "../third_party/three.js/build/three.module.js";
+import * as THREE from "three";
 
 function tnow() {
     return new Date().getTime() / 1000;
@@ -913,7 +913,7 @@ Vue.component('uav-component', {
     <div v-on:click="select_uav(status.ui, status._id)" class="card uav_component" style="width: 100%; height=5em;">
 
     <h5>
-    <img src="material-design-icons/maps/drawable-xxxhdpi/ic_flight_white_48dp.png" class="small_icon" />{{status._id}}
+    <img src="assets/icons/ic_flight_white_48dp.png" class="small_icon" />{{status._id}}
     <span style="font-size:0.6em;text-align: right;" v-if="status.vo_valid">
     <span style="color:white;" class="number"> {{status.x}},{{status.y}},{{status.z}}/{{status.vo_latency}}ms </span>
     </span>

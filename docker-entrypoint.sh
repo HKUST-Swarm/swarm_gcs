@@ -72,7 +72,7 @@ start_main() {
 
 run_web() {
   local port="${HTTP_PORT:-8080}"
-  start_main http-server -a 0.0.0.0 -p "$port" -c-1
+  start_main env HOST=0.0.0.0 HTTP_PORT="$port" npm run web
 }
 
 run_electron() {
@@ -82,7 +82,7 @@ run_electron() {
     electron_args=($ELECTRON_ARGS)
   fi
 
-  local cmd=(npx electron main.cjs "${electron_args[@]}")
+  local cmd=(npm start -- "${electron_args[@]}")
 
   if [ -n "${USE_XVFB:-}" ]; then
     start_main xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" "${cmd[@]}"

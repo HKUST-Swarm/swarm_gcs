@@ -25,7 +25,7 @@ import {
 	SphereBufferGeometry,
 	TorusBufferGeometry,
 	Vector3
-} from "../third_party/three.js/build/three.module.js";
+} from "three";
 
 var TransformControls = function ( camera, domElement ) {
 

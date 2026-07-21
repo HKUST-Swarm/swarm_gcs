@@ -1,18 +1,18 @@
 
-import * as THREE from "../third_party/three.js/build/three.module.js";
+import * as THREE from "three";
 import { OrbitControls } from '../libs/OrbitControlsiPad.js';
-import { ThreeMFLoader } from '../third_party/three.js/examples/jsm/loaders/3MFLoader.js';
+import { ThreeMFLoader } from 'three/examples/jsm/loaders/3MFLoader.js';
 
-import { OBJLoader } from '../third_party/three.js/examples/jsm/loaders/OBJLoader.js';
-import { MTLLoader } from '../third_party/three.js/examples/jsm/loaders/MTLLoader.js';
-// import { MtlObjBridge } from "../third_party/three.js/examples/jsm/loaders/obj2/bridge/MtlObjBridge.js";
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
+// import { MtlObjBridge } from "three/examples/jsm/loaders/obj2/bridge/MtlObjBridge.js";
 import Stats from '../libs/stats.module.js';
-import { EffectComposer } from '../third_party/three.js/examples/jsm/postprocessing/EffectComposer.js';
-import { OutlinePass } from '../third_party/three.js/examples/jsm/postprocessing/OutlinePass.js';
-import { RenderPass } from '../third_party/three.js/examples/jsm/postprocessing/RenderPass.js';
-import { ShaderPass } from '../third_party/three.js/examples/jsm/postprocessing/ShaderPass.js';
-import { FXAAShader } from '../third_party/three.js/examples/jsm/shaders/FXAAShader.js';
-import { TransformControls } from '../third_party/three.js/examples/jsm/controls/TransformControls.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 
 import { SelectionBox } from './UAVSelectionBox.js';
 import { SelectionHelper } from './SelectionHelper.js';

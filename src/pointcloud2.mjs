@@ -17,7 +17,7 @@ function tnow() {
   return new Date().getTime() / 1000;
 }
 
-import * as THREE from "../third_party/three.js/build/three.module.js";
+import * as THREE from "three";
 
 
 function decode64(inbytes, outbytes, record_size, pointRatio) {

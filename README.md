@@ -22,121 +22,76 @@ The single drone mode on an iPad with dense map:
 # Related Paper
 __Omni-swarm: A Decentralized Omnidirectional Visual-Inertial-UWB State Estimation System for Aerial Swarm__ The VINS-Fisheye is a part of Omni-swarm. If you want use VIN-Fisheye as a part of your research project, please cite this paper.
 
-# Usage
-Way -1: Recommend: (Prerequirement: electron)
+# Install
+
+Node.js dependencies are the only JavaScript dependency source. The project no longer uses Git submodules for Three.js or Material Icons.
 
 ```bash
-$roscore #Start ros stuffs
-$cd ~/path-to-swarm_gcs/
-$electron . #Let nodejs inside swarm_gcs connect to ros!
+git clone https://github.com/HKUST-Swarm/swarm_gcs
+cd swarm_gcs
+npm ci
 ```
 
-## Testing
-To test the swarm_gcs in this mode, you may use the following command 
+`package-lock.json` pins the exact dependency graph. Run `npm ci` once while a registry or populated npm cache is available; Web and Electron execution does not require public Internet access afterwards.
+
+# Electron
+
+Start ROS as needed, then launch the desktop application with the project-local Electron binary:
+
+```bash
+roscore
+npm start
+```
+
+Electron first attempts the native `rosnodejs` transport and falls back to the local/LAN rosbridge WebSocket transport when native ROS packages are unavailable.
+
+# Web
+
+Start rosbridge and the dependency-free local static server:
+
+```bash
+roslaunch rosbridge_server rosbridge_websocket.launch
+npm run web
+```
+
+Open <http://127.0.0.1:8080>. To listen on another interface or port:
+
+```bash
+HOST=0.0.0.0 HTTP_PORT=8000 npm run web
+```
+
+The web server deliberately serves the repository root, including the locked browser distributions under `node_modules`. Bootstrap, jQuery, Popper, Vue, Three.js, roslib, fonts, models, and icons are all loaded locally.
+
+# Offline verification
+
+Verify the pinned packages and every runtime asset used by all four HTML entry points:
+
+```bash
+npm test
+```
+
+This guarantees offline operation after dependencies have been installed. A fresh clone on an air-gapped machine still needs either a populated npm cache or a prebuilt release containing `node_modules`.
+
+# Testing
+
+The deterministic emulator can be used without flight hardware:
 
 ```bash
 python3 emulator_for_gcs/main.py
 ```
 
-Way 0: Second convient way:
-
-```
-roslaunch rosbridge_server rosbridge_websocket.launch
-```
-
-Then open 
-
-http://swarm-gcs.xuhao1.me in browser on PC or mobile devices and select Server IP: (127.0.0.1 if you are running rosbridge on localhost)
-
-
-Way 2: Use nginx as webserver
-
-Clone swarm_gcs
-```
-cd path-to-swarm_gcs/
-git clone https://github.com/HKUST-Swarm/swarm_gcs
-git submodule init
-git submodule update
-```
-
-
-```
-sudo apt install nginx
-```
-
-Modified mime types for serving mjs file
->sudo gedit /etc/nginx/mime.types 
-
-Add     
->application/javascript mjs;
-
-after line 8.
-
-Modified default server
->sudo gedit /etc/nginx/sites-enabled/default
-
-to 
-```
-
-server {
-	listen 80 default_server;
-	listen [::]:80 default_server;
-
-	root path-to-swarm_gcs/swarm_gcs;
-
-	server_name _;
-
-	location / {
-		# First attempt to serve request as file, then
-		# as directory, then fall back to displaying a 404.
-		try_files $uri $uri/ =404;
-	}
-
-}
-
-```
-
-And reload nginx:
-```
-sudo nginx -s reload
-```
-Then open http://127.0.0.1 or open http://your-ip/ on mobile device (iPad 12 inch) or other computer. And for ros serving:
-
-```
-roslaunch launch/swarm_simulation.launch
-```
-
-Note: After updating code, you may need to clear your Chrome cache or refresh with Ctrl+F5.
-
-Way 3: Download executable from Release and unzip it
+For the ROS simulation stack:
 
 ```bash
-cd swarm_gcs-linux-x64
 roslaunch launch/swarm_simulation.launch
 ```
 
-```
-cd swarm_gcs-linux-x64
-./swarm_gcs
+# Packaging
+
+Build the MAVLink browser bundle and package the Electron application with local project tools:
+
+```bash
+npm run package
 ```
 
-Way 4:
-
-Clone swarm_gcs
-```
-cd path-to-swarm_gcs/
-git clone https://github.com/HKUST-Swarm/swarm_gcs
-git submodule init
-git submodule update
-```
-
-Install nodejs and http-server.
-```
-sudo npm install http-server -g
-```
-
-```
-cd swarm_gcs
-http-server -c-1
-```
-Then open http://127.0.0.1:8080 in Chrome
+Docker users can run `./gcs_docker.sh web` or `./gcs_docker.sh electron` after building the image.

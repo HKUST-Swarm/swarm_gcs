@@ -1,4 +1,4 @@
-import * as THREE from "../third_party/three.js/build/three.module.js";
+import * as THREE from "three";
 import { BaseCommander } from "./base_commander.mjs"
 import { PointCloud2 } from './pointcloud2.mjs';
 

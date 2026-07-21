@@ -6,7 +6,7 @@
 import {
 	Frustum,
 	Vector3
-} from "../third_party/three.js/build/three.module.js";
+} from "three";
 
 var SelectionBox = ( function () {
 

@@ -6,30 +6,38 @@ class BaseCommander {
 
       this.server_ip = this.ui.server_ip;
       this.nodejs = false;
+      const hasNodeRuntime = typeof require === "function";
 
       console.log("Initializing commander")
-      try {
-        const rosnodejs = require('rosnodejs');
-        rosnodejs.loadAllPackages();
-        rosnodejs.initNode('/swarm_gcs');
-        this.rosnodejs = rosnodejs;
-        this.nh = rosnodejs.nh;
-        this.nodejs = true;
-        console.log("nodejs interface success!");
-        this.connected = true;
-        ui.set_ros_conn("Nodejs");
-        this.setup_ros_sub_pub_nodejs();
-      }
-      catch (e){
-        console.error("Could not initialize rosnodejs:", e, "\n use websocket interface instead");
+      if (hasNodeRuntime) {
+        try {
+          const rosnodejs = require('rosnodejs');
+          rosnodejs.loadAllPackages();
+          rosnodejs.initNode('/swarm_gcs');
+          this.rosnodejs = rosnodejs;
+          this.nh = rosnodejs.nh;
+          this.nodejs = true;
+          console.log("nodejs interface success!");
+          this.connected = true;
+          ui.set_ros_conn("Nodejs");
+          this.setup_ros_sub_pub_nodejs();
+        }
+        catch (e){
+          console.error("Could not initialize rosnodejs:", e, "\n use websocket interface instead");
+          this.setup_ros_conn();
+        }
+      } else {
         this.setup_ros_conn();
       }
-      try {
-        this.setup_mavlink_on_udp(14550);
-        ui.set_ros_conn("UDP");
-      }
-      catch (e) {
-        console.error("Could not initialize mavlink on udp", e);
+
+      if (hasNodeRuntime) {
+        try {
+          this.setup_mavlink_on_udp(14550);
+          ui.set_ros_conn("UDP");
+        }
+        catch (e) {
+          console.error("Could not initialize mavlink on udp", e);
+        }
       }
 
       this.connected = false;

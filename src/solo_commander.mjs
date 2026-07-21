@@ -1,6 +1,6 @@
 import {BaseCommander} from "./base_commander.mjs"
 import {PointCloud2} from './pointcloud2.mjs';
-import * as THREE from "../third_party/three.js/build/three.module.js";
+import * as THREE from "three";
 
 function tnow() {
     return new Date().getTime() / 1000;
@@ -36,7 +36,7 @@ class SoloCommander extends BaseCommander {
         this.ui.set_drone_status(0, this.status); 
     }
     
-    setup_ros_sub_pub() {
+    setup_ros_sub_pub_websocket() {
         let self = this;
 
         // this.sub_pcl2.subscribe(function (msg) {
@@ -180,6 +180,5 @@ class SoloCommander extends BaseCommander {
     }
   
   }
-  
+
 export {SoloCommander}
-  

@@ -7,32 +7,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" >
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" >
   <meta name="apple-mobile-web-app-title" content="SwarmGCS">
-  <link rel="apple-touch-icon" type="image/png" href="./icon_ios.png" />
+  <link rel="apple-touch-icon" type="image/png" href="./apple-touch-icon.png" />
 
   <link rel="icon" type="image/png" href="./icon.png" />
 
-  <!-- Bootstrap CSS -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+  <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css" />
 
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-    crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-    crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-    crossorigin="anonymous"></script>
+  <script src="./node_modules/jquery/dist/jquery.slim.min.js"></script>
+  <script src="./node_modules/popper.js/dist/umd/popper.min.js"></script>
+  <script src="./node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
   <script src="./libs/mavlink_bundle.js"></script>
   <script src="./libs/jszip.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-  <script src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+  <script src="./node_modules/vue/dist/vue.min.js"></script>
+  <script src="./libs/roslib.min.js"></script>
   <script type="importmap">
     {
       "imports": {
-        "three": "./third_party/three.js/build/three.module.js",
-        "three/examples/jsm/": "./third_party/three.js/examples/jsm/"
+        "three": "./node_modules/three/build/three.module.js",
+        "three/examples/jsm/": "./node_modules/three/examples/jsm/"
       }
     }
   </script>
@@ -116,7 +108,7 @@
       
       <button type="button" v-on:click="range_select" class="btn btn-primary btn-lg"
       id="range_select">
-      <img src="material-design-icons/content/drawable-xxxhdpi/ic_select_all_white_48dp.png" class="small_icon" />
+      <img src="assets/icons/ic_select_all_white_48dp.png" class="small_icon" />
       Select</button>
 
       <div class="collapse navbar-collapse my-2 my-lg-0" id="navbarSupportedContent">
@@ -153,7 +145,7 @@
     <transition name="slide-fade">
       <div v-if="! is_wrap_swarm" class="container-fluid col-2 container-fluid" id="swarm-sidebar">
         <h2 id="SWARM">UAV</h2>
-        <img src="material-design-icons/navigation/drawable-hdpi/ic_expand_less_white_48dp.png" 
+        <img src="assets/icons/ic_expand_less_white_48dp.png"
         class="middle_icon" 
         style="position: absolute; right:1em; top:1em;"
         v-on:click="wrap_swarm()"
@@ -166,7 +158,7 @@
       </div>
       <div v-else class="container-fluid col-2 container-fluid" id="swarm-sidebar-wrap">
           <h2 id="SWARM">UAV</h2>
-          <img src="material-design-icons/navigation/drawable-hdpi/ic_expand_more_white_48dp.png" 
+          <img src="assets/icons/ic_expand_more_white_48dp.png"
           class="middle_icon" 
           style="position: absolute; right:1em; top:1em;"
           v-on:click="unwrap_swarm()"
@@ -178,27 +170,27 @@
     <div style="position: fixed; left:1em; bottom:1em" id="stats"></div>
         <div id="cmdAera">
         <h4>Command Aera: <span id="select_id" style="color:red"> 
-          <img src="material-design-icons/maps/drawable-xxxhdpi/ic_flight_white_48dp.png" style="height: 1.4em; width: 1.4em;" />
+          <img src="assets/icons/ic_flight_white_48dp.png" style="height: 1.4em; width: 1.4em;" />
           {{selected_uav}} </span></h4>
         <div>
           <button type="button" v-on:click="command('takeoff')" class="btn btn-lg btn-primary" id="takeoff">
-            <img src="material-design-icons/action/drawable-xxxhdpi/ic_flight_takeoff_white_48dp.png" class="small_icon" />
+            <img src="assets/icons/ic_flight_takeoff_white_48dp.png" class="small_icon" />
             Takeoff
           </button>
           <button type="button" v-on:click="command('landing')" class="btn btn-primary btn-lg" id="landing">
-              <img src="material-design-icons/action/drawable-xxxhdpi/ic_flight_land_white_48dp.png" class="small_icon" />
+              <img src="assets/icons/ic_flight_land_white_48dp.png" class="small_icon" />
             Landing</button>
           <button type="button" v-on:click="command('emergency')" class="btn btn-primary btn-lg" style="color:red" id="emlanding">
-            <img src="material-design-icons/alert/drawable-xxxhdpi/ic_warning_white_48dp.png" class="small_icon" />
+            <img src="assets/icons/ic_warning_white_48dp.png" class="small_icon" />
             Emergency
           </button>
           <button type="button" v-on:click="command('flyto')" class="btn btn-primary btn-lg" style="color:red"
             id="flyto">
-            <img src="material-design-icons/content/drawable-xxxhdpi/ic_forward_white_48dp.png" class="small_icon" />
+            <img src="assets/icons/ic_forward_white_48dp.png" class="small_icon" />
             Flyto</button>
             <button type="button" v-on:click="range_select" class="btn btn-primary btn-lg"
             id="range_select">
-            <img src="material-design-icons/content/drawable-xxxhdpi/ic_select_all_white_48dp.png" class="small_icon" />
+            <img src="assets/icons/ic_select_all_white_48dp.png" class="small_icon" />
             Select</button>
           <hr />
           <button type="button" class="btn btn-lg btn-secondary">Mission A</button>

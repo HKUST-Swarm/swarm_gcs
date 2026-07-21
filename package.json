@@ -1,32 +1,46 @@
 {
   "name": "swarm_gcs",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
-  "main": "main.js",
+  "description": "Offline-capable ROS swarm ground control station",
+  "main": "main.cjs",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "web": "node scripts/serve.mjs",
+    "check:offline": "node scripts/check-offline.mjs",
+    "build:mavlink": "browserify libs/mavlink.js -o libs/mavlink_bundle.js && node scripts/normalize-mavlink-bundle.mjs",
+    "package": "npm run build:mavlink && electron-packager . swarm_gcs --overwrite",
+    "test": "npm run check:offline"
   },
   "type": "module",
-  "repository": "https://github.com/electron/electron-quick-start",
+  "repository": "https://github.com/HKUST-Swarm/swarm_gcs",
   "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
+    "electron",
+    "ros",
+    "ground-control-station",
+    "uav",
+    "swarm"
   ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
+  "author": "HKUST-Swarm",
+  "license": "GPL-3.0-only",
   "devDependencies": {
-    "electron": "^16.0.7",
+    "@electron/packager": "18.3.6",
+    "browserify": "17.0.0",
+    "electron": "16.2.8",
     "jspack": "0.0.4",
-    "rosnodejs": "^3.0.2",
-    "underscore": "^1.9.1"
+    "underscore": "1.13.8"
   },
   "dependencies": {
-    "jspack": "0.0.4",
-    "rosnodejs": "^3.0.2",
-    "three": "^0.170.0",
-    "underscore": "^1.9.1"
+    "bootstrap": "4.3.1",
+    "jquery": "3.7.1",
+    "popper.js": "1.14.7",
+    "rosnodejs": "3.0.2",
+    "three": "0.129.0",
+    "vue": "2.6.14"
+  },
+  "overrides": {
+    "rosnodejs": {
+      "async": "2.6.4",
+      "moment": "2.30.1"
+    }
   }
 }
